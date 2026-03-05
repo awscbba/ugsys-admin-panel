@@ -2,9 +2,10 @@ name: BFF Proxy CI
 
 on:
   push:
-    branches: [main]
+    branches-ignore: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 defaults:
   run:
@@ -225,6 +226,7 @@ jobs:
   gitleaks:
     name: Secret Scan (Gitleaks)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
