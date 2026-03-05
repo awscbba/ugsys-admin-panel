@@ -54,10 +54,7 @@ class UserProfileClient(ProfileClient):
         timeout: float = _DEFAULT_TIMEOUT,
     ) -> None:
         self._cb = circuit_breaker
-        self._base_url = (
-            base_url
-            or os.environ.get("USER_PROFILE_SERVICE_BASE_URL", "")
-        ).rstrip("/")
+        self._base_url = (base_url or os.environ.get("USER_PROFILE_SERVICE_BASE_URL", "")).rstrip("/")
         self._timeout = timeout
 
     # ------------------------------------------------------------------
@@ -157,7 +154,7 @@ class UserProfileClient(ProfileClient):
         if response.is_success:
             if response.status_code == 204 or not response.content:
                 return {}
-            return response.json()
+            return dict(response.json())
 
         if response.status_code == 404:
             raise NotFoundError(

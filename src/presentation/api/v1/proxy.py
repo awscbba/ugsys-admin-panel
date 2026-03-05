@@ -15,8 +15,8 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import Response
 
 from src.application.services.proxy_service import ProxyService
-from src.presentation.middleware.jwt_validation import get_current_user
 from src.domain.entities.admin_user import AdminUser
+from src.presentation.middleware.jwt_validation import get_current_user
 
 router = APIRouter(prefix="/proxy", tags=["proxy"])
 

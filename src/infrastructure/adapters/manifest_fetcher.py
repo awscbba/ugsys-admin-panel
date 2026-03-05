@@ -64,7 +64,7 @@ async def fetch_manifest(url: str, *, timeout: float = _DEFAULT_TIMEOUT) -> dict
         )
 
     try:
-        return response.json()
+        return dict(response.json())
     except Exception as exc:
         raise ValidationError(
             f"Manifest response is not valid JSON: {url}",

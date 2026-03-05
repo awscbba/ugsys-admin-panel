@@ -30,7 +30,7 @@ import structlog
 # ---------------------------------------------------------------------------
 
 _HTML_ENTITY_MAP: dict[str, str] = {
-    "&": "&amp;",   # Must be first to avoid double-encoding
+    "&": "&amp;",  # Must be first to avoid double-encoding
     "<": "&lt;",
     ">": "&gt;",
     '"': "&quot;",
@@ -61,7 +61,7 @@ def sanitize_string(value: str) -> str:
     return result
 
 
-def sanitize_for_log(value: Any) -> str:  # noqa: ANN401
+def sanitize_for_log(value: Any) -> str:
     """Convert *value* to a string and HTML entity-encode it.
 
     Safe to call with any type — non-string values are converted via
@@ -73,6 +73,7 @@ def sanitize_for_log(value: Any) -> str:  # noqa: ANN401
 # ---------------------------------------------------------------------------
 # structlog configuration
 # ---------------------------------------------------------------------------
+
 
 def _configure_structlog() -> None:
     """Configure structlog for JSON output with standard processors."""
@@ -106,4 +107,5 @@ def get_logger(name: str) -> structlog.BoundLogger:
         log = get_logger(__name__)
         log.info("service_registered", service_name=sanitize_string(name))
     """
-    return structlog.get_logger(name)
+    result: structlog.BoundLogger = structlog.get_logger(name)
+    return result

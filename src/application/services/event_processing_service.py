@@ -79,7 +79,7 @@ class EventProcessingService:
 
         try:
             await self._dispatch(event_type, detail)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             # Log failure and continue (Req 12.6).
             logger.error(
                 "event_processing_failed",
@@ -149,7 +149,7 @@ class EventProcessingService:
             logger.warning("login_failed_event_missing_user_id")
             return
 
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.UTC)
         now_iso = now.isoformat()
         cutoff = (now - datetime.timedelta(seconds=_SUSPICIOUS_WINDOW_SECONDS)).isoformat()
 
@@ -157,10 +157,7 @@ class EventProcessingService:
         self._login_failures[user_id].append(now_iso)
 
         # Evict failures outside the 1-hour window.
-        self._login_failures[user_id] = [
-            ts for ts in self._login_failures[user_id]
-            if ts >= cutoff
-        ]
+        self._login_failures[user_id] = [ts for ts in self._login_failures[user_id] if ts >= cutoff]
 
         failure_count = len(self._login_failures[user_id])
         logger.debug(

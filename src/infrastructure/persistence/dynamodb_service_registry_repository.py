@@ -38,34 +38,40 @@ _SK = "SERVICE"
 # Serialisation helpers
 # ---------------------------------------------------------------------------
 
+
 def _serialize_manifest(manifest: PluginManifest | None) -> str | None:
     """Convert a PluginManifest to a JSON string for DynamoDB storage."""
     if manifest is None:
         return None
-    return json.dumps({
-        "name": manifest.name,
-        "version": manifest.version,
-        "entryPoint": manifest.entry_point,
-        "routes": [
-            {"path": r.path, "requiredRoles": list(r.required_roles), "label": r.label}
-            for r in manifest.routes
-        ],
-        "navigation": [
-            {
-                "label": n.label,
-                "icon": n.icon,
-                "path": n.path,
-                "requiredRoles": list(n.required_roles),
-                **({"group": n.group} if n.group is not None else {}),
-                "order": n.order,
-            }
-            for n in manifest.navigation
-        ],
-        **({"stylesheetUrl": manifest.stylesheet_url} if manifest.stylesheet_url is not None else {}),
-        **({"configSchema": manifest.config_schema} if manifest.config_schema is not None else {}),
-        **({"healthEndpoint": manifest.health_endpoint} if manifest.health_endpoint is not None else {}),
-        **({"requiredPermissions": manifest.required_permissions} if manifest.required_permissions is not None else {}),
-    })
+    return json.dumps(
+        {
+            "name": manifest.name,
+            "version": manifest.version,
+            "entryPoint": manifest.entry_point,
+            "routes": [
+                {"path": r.path, "requiredRoles": list(r.required_roles), "label": r.label} for r in manifest.routes
+            ],
+            "navigation": [
+                {
+                    "label": n.label,
+                    "icon": n.icon,
+                    "path": n.path,
+                    "requiredRoles": list(n.required_roles),
+                    **({"group": n.group} if n.group is not None else {}),
+                    "order": n.order,
+                }
+                for n in manifest.navigation
+            ],
+            **({"stylesheetUrl": manifest.stylesheet_url} if manifest.stylesheet_url is not None else {}),
+            **({"configSchema": manifest.config_schema} if manifest.config_schema is not None else {}),
+            **({"healthEndpoint": manifest.health_endpoint} if manifest.health_endpoint is not None else {}),
+            **(
+                {"requiredPermissions": manifest.required_permissions}
+                if manifest.required_permissions is not None
+                else {}
+            ),
+        }
+    )
 
 
 def _deserialize_manifest(raw: str | None) -> PluginManifest | None:
@@ -147,6 +153,7 @@ def _from_item(item: dict[str, Any]) -> ServiceRegistration:
 # ---------------------------------------------------------------------------
 # Repository implementation
 # ---------------------------------------------------------------------------
+
 
 class DynamoDBServiceRegistryRepository(ServiceRegistryRepository):
     """Concrete DynamoDB adapter for the Service Registry port."""
@@ -238,9 +245,7 @@ class DynamoDBServiceRegistryRepository(ServiceRegistryRepository):
         try:
             self._table.put_item(
                 Item=item,
-                ConditionExpression=(
-                    "attribute_not_exists(PK) OR version < :v"
-                ),
+                ConditionExpression=("attribute_not_exists(PK) OR version < :v"),
                 ExpressionAttributeValues={":v": registration.version},
             )
         except ClientError as exc:

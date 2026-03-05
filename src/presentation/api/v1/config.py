@@ -27,6 +27,7 @@ router = APIRouter(tags=["config"])
 # Request model
 # ---------------------------------------------------------------------------
 
+
 class ConfigSubmitRequest(BaseModel):
     config: dict[str, Any]
 
@@ -34,6 +35,7 @@ class ConfigSubmitRequest(BaseModel):
 # ---------------------------------------------------------------------------
 # Dependency
 # ---------------------------------------------------------------------------
+
 
 def _get_config_service(request: Request) -> ConfigService:
     return request.app.state.config_service  # type: ignore[no-any-return]
@@ -43,16 +45,15 @@ def _get_config_service(request: Request) -> ConfigService:
 # Routes
 # ---------------------------------------------------------------------------
 
+
 @router.post("/proxy/{service_name}/config")
 async def submit_config(
     service_name: str,
     body: ConfigSubmitRequest,
     request: Request,
     config_service: ConfigService = Depends(_get_config_service),
-    current_user: AdminUser = Depends(
-        require_roles(AdminRole.ADMIN, AdminRole.SUPER_ADMIN)
-    ),
-) -> dict:
+    current_user: AdminUser = Depends(require_roles(AdminRole.ADMIN, AdminRole.SUPER_ADMIN)),
+) -> dict[str, Any]:
     """Submit a configuration change for a registered service.
 
     Validates the payload against the service's configSchema before

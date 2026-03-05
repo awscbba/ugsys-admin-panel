@@ -13,10 +13,10 @@ from typing import Any
 import structlog
 
 from src.domain.entities.admin_user import AdminUser
-from src.domain.exceptions import AuthenticationError, ExternalServiceError
+from src.domain.exceptions import ExternalServiceError
 from src.domain.repositories.identity_client import IdentityClient
 from src.domain.repositories.profile_client import ProfileClient
-from src.domain.value_objects.role import ADMIN_ROLES, AdminRole
+from src.domain.value_objects.role import AdminRole
 
 logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
 
@@ -147,7 +147,7 @@ class AuthService:
             profile = await self._profile.get_profile(user_id)
             display_name = profile.get("display_name") or profile.get("name") or email
             avatar_url = profile.get("avatar_url")
-        except (ExternalServiceError, Exception):  # noqa: BLE001
+        except (ExternalServiceError, Exception):
             logger.warning("auth_profile_enrichment_failed", user_id=user_id)
 
         return AdminUser(

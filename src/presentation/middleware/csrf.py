@@ -27,7 +27,7 @@ import os
 import secrets
 import time
 
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp
@@ -57,7 +57,7 @@ def _generate_csrf_token() -> str:
 def _verify_csrf_token(token: str) -> bool:
     """Verify that a CSRF token has a valid HMAC signature."""
     parts = token.split(".")
-    if len(parts) != 3:  # noqa: PLR2004
+    if len(parts) != 3:
         return False
     random_part, timestamp, provided_sig = parts
     payload = f"{random_part}.{timestamp}"
@@ -76,7 +76,7 @@ class CsrfMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next: object) -> Response:  # type: ignore[override]
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         # Validate CSRF token on state-changing requests.
         if request.method in _STATE_CHANGING_METHODS:
             cookie_token = request.cookies.get(_CSRF_COOKIE_NAME)
@@ -114,7 +114,7 @@ class CsrfMiddleware(BaseHTTPMiddleware):
                     },
                 )
 
-        response: Response = await call_next(request)  # type: ignore[arg-type]
+        response: Response = await call_next(request)
 
         # Issue a fresh CSRF token cookie if one is not already present.
         if not request.cookies.get(_CSRF_COOKIE_NAME):

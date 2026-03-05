@@ -31,10 +31,19 @@ logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
 _CONFIG_TIMEOUT = 10.0  # seconds
 
 # Sensitive field patterns to exclude from diff logging (Req 10.6).
-_SENSITIVE_PATTERNS = frozenset({
-    "password", "secret", "token", "key", "auth",
-    "credential", "private", "cert", "api_key",
-})
+_SENSITIVE_PATTERNS = frozenset(
+    {
+        "password",
+        "secret",
+        "token",
+        "key",
+        "auth",
+        "credential",
+        "private",
+        "cert",
+        "api_key",
+    }
+)
 
 
 def _is_sensitive_field(field_name: str) -> bool:
@@ -149,11 +158,7 @@ class ConfigService:
             raise NotFoundError(f"Service '{service_name}' not found in registry.")
 
         # Validate against configSchema if present (Req 10.4, 10.5).
-        config_schema = (
-            registration.manifest.config_schema
-            if registration.manifest
-            else None
-        )
+        config_schema = registration.manifest.config_schema if registration.manifest else None
         if config_schema:
             self._validate_against_schema(payload, config_schema)
 
@@ -180,7 +185,7 @@ class ConfigService:
                     "diff_keys": list(diff.keys()),
                 },
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.warning("config_event_publish_failed", error=str(exc))
 
         return result
@@ -243,5 +248,5 @@ class ConfigService:
 
         try:
             return response.json()  # type: ignore[no-any-return]
-        except Exception:  # noqa: BLE001
+        except Exception:
             return {"status": "ok"}

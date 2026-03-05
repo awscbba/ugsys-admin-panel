@@ -8,9 +8,9 @@ from .service_status import ServiceStatus
 
 __all__ = [
     "ADMIN_ROLES",
+    "NON_ADMIN_ROLES",
     "AdminRole",
     "HealthState",
-    "NON_ADMIN_ROLES",
     "NavigationEntry",
     "RouteDescriptor",
     "ServiceStatus",

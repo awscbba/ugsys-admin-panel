@@ -29,8 +29,8 @@ from src.domain.value_objects.health_state import HealthState
 
 logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
 
-_HEALTH_CHECK_TIMEOUT = 5.0   # seconds (Req 8.4)
-_DEFAULT_POLL_INTERVAL = 60   # seconds (Req 8.1)
+_HEALTH_CHECK_TIMEOUT = 5.0  # seconds (Req 8.4)
+_DEFAULT_POLL_INTERVAL = 60  # seconds (Req 8.1)
 
 
 class HealthAggregatorService:
@@ -75,7 +75,7 @@ class HealthAggregatorService:
         """Run a single polling cycle across all registered services."""
         try:
             services = await self._repo.list_all()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.error("health_poll_registry_error", error=str(exc))
             return
 
@@ -154,18 +154,14 @@ class HealthAggregatorService:
         health_status = HealthStatus(
             service_name=service_name,
             status=status,
-            last_check=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            last_check=datetime.datetime.now(datetime.UTC).isoformat(),
             response_time_ms=elapsed_ms,
             version=str(version),
             status_code=status_code,
         )
 
         # Detect healthy → unhealthy transition and emit event (Req 8.6).
-        if (
-            previous is not None
-            and previous.status == HealthState.HEALTHY
-            and status == HealthState.UNHEALTHY
-        ):
+        if previous is not None and previous.status == HealthState.HEALTHY and status == HealthState.UNHEALTHY:
             try:
                 await self._events.publish(
                     "admin.service.health_changed",
@@ -181,7 +177,7 @@ class HealthAggregatorService:
                     service_name=service_name,
                     new_status=status.value,
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 logger.error(
                     "health_event_publish_failed",
                     service_name=service_name,
@@ -220,8 +216,9 @@ class HealthAggregatorService:
 
         if response.is_success:
             try:
-                return response.json()
-            except Exception:  # noqa: BLE001
+                result: dict[str, Any] = dict(response.json())
+                return result
+            except Exception:
                 return {}  # 2xx but non-JSON body → still healthy
 
         # Non-2xx → degraded (Req 8.5).

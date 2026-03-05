@@ -93,10 +93,7 @@ def validate_manifest(data: dict[str, Any]) -> PluginManifest:
 def _collect_schema_errors(data: dict[str, Any]) -> list[str]:
     """Return a list of human-readable validation error messages."""
     validator = jsonschema.Draft7Validator(PLUGIN_MANIFEST_SCHEMA)
-    return sorted(
-        _format_error(err)
-        for err in validator.iter_errors(data)
-    )
+    return sorted(_format_error(err) for err in validator.iter_errors(data))
 
 
 def _format_error(error: jsonschema.ValidationError) -> str:

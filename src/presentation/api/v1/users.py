@@ -10,12 +10,14 @@ Requirements: 9.1, 9.4, 9.5
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, Query, Request
 from pydantic import BaseModel
 
 from src.application.services.user_management_service import UserManagementService
 from src.domain.entities.admin_user import AdminUser
-from src.presentation.middleware.jwt_validation import AdminRole, get_current_user, require_roles
+from src.presentation.middleware.jwt_validation import AdminRole, require_roles
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -23,6 +25,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 # ---------------------------------------------------------------------------
 # Request / Response models
 # ---------------------------------------------------------------------------
+
 
 class ChangeRolesRequest(BaseModel):
     roles: list[str]
@@ -36,6 +39,7 @@ class ChangeStatusRequest(BaseModel):
 # Dependency
 # ---------------------------------------------------------------------------
 
+
 def _get_user_management_service(request: Request) -> UserManagementService:
     return request.app.state.user_management_service  # type: ignore[no-any-return]
 
@@ -44,6 +48,7 @@ def _get_user_management_service(request: Request) -> UserManagementService:
 # Routes
 # ---------------------------------------------------------------------------
 
+
 @router.get("")
 async def list_users(
     request: Request,
@@ -51,10 +56,8 @@ async def list_users(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     user_management_service: UserManagementService = Depends(_get_user_management_service),
-    current_user: AdminUser = Depends(
-        require_roles(AdminRole.ADMIN, AdminRole.SUPER_ADMIN)
-    ),
-) -> dict:
+    current_user: AdminUser = Depends(require_roles(AdminRole.ADMIN, AdminRole.SUPER_ADMIN)),
+) -> dict[str, Any]:
     """Return paginated, searchable user list enriched with profile data.
 
     Restricted to super_admin and admin roles.
@@ -94,9 +97,7 @@ async def change_status(
     body: ChangeStatusRequest,
     request: Request,
     user_management_service: UserManagementService = Depends(_get_user_management_service),
-    current_user: AdminUser = Depends(
-        require_roles(AdminRole.ADMIN, AdminRole.SUPER_ADMIN)
-    ),
+    current_user: AdminUser = Depends(require_roles(AdminRole.ADMIN, AdminRole.SUPER_ADMIN)),
 ) -> None:
     """Activate or deactivate a user (super_admin, admin).
 

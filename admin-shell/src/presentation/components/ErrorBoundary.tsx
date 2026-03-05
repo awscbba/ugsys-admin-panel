@@ -19,8 +19,8 @@
  *   </ErrorBoundary>
  */
 
-import React, { Component, type ErrorInfo, type ReactNode } from 'react';
-import { getComponentLogger } from '../../utils/logger';
+import { Component, type ErrorInfo, type ReactNode } from "react";
+import { getComponentLogger } from "../../utils/logger";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -40,8 +40,11 @@ interface ErrorBoundaryState {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  private readonly logger = getComponentLogger('ErrorBoundary');
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  private readonly logger = getComponentLogger("ErrorBoundary");
 
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -54,11 +57,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    const { name = 'unknown' } = this.props;
+    const { name = "unknown" } = this.props;
 
     this.setState({ errorInfo });
 
-    this.logger.error('Rendering failure caught by ErrorBoundary', {
+    this.logger.error("Rendering failure caught by ErrorBoundary", {
       boundaryName: name,
       errorMessage: error.message,
       errorName: error.name,
@@ -67,9 +70,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   handleRetry(): void {
-    const { name = 'unknown' } = this.props;
+    const { name = "unknown" } = this.props;
 
-    this.logger.info('User triggered ErrorBoundary retry', { boundaryName: name });
+    this.logger.info("User triggered ErrorBoundary retry", {
+      boundaryName: name,
+    });
 
     this.setState({ hasError: false, error: null, errorInfo: null });
   }
@@ -108,42 +113,49 @@ interface DefaultFallbackProps {
   onRetry: () => void;
 }
 
-function DefaultFallback({ name, error, errorInfo, onRetry }: DefaultFallbackProps): ReactNode {
+function DefaultFallback({
+  name,
+  error,
+  errorInfo,
+  onRetry,
+}: DefaultFallbackProps): ReactNode {
   const isDev = import.meta.env.DEV;
-  const label = name ? `"${name}"` : 'this section';
+  const label = name ? `"${name}"` : "this section";
 
   return (
     <div
       role="alert"
       style={{
-        padding: '1.5rem',
-        border: '1px solid #f87171',
-        borderRadius: '0.5rem',
-        backgroundColor: '#fef2f2',
-        color: '#991b1b',
-        fontFamily: 'sans-serif',
+        padding: "1.5rem",
+        border: "1px solid #f87171",
+        borderRadius: "0.5rem",
+        backgroundColor: "#fef2f2",
+        color: "#991b1b",
+        fontFamily: "sans-serif",
       }}
     >
-      <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.125rem', fontWeight: 600 }}>
+      <h2
+        style={{ margin: "0 0 0.5rem", fontSize: "1.125rem", fontWeight: 600 }}
+      >
         Something went wrong in {label}
       </h2>
 
-      <p style={{ margin: '0 0 1rem', fontSize: '0.875rem', color: '#7f1d1d' }}>
-        An unexpected error occurred while rendering this component. You can try again or reload
-        the page.
+      <p style={{ margin: "0 0 1rem", fontSize: "0.875rem", color: "#7f1d1d" }}>
+        An unexpected error occurred while rendering this component. You can try
+        again or reload the page.
       </p>
 
       <button
         type="button"
         onClick={onRetry}
         style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: '#dc2626',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '0.375rem',
-          cursor: 'pointer',
-          fontSize: '0.875rem',
+          padding: "0.5rem 1rem",
+          backgroundColor: "#dc2626",
+          color: "#fff",
+          border: "none",
+          borderRadius: "0.375rem",
+          cursor: "pointer",
+          fontSize: "0.875rem",
           fontWeight: 500,
         }}
       >
@@ -154,31 +166,37 @@ function DefaultFallback({ name, error, errorInfo, onRetry }: DefaultFallbackPro
       {isDev && error !== null && (
         <details
           style={{
-            marginTop: '1rem',
-            fontSize: '0.75rem',
-            color: '#374151',
-            backgroundColor: '#fff',
-            border: '1px solid #e5e7eb',
-            borderRadius: '0.25rem',
-            padding: '0.75rem',
+            marginTop: "1rem",
+            fontSize: "0.75rem",
+            color: "#374151",
+            backgroundColor: "#fff",
+            border: "1px solid #e5e7eb",
+            borderRadius: "0.25rem",
+            padding: "0.75rem",
           }}
         >
-          <summary style={{ cursor: 'pointer', fontWeight: 600, marginBottom: '0.5rem' }}>
+          <summary
+            style={{
+              cursor: "pointer",
+              fontWeight: 600,
+              marginBottom: "0.5rem",
+            }}
+          >
             Error details (dev only)
           </summary>
 
-          <p style={{ margin: '0 0 0.25rem' }}>
+          <p style={{ margin: "0 0 0.25rem" }}>
             <strong>{error.name}:</strong> {error.message}
           </p>
 
           {error.stack !== undefined && (
             <pre
               style={{
-                margin: '0.5rem 0 0',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                fontSize: '0.7rem',
-                color: '#6b7280',
+                margin: "0.5rem 0 0",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                fontSize: "0.7rem",
+                color: "#6b7280",
               }}
             >
               {error.stack}
@@ -187,14 +205,16 @@ function DefaultFallback({ name, error, errorInfo, onRetry }: DefaultFallbackPro
 
           {errorInfo?.componentStack !== undefined && (
             <>
-              <p style={{ margin: '0.75rem 0 0.25rem', fontWeight: 600 }}>Component stack:</p>
+              <p style={{ margin: "0.75rem 0 0.25rem", fontWeight: 600 }}>
+                Component stack:
+              </p>
               <pre
                 style={{
                   margin: 0,
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  fontSize: '0.7rem',
-                  color: '#6b7280',
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  fontSize: "0.7rem",
+                  color: "#6b7280",
                 }}
               >
                 {errorInfo.componentStack}

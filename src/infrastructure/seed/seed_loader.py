@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -49,7 +49,7 @@ def _resolve_base_url(service_name: str, default_base_url: str) -> str:
 
 def _build_registration(entry: dict[str, Any], seed_version: int) -> ServiceRegistration:
     """Convert a single seed JSON entry into a ``ServiceRegistration``."""
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     service_name: str = entry["service_name"]
     base_url = _resolve_base_url(service_name, entry["base_url"])
 

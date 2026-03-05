@@ -13,8 +13,10 @@ Requirements: 13.3
 
 from __future__ import annotations
 
+from typing import Any
+
 from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 _MAX_BODY_BYTES: int = 1 * 1024 * 1024  # 1 MB
@@ -66,9 +68,10 @@ class BodySizeLimitMiddleware:
         body_chunks: list[bytes] = []
         too_large = False
 
-        async def limited_receive() -> dict:  # type: ignore[type-arg]
+        async def limited_receive() -> dict[str, Any]:
             nonlocal total_bytes, too_large
-            message = await receive()
+            raw = await receive()
+            message: dict[str, Any] = dict(raw)
             if message["type"] == "http.request":
                 chunk: bytes = message.get("body", b"")
                 total_bytes += len(chunk)
@@ -98,7 +101,7 @@ class BodySizeLimitMiddleware:
             # Reconstruct a receive callable that replays the buffered body.
             body_sent = False
 
-            async def replay_receive() -> dict:  # type: ignore[type-arg]
+            async def replay_receive() -> dict[str, Any]:
                 nonlocal body_sent
                 if not body_sent:
                     body_sent = True

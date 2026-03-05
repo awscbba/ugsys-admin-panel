@@ -57,10 +57,7 @@ class EventBridgePublisher(EventPublisher):
         region_name: str | None = None,
         client: Any | None = None,
     ) -> None:
-        self._event_bus_name = (
-            event_bus_name
-            or os.environ.get("EVENT_BUS_NAME", _EVENT_BUS_NAME)
-        )
+        self._event_bus_name = event_bus_name or os.environ.get("EVENT_BUS_NAME", _EVENT_BUS_NAME)
         self._region = region_name or os.environ.get("AWS_DEFAULT_REGION", "us-east-1")
         self._client = client or boto3.client(
             "events",
@@ -104,13 +101,8 @@ class EventBridgePublisher(EventPublisher):
         # EventBridge returns per-entry failure counts even on HTTP 200.
         failed = response.get("FailedEntryCount", 0)
         if failed:
-            error_entries = [
-                e for e in response.get("Entries", []) if e.get("ErrorCode")
-            ]
-            details = "; ".join(
-                f"{e.get('ErrorCode')}: {e.get('ErrorMessage')}"
-                for e in error_entries
-            )
+            error_entries = [e for e in response.get("Entries", []) if e.get("ErrorCode")]
+            details = "; ".join(f"{e.get('ErrorCode')}: {e.get('ErrorMessage')}" for e in error_entries)
             raise RepositoryError(
                 f"EventBridge rejected event '{event_type}': {details}",
             )

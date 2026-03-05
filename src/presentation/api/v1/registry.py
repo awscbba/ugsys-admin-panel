@@ -11,17 +11,19 @@ Requirements: 4.1, 4.4, 4.7, 10.1
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, Query, Request
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 
 from src.application.services.registry_service import RegistryService
+from src.domain.entities.admin_user import AdminUser
 from src.domain.entities.service_registration import ServiceRegistration
 from src.presentation.middleware.jwt_validation import (
     AdminRole,
     get_current_user,
     require_roles,
 )
-from src.domain.entities.admin_user import AdminUser
 
 router = APIRouter(prefix="/registry", tags=["registry"])
 
@@ -29,6 +31,7 @@ router = APIRouter(prefix="/registry", tags=["registry"])
 # ---------------------------------------------------------------------------
 # Request / Response models
 # ---------------------------------------------------------------------------
+
 
 class RegisterServiceRequest(BaseModel):
     service_name: str
@@ -76,6 +79,7 @@ def _to_response(reg: ServiceRegistration) -> ServiceResponse:
 # Dependency: resolve RegistryService from app.state
 # ---------------------------------------------------------------------------
 
+
 def _get_registry_service(request: Request) -> RegistryService:
     return request.app.state.registry_service  # type: ignore[no-any-return]
 
@@ -83,6 +87,7 @@ def _get_registry_service(request: Request) -> RegistryService:
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
 
 @router.post("/services", response_model=ServiceResponse, status_code=201)
 async def register_service(
@@ -151,7 +156,7 @@ async def get_config_schema(
     request: Request,
     registry_service: RegistryService = Depends(_get_registry_service),
     current_user: AdminUser = Depends(get_current_user),
-) -> dict:
+) -> dict[str, Any]:
     """Return the JSON Schema for a service's configuration form.
 
     Requirements: 10.1

@@ -23,15 +23,15 @@ import time
 from collections import deque
 from threading import Lock
 
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp
 
 _LOGIN_PATH = "/api/v1/auth/login"
-_USER_LIMIT = 60       # requests per minute per authenticated user
-_LOGIN_LIMIT = 10      # requests per minute per IP on the login endpoint
-_WINDOW_SECONDS = 60   # sliding window size in seconds
+_USER_LIMIT = 60  # requests per minute per authenticated user
+_LOGIN_LIMIT = 10  # requests per minute per IP on the login endpoint
+_WINDOW_SECONDS = 60  # sliding window size in seconds
 
 
 class _SlidingWindowCounter:
@@ -85,7 +85,7 @@ class RateLimitingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next: object) -> Response:  # type: ignore[override]
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         path = request.url.path
 
         # --- Per-IP login rate limit ---
@@ -104,7 +104,7 @@ class RateLimitingMiddleware(BaseHTTPMiddleware):
             if not allowed:
                 return self._rate_limit_response(retry_after)
 
-        return await call_next(request)  # type: ignore[arg-type]
+        return await call_next(request)
 
     # ------------------------------------------------------------------
     # Helpers

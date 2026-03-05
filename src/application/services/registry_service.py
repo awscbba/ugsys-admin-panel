@@ -111,7 +111,7 @@ class RegistryService:
         ServiceRegistration
             The persisted registration entity.
         """
-        now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        now = datetime.datetime.now(datetime.UTC).isoformat()
 
         # Check if service already exists to determine version.
         existing = await self._repo.get_by_name(service_name)
@@ -175,10 +175,7 @@ class RegistryService:
         Requirements: 4.4
         """
         all_services = await self._repo.list_all()
-        return [
-            svc for svc in all_services
-            if _user_satisfies_min_role(user_roles, svc.min_role)
-        ]
+        return [svc for svc in all_services if _user_satisfies_min_role(user_roles, svc.min_role)]
 
     async def deregister_service(
         self,
@@ -225,8 +222,7 @@ class RegistryService:
         # Block seed entry deletion without force flag (Req 4.5).
         if registration.registration_source == "seed" and not force:
             raise AuthorizationError(
-                f"Service '{service_name}' is a seed entry and cannot be deleted "
-                "without force=true.",
+                f"Service '{service_name}' is a seed entry and cannot be deleted without force=true.",
                 error_code="FORBIDDEN",
             )
 

@@ -50,7 +50,7 @@ async def receive_event(request: Request) -> JSONResponse:
     """
     try:
         event: dict[str, Any] = await request.json()
-    except Exception:  # noqa: BLE001
+    except Exception:
         logger.warning("internal_events_invalid_json")
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,

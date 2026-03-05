@@ -84,8 +84,9 @@ _SEED_CONFIG_PATH = os.environ.get("SEED_CONFIG_PATH", "config/seed_services.jso
 # Lifespan — startup and shutdown
 # ---------------------------------------------------------------------------
 
+
 @contextlib.asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Application lifespan: wire DI on startup, clean up on shutdown."""
     logger.info("bff_startup_begin")
 
@@ -163,7 +164,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     try:
         await load_seed_services(registry_repo, config_path=_SEED_CONFIG_PATH)
         logger.info("seed_services_loaded")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.error("seed_services_load_failed", error=str(exc))
 
     # --- Start health polling ---
@@ -182,6 +183,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 # ---------------------------------------------------------------------------
 # Application factory
 # ---------------------------------------------------------------------------
+
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
@@ -217,12 +219,12 @@ def create_app() -> FastAPI:
     #
     # Registration order (innermost → outermost):
     # -----------------------------------------------------------------------
-    app.add_middleware(AuditLoggingMiddleware)       # 6. innermost
-    app.add_middleware(JwtValidationMiddleware)       # 5.
-    app.add_middleware(RateLimitingMiddleware)        # 4.
-    app.add_middleware(CsrfMiddleware)               # 3.
-    app.add_middleware(SecurityHeadersMiddleware)     # 2.
-    app.add_middleware(CorrelationIdMiddleware)       # 1. outermost
+    app.add_middleware(AuditLoggingMiddleware)  # 6. innermost
+    app.add_middleware(JwtValidationMiddleware)  # 5.
+    app.add_middleware(RateLimitingMiddleware)  # 4.
+    app.add_middleware(CsrfMiddleware)  # 3.
+    app.add_middleware(SecurityHeadersMiddleware)  # 2.
+    app.add_middleware(CorrelationIdMiddleware)  # 1. outermost
 
     # -----------------------------------------------------------------------
     # Exception handlers — translate domain exceptions to JSON responses

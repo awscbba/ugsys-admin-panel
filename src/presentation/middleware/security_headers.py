@@ -18,7 +18,7 @@ Requirements: 13.1, 13.5
 
 from __future__ import annotations
 
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
@@ -38,14 +38,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next: object) -> Response:  # type: ignore[override]
-        response: Response = await call_next(request)  # type: ignore[arg-type]
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+        response: Response = await call_next(request)
 
         # Add all required security headers.
         for header, value in _SECURITY_HEADERS.items():
             response.headers[header] = value
 
         # Remove Server header to prevent technology fingerprinting.
-        response.headers.pop("Server", None)
+        if "server" in response.headers:
+            del response.headers["server"]
 
         return response

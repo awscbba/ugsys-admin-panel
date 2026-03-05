@@ -38,5 +38,5 @@ async def health_check() -> HealthCheckResponse:
     return HealthCheckResponse(
         status="healthy",
         service="ugsys-admin-panel-bff",
-        timestamp=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        timestamp=datetime.datetime.now(datetime.UTC).isoformat(),
     )

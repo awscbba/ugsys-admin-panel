@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import datetime
 
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
@@ -45,7 +45,7 @@ def _extract_target_service(path: str) -> str:
     For all other paths returns ``"bff"`` (the BFF itself is the target).
     """
     if path.startswith(_PROXY_PREFIX):
-        remainder = path[len(_PROXY_PREFIX):]
+        remainder = path[len(_PROXY_PREFIX) :]
         service_name = remainder.split("/")[0]
         return service_name or "bff"
     return "bff"
@@ -70,8 +70,8 @@ class AuditLoggingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next: object) -> Response:  # type: ignore[override]
-        response: Response = await call_next(request)  # type: ignore[arg-type]
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+        response: Response = await call_next(request)
 
         # Only audit state-changing methods.
         if request.method not in _AUDITED_METHODS:
@@ -81,7 +81,7 @@ class AuditLoggingMiddleware(BaseHTTPMiddleware):
         # the response returned to the client.
         try:
             await self._write_audit_entry(request, response)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
         return response
@@ -100,14 +100,12 @@ class AuditLoggingMiddleware(BaseHTTPMiddleware):
 
         # Extract actor information from request state (set by JWT middleware).
         actor_user_id: str = getattr(request.state, "user_id", "anonymous")
-        actor_display_name: str = getattr(
-            request.state, "display_name", actor_user_id
-        )
+        actor_display_name: str = getattr(request.state, "display_name", actor_user_id)
         correlation_id: str = getattr(request.state, "correlation_id", "")
 
         entry = AuditLogEntry(
             id="",  # Repository generates the ULID on save.
-            timestamp=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            timestamp=datetime.datetime.now(datetime.UTC).isoformat(),
             actor_user_id=actor_user_id,
             actor_display_name=actor_display_name,
             action=_build_action(method, path),

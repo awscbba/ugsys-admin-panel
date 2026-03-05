@@ -29,11 +29,13 @@ from src.domain.repositories.service_registry_repository import ServiceRegistryR
 logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
 
 # Headers to strip from downstream responses (Req 7.7, 13.5).
-_STRIP_RESPONSE_HEADERS = frozenset({
-    "x-forwarded-for",
-    "x-real-ip",
-    "server",
-})
+_STRIP_RESPONSE_HEADERS = frozenset(
+    {
+        "x-forwarded-for",
+        "x-real-ip",
+        "server",
+    }
+)
 
 _PROXY_TIMEOUT = 10.0  # seconds (Req 7.5)
 
@@ -150,7 +152,8 @@ class ProxyService:
                 path=path,
                 error=str(exc),
             )
-            from src.domain.exceptions import ExternalServiceError  # noqa: PLC0415
+            from src.domain.exceptions import ExternalServiceError
+
             raise ExternalServiceError(
                 f"Could not reach service '{service_name}'.",
             ) from exc
@@ -185,9 +188,7 @@ class ProxyService:
             route_path: str = route.path if hasattr(route, "path") else route.get("path", "")
             if path.startswith(route_path.rstrip("/")):
                 required_roles: list[str] = (
-                    list(route.required_roles)
-                    if hasattr(route, "required_roles")
-                    else route.get("requiredRoles", [])
+                    list(route.required_roles) if hasattr(route, "required_roles") else route.get("requiredRoles", [])
                 )
                 if required_roles and not set(user_roles).intersection(required_roles):
                     raise AuthorizationError(
@@ -205,15 +206,19 @@ class ProxyService:
         """Build the outbound header dict for the downstream request."""
         # Start with a filtered copy of incoming headers.
         # Drop hop-by-hop and sensitive headers.
-        _skip = frozenset({
-            "host", "connection", "transfer-encoding", "te",
-            "trailer", "upgrade", "proxy-authorization",
-            "cookie",  # Don't forward BFF cookies to downstream.
-        })
-        outbound = {
-            k: v for k, v in headers.items()
-            if k.lower() not in _skip
-        }
+        _skip = frozenset(
+            {
+                "host",
+                "connection",
+                "transfer-encoding",
+                "te",
+                "trailer",
+                "upgrade",
+                "proxy-authorization",
+                "cookie",  # Don't forward BFF cookies to downstream.
+            }
+        )
+        outbound = {k: v for k, v in headers.items() if k.lower() not in _skip}
         # Attach Admin User's JWT (Req 7.2).
         outbound["Authorization"] = f"Bearer {user_jwt}"
         # Propagate correlation ID (Req 7.3).
@@ -223,15 +228,13 @@ class ProxyService:
     @staticmethod
     def _strip_internal_headers(headers: dict[str, str]) -> dict[str, str]:
         """Remove internal headers from the downstream response (Req 7.7, 13.5)."""
-        return {
-            k: v for k, v in headers.items()
-            if k.lower() not in _STRIP_RESPONSE_HEADERS
-        }
+        return {k: v for k, v in headers.items() if k.lower() not in _STRIP_RESPONSE_HEADERS}
 
     @staticmethod
     def _safe_error_body(response: httpx.Response) -> bytes:
         """Return a safe error body without internal service details (Req 7.8)."""
-        import json  # noqa: PLC0415
+        import json
+
         try:
             # Try to parse the downstream error and extract only safe fields.
             data = response.json()
@@ -240,7 +243,7 @@ class ProxyService:
                 "message": data.get("message", "An error occurred in the downstream service."),
                 "data": {},
             }
-        except Exception:  # noqa: BLE001
+        except Exception:
             safe = {
                 "error": "DOWNSTREAM_ERROR",
                 "message": "An error occurred in the downstream service.",

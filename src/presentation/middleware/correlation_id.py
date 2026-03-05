@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import uuid
 
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
@@ -29,14 +29,14 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next: object) -> Response:  # type: ignore[override]
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         # Extract existing ID or generate a fresh UUID.
         correlation_id: str = request.headers.get(_HEADER) or str(uuid.uuid4())
 
         # Attach to request state for use by handlers and services.
         request.state.correlation_id = correlation_id
 
-        response: Response = await call_next(request)  # type: ignore[arg-type]
+        response: Response = await call_next(request)
 
         # Propagate to response so the client can correlate logs.
         response.headers[_HEADER] = correlation_id

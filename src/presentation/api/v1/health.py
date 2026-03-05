@@ -15,9 +15,9 @@ from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 
 from src.application.services.health_aggregator_service import HealthAggregatorService
+from src.domain.entities.admin_user import AdminUser
 from src.domain.entities.health_status import HealthStatus
 from src.presentation.middleware.jwt_validation import AdminRole, require_roles
-from src.domain.entities.admin_user import AdminUser
 
 router = APIRouter(prefix="/health", tags=["health"])
 
@@ -25,6 +25,7 @@ router = APIRouter(prefix="/health", tags=["health"])
 # ---------------------------------------------------------------------------
 # Response models
 # ---------------------------------------------------------------------------
+
 
 class HealthStatusResponse(BaseModel):
     service_name: str
@@ -50,6 +51,7 @@ def _to_response(hs: HealthStatus) -> HealthStatusResponse:
 # Dependency
 # ---------------------------------------------------------------------------
 
+
 def _get_health_service(request: Request) -> HealthAggregatorService:
     return request.app.state.health_aggregator_service  # type: ignore[no-any-return]
 
@@ -58,13 +60,12 @@ def _get_health_service(request: Request) -> HealthAggregatorService:
 # Routes
 # ---------------------------------------------------------------------------
 
+
 @router.get("/services", response_model=list[HealthStatusResponse])
 async def get_health_statuses(
     request: Request,
     health_service: HealthAggregatorService = Depends(_get_health_service),
-    current_user: AdminUser = Depends(
-        require_roles(AdminRole.ADMIN, AdminRole.SUPER_ADMIN)
-    ),
+    current_user: AdminUser = Depends(require_roles(AdminRole.ADMIN, AdminRole.SUPER_ADMIN)),
 ) -> list[HealthStatusResponse]:
     """Return aggregated health status of all registered services.
 

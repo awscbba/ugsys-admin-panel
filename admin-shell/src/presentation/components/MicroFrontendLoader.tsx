@@ -19,10 +19,10 @@
  *   unmount?(container: HTMLElement): void  (optional)
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ErrorBoundary } from './ErrorBoundary';
-import { getComponentLogger } from '../../utils/logger';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ErrorBoundary } from "./ErrorBoundary";
+import { getComponentLogger } from "../../utils/logger";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -49,14 +49,14 @@ export interface MicroFrontendLoaderProps {
   /** Human-readable service name used in error messages and logs. */
   serviceName: string;
   /** Shared context forwarded to the micro-frontend's `mount()` function. */
-  context: Omit<MicroFrontendContext, 'navigate'>;
+  context: Omit<MicroFrontendContext, "navigate">;
 }
 
-type LoadState = 'idle' | 'loading' | 'mounted' | 'error';
+type LoadState = "idle" | "loading" | "mounted" | "error";
 
 // ── Logger ────────────────────────────────────────────────────────────────────
 
-const logger = getComponentLogger('MicroFrontendLoader');
+const logger = getComponentLogger("MicroFrontendLoader");
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -76,22 +76,22 @@ function loadBundleViaScriptTag(
 ): Promise<MicroFrontendModule> {
   return new Promise((resolve, reject) => {
     // If the bundle was already loaded (e.g. hot-reload scenario), reuse it.
-    const existing = (window as Record<string, unknown>)[globalKey] as
-      | MicroFrontendModule
-      | undefined;
+    const existing = (window as unknown as Record<string, unknown>)[
+      globalKey
+    ] as MicroFrontendModule | undefined;
     if (existing?.mount) {
       resolve(existing);
       return;
     }
 
-    const script = document.createElement('script');
+    const script = document.createElement("script");
     script.src = entryPoint;
-    script.type = 'text/javascript';
+    script.type = "text/javascript";
     script.async = true;
-    script.dataset['mfeKey'] = globalKey;
+    script.dataset["mfeKey"] = globalKey;
 
     script.onload = () => {
-      const mod = (window as Record<string, unknown>)[globalKey] as
+      const mod = (window as unknown as Record<string, unknown>)[globalKey] as
         | MicroFrontendModule
         | undefined;
 
@@ -109,7 +109,11 @@ function loadBundleViaScriptTag(
     };
 
     script.onerror = () => {
-      reject(new Error(`Failed to load bundle from "${entryPoint}" (network error or 404).`));
+      reject(
+        new Error(
+          `Failed to load bundle from "${entryPoint}" (network error or 404).`,
+        ),
+      );
     };
 
     document.head.appendChild(script);
@@ -118,7 +122,7 @@ function loadBundleViaScriptTag(
 
 /** Derives a stable global key from the service name (alphanumeric + underscores). */
 function toGlobalKey(serviceName: string): string {
-  return `__mfe_${serviceName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+  return `__mfe_${serviceName.replace(/[^a-zA-Z0-9]/g, "_")}`;
 }
 
 /** Removes the <script> tag injected for a given global key. */
@@ -139,21 +143,21 @@ export function LoadingSkeleton(): React.ReactElement {
       aria-label="Loading micro-frontend"
       role="status"
       style={{
-        padding: '1.5rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.75rem',
+        padding: "1.5rem",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem",
       }}
     >
       {[80, 60, 90, 50].map((width) => (
         <div
           key={width}
           style={{
-            height: '1rem',
+            height: "1rem",
             width: `${width}%`,
-            borderRadius: '0.25rem',
-            backgroundColor: '#e5e7eb',
-            animation: 'pulse 1.5s ease-in-out infinite',
+            borderRadius: "0.25rem",
+            backgroundColor: "#e5e7eb",
+            animation: "pulse 1.5s ease-in-out infinite",
           }}
         />
       ))}
@@ -175,34 +179,42 @@ interface LoadErrorProps {
   onRetry: () => void;
 }
 
-function LoadError({ serviceName, message, onRetry }: LoadErrorProps): React.ReactElement {
+function LoadError({
+  serviceName,
+  message,
+  onRetry,
+}: LoadErrorProps): React.ReactElement {
   return (
     <div
       role="alert"
       style={{
-        padding: '1.5rem',
-        border: '1px solid #f87171',
-        borderRadius: '0.5rem',
-        backgroundColor: '#fef2f2',
-        color: '#991b1b',
-        fontFamily: 'sans-serif',
+        padding: "1.5rem",
+        border: "1px solid #f87171",
+        borderRadius: "0.5rem",
+        backgroundColor: "#fef2f2",
+        color: "#991b1b",
+        fontFamily: "sans-serif",
       }}
     >
-      <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.125rem', fontWeight: 600 }}>
+      <h2
+        style={{ margin: "0 0 0.5rem", fontSize: "1.125rem", fontWeight: 600 }}
+      >
         Failed to load "{serviceName}"
       </h2>
-      <p style={{ margin: '0 0 1rem', fontSize: '0.875rem', color: '#7f1d1d' }}>{message}</p>
+      <p style={{ margin: "0 0 1rem", fontSize: "0.875rem", color: "#7f1d1d" }}>
+        {message}
+      </p>
       <button
         type="button"
         onClick={onRetry}
         style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: '#dc2626',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '0.375rem',
-          cursor: 'pointer',
-          fontSize: '0.875rem',
+          padding: "0.5rem 1rem",
+          backgroundColor: "#dc2626",
+          color: "#fff",
+          border: "none",
+          borderRadius: "0.375rem",
+          cursor: "pointer",
+          fontSize: "0.875rem",
           fontWeight: 500,
         }}
       >
@@ -231,8 +243,8 @@ function MicroFrontendLoaderInner({
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const moduleRef = useRef<MicroFrontendModule | null>(null);
-  const [loadState, setLoadState] = useState<LoadState>('idle');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [loadState, setLoadState] = useState<LoadState>("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [retryKey, setRetryKey] = useState(0);
 
   const globalKey = toGlobalKey(serviceName);
@@ -241,7 +253,11 @@ function MicroFrontendLoaderInner({
   const fullContext: MicroFrontendContext = {
     ...context,
     navigate: (path: string) => {
-      logger.logUserAction({ action: 'mfe-navigate', target: path, serviceName });
+      logger.logUserAction({
+        action: "mfe-navigate",
+        target: path,
+        serviceName,
+      });
       navigate(path);
     },
   };
@@ -254,7 +270,7 @@ function MicroFrontendLoaderInner({
       try {
         mod.unmount?.(container);
       } catch (err) {
-        logger.warn('Error during micro-frontend unmount', {
+        logger.warn("Error during micro-frontend unmount", {
           serviceName,
           error: err instanceof Error ? err.message : String(err),
         });
@@ -262,7 +278,7 @@ function MicroFrontendLoaderInner({
     }
 
     if (container) {
-      container.innerHTML = '';
+      container.innerHTML = "";
     }
 
     removeScriptTag(globalKey);
@@ -272,12 +288,12 @@ function MicroFrontendLoaderInner({
   useEffect(() => {
     let cancelled = false;
 
-    setLoadState('loading');
-    setErrorMessage('');
+    setLoadState("loading");
+    setErrorMessage("");
 
     logger.logComponentEvent({
-      event: 'mfe-load-start',
-      component: 'MicroFrontendLoader',
+      event: "mfe-load-start",
+      component: "MicroFrontendLoader",
       serviceName,
       entryPoint,
     });
@@ -293,30 +309,41 @@ function MicroFrontendLoaderInner({
 
         try {
           mod.mount(container, fullContext);
-          setLoadState('mounted');
+          setLoadState("mounted");
 
           logger.logComponentEvent({
-            event: 'mfe-mounted',
-            component: 'MicroFrontendLoader',
+            event: "mfe-mounted",
+            component: "MicroFrontendLoader",
             serviceName,
           });
         } catch (err) {
           const msg =
-            err instanceof Error ? err.message : 'Unknown error during micro-frontend mount.';
-          logger.error('Micro-frontend mount() threw an error', { serviceName, error: msg });
+            err instanceof Error
+              ? err.message
+              : "Unknown error during micro-frontend mount.";
+          logger.error("Micro-frontend mount() threw an error", {
+            serviceName,
+            error: msg,
+          });
           setErrorMessage(msg);
-          setLoadState('error');
+          setLoadState("error");
         }
       })
       .catch((err: unknown) => {
         if (cancelled) return;
 
         const msg =
-          err instanceof Error ? err.message : 'Unknown error loading micro-frontend bundle.';
+          err instanceof Error
+            ? err.message
+            : "Unknown error loading micro-frontend bundle.";
 
-        logger.error('Micro-frontend bundle failed to load', { serviceName, entryPoint, error: msg });
+        logger.error("Micro-frontend bundle failed to load", {
+          serviceName,
+          entryPoint,
+          error: msg,
+        });
         setErrorMessage(msg);
-        setLoadState('error');
+        setLoadState("error");
       });
 
     return () => {
@@ -328,26 +355,37 @@ function MicroFrontendLoaderInner({
   }, [entryPoint, globalKey, serviceName, retryKey]);
 
   const handleRetry = useCallback(() => {
-    logger.info('User triggered micro-frontend retry', { serviceName, entryPoint });
+    logger.info("User triggered micro-frontend retry", {
+      serviceName,
+      entryPoint,
+    });
     // Remove the stale script tag so the bundle is re-fetched
     removeScriptTag(globalKey);
-    delete (window as Record<string, unknown>)[globalKey];
+    delete (window as unknown as Record<string, unknown>)[globalKey];
     setRetryKey((k) => k + 1);
   }, [entryPoint, globalKey, serviceName]);
 
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      {loadState === 'loading' && <LoadingSkeleton />}
+    <div style={{ width: "100%", height: "100%" }}>
+      {loadState === "loading" && <LoadingSkeleton />}
 
-      {loadState === 'error' && (
-        <LoadError serviceName={serviceName} message={errorMessage} onRetry={handleRetry} />
+      {loadState === "error" && (
+        <LoadError
+          serviceName={serviceName}
+          message={errorMessage}
+          onRetry={handleRetry}
+        />
       )}
 
       {/* Isolated container — always rendered so the ref is stable */}
       <div
         ref={containerRef}
         data-mfe={serviceName}
-        style={{ display: loadState === 'mounted' ? 'block' : 'none', width: '100%', height: '100%' }}
+        style={{
+          display: loadState === "mounted" ? "block" : "none",
+          width: "100%",
+          height: "100%",
+        }}
       />
     </div>
   );
@@ -359,7 +397,9 @@ function MicroFrontendLoaderInner({
  * Public component. Wraps the loader in a per-micro-frontend `ErrorBoundary`
  * so a rendering crash inside the mounted bundle doesn't propagate to the shell.
  */
-export function MicroFrontendLoader(props: MicroFrontendLoaderProps): React.ReactElement {
+export function MicroFrontendLoader(
+  props: MicroFrontendLoaderProps,
+): React.ReactElement {
   return (
     <ErrorBoundary name={props.serviceName}>
       <MicroFrontendLoaderInner {...props} />

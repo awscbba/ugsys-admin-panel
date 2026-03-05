@@ -23,18 +23,22 @@ Requirements: 2.3, 2.4, 2.6
 
 from __future__ import annotations
 
+import contextlib
 import os
 import time
+from collections.abc import Callable
 from typing import Any
 
 from fastapi import Depends, Request
 from jose import ExpiredSignatureError, JWTError, jwt
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp
 
 from src.domain.entities.admin_user import AdminUser
 from src.domain.value_objects.role import ADMIN_ROLES, AdminRole
+
+__all__ = ["AdminRole", "JwtValidationMiddleware", "get_current_user", "require_roles"]
 
 # ---------------------------------------------------------------------------
 # Configuration — loaded from environment variables
@@ -58,14 +62,16 @@ _REFRESH_THRESHOLD_SECONDS = 60
 _ALLOWED_ALGORITHMS = ["RS256"]
 
 # Paths that do NOT require authentication.
-_PUBLIC_PATHS = frozenset({
-    "/api/v1/auth/login",
-    "/api/v1/auth/refresh",
-    "/health",
-    "/docs",
-    "/openapi.json",
-    "/redoc",
-})
+_PUBLIC_PATHS = frozenset(
+    {
+        "/api/v1/auth/login",
+        "/api/v1/auth/refresh",
+        "/health",
+        "/docs",
+        "/openapi.json",
+        "/redoc",
+    }
+)
 
 
 def _decode_token(token: str) -> dict[str, Any]:
@@ -77,7 +83,7 @@ def _decode_token(token: str) -> dict[str, Any]:
         raise JWTError("JWT_PUBLIC_KEY environment variable is not configured.")
 
     # Decode with full validation — signature, audience, issuer, expiry.
-    return jwt.decode(
+    decoded: dict[str, Any] = jwt.decode(
         token,
         _JWT_PUBLIC_KEY,
         algorithms=_ALLOWED_ALGORITHMS,
@@ -90,6 +96,7 @@ def _decode_token(token: str) -> dict[str, Any]:
             "verify_iss": True,
         },
     )
+    return decoded
 
 
 def _is_near_expiry(claims: dict[str, Any]) -> bool:
@@ -97,7 +104,8 @@ def _is_near_expiry(claims: dict[str, Any]) -> bool:
     exp = claims.get("exp")
     if exp is None:
         return False
-    return (exp - time.time()) <= _REFRESH_THRESHOLD_SECONDS
+    exp_val: float = float(exp)
+    return (exp_val - time.time()) <= _REFRESH_THRESHOLD_SECONDS
 
 
 def _build_unauthorized_response(message: str = "Authentication required.") -> JSONResponse:
@@ -122,12 +130,12 @@ class JwtValidationMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next: object) -> Response:  # type: ignore[override]
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         path = request.url.path
 
         # Skip validation for public endpoints.
         if path in _PUBLIC_PATHS:
-            return await call_next(request)  # type: ignore[arg-type]
+            return await call_next(request)
 
         token = request.cookies.get(_ACCESS_TOKEN_COOKIE)
         if not token:
@@ -142,9 +150,7 @@ class JwtValidationMiddleware(BaseHTTPMiddleware):
 
         alg = unverified_header.get("alg", "")
         if alg.upper() in ("HS256", "NONE", "") or alg not in _ALLOWED_ALGORITHMS:
-            return _build_unauthorized_response(
-                f"Token algorithm '{alg}' is not permitted."
-            )
+            return _build_unauthorized_response(f"Token algorithm '{alg}' is not permitted.")
 
         try:
             claims = _decode_token(token)
@@ -159,7 +165,7 @@ class JwtValidationMiddleware(BaseHTTPMiddleware):
         request.state.email = claims.get("email", "")
         request.state.roles = claims.get("roles", [])
 
-        response: Response = await call_next(request)  # type: ignore[arg-type]
+        response: Response = await call_next(request)
 
         # Auto-refresh when token is near expiry and a refresh token exists.
         if _is_near_expiry(claims):
@@ -167,28 +173,30 @@ class JwtValidationMiddleware(BaseHTTPMiddleware):
             if refresh_token:
                 # Attempt refresh — if it fails we still return the current
                 # response; the next request will hit the expired-token path.
-                await _attempt_token_refresh(refresh_token, response)
+                await _attempt_token_refresh(refresh_token, response, request)
 
         return response
 
 
-async def _attempt_token_refresh(refresh_token: str, response: Response) -> None:
+async def _attempt_token_refresh(refresh_token: str, response: Response, request: Request) -> None:
     """Try to refresh the token pair and set new cookies on the response.
 
     This is a best-effort operation; failures are silently ignored so the
     current response is not disrupted.  The next request will trigger a
     proper 401 if the token has since expired.
+
+    The identity client is resolved from ``request.app.state.identity_client``
+    (set during application startup in ``main.py``) to avoid importing
+    infrastructure adapters directly from the presentation layer.
     """
     try:
-        # Import here to avoid circular imports; the identity client is
-        # injected at the application layer, not available in middleware.
-        # In the full wired application this would use the DI container.
-        # For now we import the adapter directly as a fallback.
-        from src.infrastructure.adapters.identity_manager_client import (  # noqa: PLC0415
-            IdentityManagerClient,
-        )
+        # Resolve the identity client from app state (set in lifespan).
+        client = getattr(getattr(request, "app", None), "state", None)
+        if client is not None:
+            client = getattr(client, "identity_client", None)
+        if client is None:
+            return
 
-        client = IdentityManagerClient()
         token_pair = await client.refresh_token(refresh_token)
 
         new_access = token_pair.get("access_token")
@@ -212,7 +220,7 @@ async def _attempt_token_refresh(refresh_token: str, response: Response) -> None
                 samesite="lax",
                 path="/",
             )
-    except Exception:  # noqa: BLE001
+    except Exception:
         # Silently ignore refresh failures — the current response is unaffected.
         pass
 
@@ -234,22 +242,13 @@ def get_current_user(request: Request) -> AdminUser:
     raw_roles: list[str] = getattr(request.state, "roles", [])
 
     if not user_id:
-        raise JSONResponse(  # type: ignore[misc]
-            status_code=401,
-            content={
-                "error": "AUTHENTICATION_ERROR",
-                "message": "Authentication required.",
-                "data": {},
-            },
-        )
+        raise ValueError("Authentication required.")  # caught by middleware stack
 
     # Map raw role strings to AdminRole enum values; ignore unknown roles.
     roles: list[AdminRole] = []
     for r in raw_roles:
-        try:
+        with contextlib.suppress(ValueError):
             roles.append(AdminRole(r))
-        except ValueError:
-            pass
 
     return AdminUser(
         user_id=user_id,
@@ -259,7 +258,7 @@ def get_current_user(request: Request) -> AdminUser:
     )
 
 
-def require_roles(*required_roles: AdminRole):  # type: ignore[no-untyped-def]
+def require_roles(*required_roles: AdminRole) -> Callable[..., AdminUser]:
     """FastAPI dependency factory that enforces RBAC.
 
     Usage::
@@ -291,7 +290,7 @@ def require_roles(*required_roles: AdminRole):  # type: ignore[no-untyped-def]
 
 
 def _forbidden(message: str) -> Exception:
-    from fastapi import HTTPException  # noqa: PLC0415
+    from fastapi import HTTPException
 
     return HTTPException(
         status_code=403,

@@ -15,6 +15,7 @@ Requirements: 2.1, 2.2, 2.5, 2.7, 13.7
 from __future__ import annotations
 
 import datetime
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Request, Response
@@ -22,7 +23,6 @@ from pydantic import BaseModel, EmailStr
 
 from src.application.services.auth_service import AuthService
 from src.domain.exceptions import AuthenticationError
-from src.presentation.middleware.jwt_validation import get_current_user
 
 logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
 
@@ -36,6 +36,7 @@ _REFRESH_TOKEN_COOKIE = "refresh_token"
 # ---------------------------------------------------------------------------
 # Request / Response models
 # ---------------------------------------------------------------------------
+
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -56,6 +57,7 @@ class RefreshResponse(BaseModel):
 # Dependency: resolve AuthService from app.state
 # ---------------------------------------------------------------------------
 
+
 def _get_auth_service(request: Request) -> AuthService:
     return request.app.state.auth_service  # type: ignore[no-any-return]
 
@@ -73,6 +75,7 @@ def _get_client_ip(request: Request) -> str:
 # Routes
 # ---------------------------------------------------------------------------
 
+
 @router.post("/login", response_model=LoginResponse)
 async def login(
     body: LoginRequest,
@@ -86,7 +89,7 @@ async def login(
     """
     client_ip = _get_client_ip(request)
     path = request.url.path
-    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    timestamp = datetime.datetime.now(datetime.UTC).isoformat()
 
     try:
         token_pair = await auth_service.login(body.email, body.password)
@@ -133,7 +136,7 @@ async def logout(
     request: Request,
     response: Response,
     auth_service: AuthService = Depends(_get_auth_service),
-) -> dict:
+) -> dict[str, Any]:
     """Clear auth cookies and call Identity Manager logout.
 
     Requirements: 2.7
@@ -144,7 +147,7 @@ async def logout(
     if access_token:
         try:
             await auth_service.logout(access_token)
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.warning("auth_logout_identity_manager_failed")
 
     # Clear both cookies.
@@ -167,7 +170,7 @@ async def refresh(
     refresh_token = request.cookies.get(_REFRESH_TOKEN_COOKIE, "")
     client_ip = _get_client_ip(request)
     path = request.url.path
-    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    timestamp = datetime.datetime.now(datetime.UTC).isoformat()
 
     if not refresh_token:
         logger.warning(
@@ -224,7 +227,7 @@ async def refresh(
 async def me(
     request: Request,
     auth_service: AuthService = Depends(_get_auth_service),
-) -> dict:
+) -> dict[str, Any]:
     """Return current user info enriched with profile data.
 
     Requirements: 2.7

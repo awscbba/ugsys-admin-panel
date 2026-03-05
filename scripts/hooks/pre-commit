@@ -28,7 +28,7 @@ if [ -n "$STAGED_PY" ]; then
 
     echo "▶ ruff check ..."
     # shellcheck disable=SC2086
-    if ! uv run ruff check --show-source $STAGED_PY; then
+    if ! uv run ruff check $STAGED_PY; then
         echo "✗ ruff check failed. Run 'just lint' to see all issues."
         exit 1
     fi

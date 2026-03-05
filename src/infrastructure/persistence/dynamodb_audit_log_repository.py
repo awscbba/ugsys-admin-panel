@@ -19,7 +19,7 @@ from __future__ import annotations
 import base64
 import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 import boto3
@@ -50,6 +50,7 @@ _SK = "LOG"
 # TTL helpers
 # ---------------------------------------------------------------------------
 
+
 def _compute_ttl(timestamp_iso: str) -> int:
     """Return Unix epoch + 365 days for the given ISO 8601 timestamp."""
     dt = datetime.fromisoformat(timestamp_iso.replace("Z", "+00:00"))
@@ -59,6 +60,7 @@ def _compute_ttl(timestamp_iso: str) -> int:
 # ---------------------------------------------------------------------------
 # Serialisation helpers
 # ---------------------------------------------------------------------------
+
 
 def _to_item(entry: AuditLogEntry) -> dict[str, Any]:
     """Map a domain entity to a DynamoDB item dict."""
@@ -99,6 +101,7 @@ def _from_item(item: dict[str, Any]) -> AuditLogEntry:
 # Pagination token helpers
 # ---------------------------------------------------------------------------
 
+
 def _encode_token(last_key: dict[str, Any]) -> str:
     """Base64-encode a DynamoDB LastEvaluatedKey as a pagination token."""
     return base64.urlsafe_b64encode(json.dumps(last_key).encode()).decode()
@@ -106,12 +109,14 @@ def _encode_token(last_key: dict[str, Any]) -> str:
 
 def _decode_token(token: str) -> dict[str, Any]:
     """Decode a pagination token back to a DynamoDB ExclusiveStartKey."""
-    return json.loads(base64.urlsafe_b64decode(token.encode()).decode())
+    result: dict[str, Any] = json.loads(base64.urlsafe_b64decode(token.encode()).decode())
+    return result
 
 
 # ---------------------------------------------------------------------------
 # Repository implementation
 # ---------------------------------------------------------------------------
+
 
 class DynamoDBAuditLogRepository(AuditLogRepository):
     """Concrete DynamoDB adapter for the Audit Log port (append-only)."""
@@ -298,6 +303,7 @@ class DynamoDBAuditLogRepository(AuditLogRepository):
 # ---------------------------------------------------------------------------
 # Module-level helpers
 # ---------------------------------------------------------------------------
+
 
 def _apply_timestamp_range(
     key_condition: Any,

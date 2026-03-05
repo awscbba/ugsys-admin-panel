@@ -8,6 +8,8 @@ Requirements: 11.2
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, Query, Request
 
 from src.application.services.audit_service import AuditService
@@ -21,6 +23,7 @@ router = APIRouter(prefix="/audit", tags=["audit"])
 # Dependency
 # ---------------------------------------------------------------------------
 
+
 def _get_audit_service(request: Request) -> AuditService:
     return request.app.state.audit_service  # type: ignore[no-any-return]
 
@@ -28,6 +31,7 @@ def _get_audit_service(request: Request) -> AuditService:
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
 
 @router.get("/logs")
 async def get_audit_logs(
@@ -40,10 +44,8 @@ async def get_audit_logs(
     limit: int = Query(default=50, ge=1, le=200),
     next_token: str | None = Query(default=None, description="Pagination cursor"),
     audit_service: AuditService = Depends(_get_audit_service),
-    current_user: AdminUser = Depends(
-        require_roles(AdminRole.AUDITOR, AdminRole.ADMIN, AdminRole.SUPER_ADMIN)
-    ),
-) -> dict:
+    current_user: AdminUser = Depends(require_roles(AdminRole.AUDITOR, AdminRole.ADMIN, AdminRole.SUPER_ADMIN)),
+) -> dict[str, Any]:
     """Return paginated, filterable audit log entries.
 
     Restricted to auditor, admin, and super_admin roles.
