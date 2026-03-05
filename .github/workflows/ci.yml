@@ -9,7 +9,7 @@ on:
 
 defaults:
   run:
-    working-directory: ugsys-admin-panel
+    working-directory: .
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ jobs:
         if: always()
         with:
           name: coverage-report
-          path: ugsys-admin-panel/coverage.xml
+          path: coverage.xml
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 4: SAST — Bandit (blocks merge)
@@ -218,7 +218,7 @@ jobs:
         if: always()
         with:
           name: sbom
-          path: ugsys-admin-panel/bom.json
+          path: bom.json
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 8: Secret scan — Gitleaks (blocks merge)

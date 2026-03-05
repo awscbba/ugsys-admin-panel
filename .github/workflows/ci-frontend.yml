@@ -9,7 +9,7 @@ on:
 
 defaults:
   run:
-    working-directory: ugsys-admin-panel/admin-shell
+    working-directory: admin-shell
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: ugsys-admin-panel/admin-shell/package-lock.json
+          cache-dependency-path: admin-shell/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -88,7 +88,7 @@ jobs:
         if: always()
         with:
           name: frontend-coverage-report
-          path: ugsys-admin-panel/admin-shell/coverage/
+          path: admin-shell/coverage/
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 4: SAST — Semgrep (blocks merge)
@@ -112,7 +112,7 @@ jobs:
             --config p/secrets \
             --error \
             src/
-        working-directory: ugsys-admin-panel/admin-shell
+        working-directory: admin-shell
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 5: Dependency CVEs — npm audit (blocks merge on high/critical)
@@ -195,5 +195,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path: ugsys-admin-panel/admin-shell/dist/
+          path: admin-shell/dist/
           retention-days: 7
