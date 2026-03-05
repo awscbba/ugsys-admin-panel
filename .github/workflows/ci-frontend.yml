@@ -111,8 +111,7 @@ jobs:
             --config p/owasp-top-ten \
             --config p/secrets \
             --error \
-            src/
-        working-directory: admin-shell
+            admin-shell/src/
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 5: Dependency CVEs — npm audit (blocks merge on high/critical)

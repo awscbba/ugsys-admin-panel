@@ -144,7 +144,6 @@ jobs:
             --config p/secrets \
             --error \
             src/
-        working-directory: ugsys-admin-panel
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 6: Dependency CVEs — Safety (advisory, does NOT block merge)
