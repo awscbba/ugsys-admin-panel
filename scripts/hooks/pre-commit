@@ -11,9 +11,6 @@ if [ "$BRANCH" = "main" ]; then
     exit 1
 fi
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
-cd "$REPO_ROOT/ugsys-admin-panel"
-
 # --- Python: ruff on staged .py files ---
 STAGED_PY=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$' || true)
 

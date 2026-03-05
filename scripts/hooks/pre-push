@@ -11,9 +11,6 @@ if [ "$BRANCH" = "main" ]; then
     exit 1
 fi
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
-cd "$REPO_ROOT/ugsys-admin-panel"
-
 FAILED=0
 
 echo "Running BFF type check..."
