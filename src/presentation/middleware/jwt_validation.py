@@ -29,8 +29,10 @@ import time
 from collections.abc import Callable
 from typing import Any
 
+import jwt as pyjwt
 from fastapi import Depends, Request
-from jose import ExpiredSignatureError, JWTError, jwt
+from jwt.exceptions import ExpiredSignatureError
+from jwt.exceptions import InvalidTokenError as JWTError
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp
@@ -83,7 +85,7 @@ def _decode_token(token: str) -> dict[str, Any]:
         raise JWTError("JWT_PUBLIC_KEY environment variable is not configured.")
 
     # Decode with full validation — signature, audience, issuer, expiry.
-    decoded: dict[str, Any] = jwt.decode(
+    decoded: dict[str, Any] = pyjwt.decode(
         token,
         _JWT_PUBLIC_KEY,
         algorithms=_ALLOWED_ALGORITHMS,
@@ -144,7 +146,7 @@ class JwtValidationMiddleware(BaseHTTPMiddleware):
         # Reject tokens that declare a non-RS256 algorithm in their header
         # before attempting full decode (defence-in-depth).
         try:
-            unverified_header = jwt.get_unverified_header(token)
+            unverified_header = pyjwt.get_unverified_header(token)
         except JWTError:
             return _build_unauthorized_response("Malformed token.")
 

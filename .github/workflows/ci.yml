@@ -170,8 +170,8 @@ jobs:
       - name: Install Safety
         run: uv pip install safety
 
-      - name: Run Safety check
-        run: uv run safety check
+      - name: Run Safety scan
+        run: uv run safety scan
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 7: SBOM + CVE scan — CycloneDX → Trivy (blocks merge)
