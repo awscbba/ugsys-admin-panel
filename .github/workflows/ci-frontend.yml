@@ -111,7 +111,7 @@ jobs:
             --config p/owasp-top-ten \
             --config p/secrets \
             --error \
-            admin-shell/src/
+            "$GITHUB_WORKSPACE/admin-shell/src/"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 5: Dependency CVEs — npm audit (blocks merge on high/critical)
