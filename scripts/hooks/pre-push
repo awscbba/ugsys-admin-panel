@@ -5,43 +5,70 @@ set -euo pipefail
 
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  pre-push checks"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
 if [ "$BRANCH" = "main" ]; then
-    echo "ERROR: Direct pushes to 'main' are not allowed."
-    echo "       Please open a pull request instead."
+    echo "✗ Direct pushes to 'main' are not allowed."
+    echo "  Please open a pull request instead."
     exit 1
 fi
+
+echo "  branch : $BRANCH"
+echo ""
 
 FAILED=0
 
-echo "Running BFF type check..."
+echo "── BFF (Python) ─────────────────────────────────────"
+echo ""
+
+echo "▶ mypy --strict ..."
 if ! just type-check; then
-    echo "ERROR: mypy type checking failed. Run 'just type-check' for details."
+    echo "✗ mypy failed. Run 'just type-check' for details."
     FAILED=1
+else
+    echo "✓ mypy passed"
 fi
+echo ""
 
-echo "Running Admin Shell type check..."
-if ! just type-check-frontend; then
-    echo "ERROR: TypeScript type checking failed. Run 'just type-check-frontend' for details."
-    FAILED=1
-fi
-
-echo "Running BFF tests with 80% coverage gate..."
+echo "▶ pytest --cov=src --cov-fail-under=80 ..."
 if ! just test-coverage; then
-    echo "ERROR: BFF tests failed or coverage is below 80%. Run 'just test-coverage' for details."
+    echo "✗ Tests failed or coverage below 80%. Run 'just test-coverage' for details."
     FAILED=1
+else
+    echo "✓ pytest passed (≥80% coverage)"
 fi
+echo ""
 
-echo "Running Admin Shell tests with coverage gate..."
+echo "── Admin Shell (TypeScript) ─────────────────────────"
+echo ""
+
+echo "▶ tsc --noEmit ..."
+if ! just type-check-frontend; then
+    echo "✗ TypeScript type check failed. Run 'just type-check-frontend' for details."
+    FAILED=1
+else
+    echo "✓ tsc passed"
+fi
+echo ""
+
+echo "▶ vitest run --coverage ..."
 if ! just test-coverage-frontend; then
-    echo "ERROR: Frontend tests failed or coverage is below 80%. Run 'just test-coverage-frontend' for details."
+    echo "✗ Frontend tests failed or coverage below 80%. Run 'just test-coverage-frontend' for details."
     FAILED=1
+else
+    echo "✓ vitest passed (≥80% coverage)"
 fi
+echo ""
 
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if [ "$FAILED" -ne 0 ]; then
-    echo ""
-    echo "pre-push checks FAILED. Fix the errors above before pushing."
+    echo "✗ pre-push checks FAILED — fix the errors above before pushing."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     exit 1
 fi
 
-echo "pre-push checks passed."
+echo "✓ pre-push checks passed"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 exit 0

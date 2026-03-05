@@ -17,12 +17,12 @@
  *   initializeAuth() — restore session on app boot (calls getCurrentUser)
  */
 
-import { atom, computed } from 'nanostores';
-import type { AdminUser } from '../domain/entities/AdminUser';
-import { HttpAuthRepository } from '../infrastructure/repositories/HttpAuthRepository';
-import { getServiceLogger } from '../utils/logger';
+import { atom, computed } from "nanostores";
+import type { AdminUser } from "../domain/entities/AdminUser";
+import { HttpAuthRepository } from "../infrastructure/repositories/HttpAuthRepository";
+import { getServiceLogger } from "../utils/logger";
 
-const logger = getServiceLogger('authStore');
+const logger = getServiceLogger("authStore");
 
 // ── Atoms ─────────────────────────────────────────────────────────────────
 
@@ -55,16 +55,16 @@ export async function login(email: string, password: string): Promise<void> {
   $isLoading.set(true);
   $error.set(null);
 
-  logger.logUserAction({ action: 'login', target: 'auth' });
+  logger.logUserAction({ action: "login", target: "auth" });
 
   try {
     const user = await getRepo().login(email, password);
     $user.set(user);
-    logger.info('Login successful', { userId: user.userId });
+    logger.info("Login successful", { userId: user.userId });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Login failed';
+    const message = err instanceof Error ? err.message : "Login failed";
     $error.set(message);
-    logger.warn('Login failed', { error: message });
+    logger.warn("Login failed", { error: message });
   } finally {
     $isLoading.set(false);
   }
@@ -78,14 +78,14 @@ export async function logout(): Promise<void> {
   $isLoading.set(true);
   $error.set(null);
 
-  logger.logUserAction({ action: 'logout', target: 'auth' });
+  logger.logUserAction({ action: "logout", target: "auth" });
 
   try {
     await getRepo().logout();
-    logger.info('Logout successful');
+    logger.info("Logout successful");
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Logout failed';
-    logger.warn('Logout request failed — clearing session anyway', {
+    const message = err instanceof Error ? err.message : "Logout failed";
+    logger.warn("Logout request failed — clearing session anyway", {
       error: message,
     });
   } finally {
@@ -103,16 +103,16 @@ export async function initializeAuth(): Promise<void> {
   $isLoading.set(true);
   $error.set(null);
 
-  logger.debug('Initializing auth session');
+  logger.debug("Initializing auth session");
 
   try {
     const user = await getRepo().getCurrentUser();
     $user.set(user);
-    logger.info('Session restored', { userId: user.userId });
-  } catch (err) {
+    logger.info("Session restored", { userId: user.userId });
+  } catch (_err) {
     // No active session — this is expected on first load.
     $user.set(null);
-    logger.debug('No active session found');
+    logger.debug("No active session found");
   } finally {
     $isLoading.set(false);
   }

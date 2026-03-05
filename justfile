@@ -64,11 +64,11 @@ check:
 
 # Run ESLint
 lint-frontend:
-    cd admin-shell && npx eslint --max-warnings=0 src/
+    cd admin-shell && npm run lint
 
 # Run Prettier check
 format-check-frontend:
-    cd admin-shell && npx prettier --check src/
+    cd admin-shell && npm run format -- --check
 
 # Apply Prettier formatting
 format-frontend:

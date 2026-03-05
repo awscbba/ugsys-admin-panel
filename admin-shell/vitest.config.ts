@@ -10,6 +10,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      include: [
+        'src/config/**',
+        'src/stores/**',
+        'src/infrastructure/http/**',
+        'src/utils/**',
+      ],
       thresholds: {
         lines: 80,
         functions: 80,

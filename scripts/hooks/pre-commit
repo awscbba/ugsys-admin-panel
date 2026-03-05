@@ -5,49 +5,94 @@ set -euo pipefail
 
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  pre-commit checks"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
 if [ "$BRANCH" = "main" ]; then
-    echo "ERROR: Direct commits to 'main' are not allowed."
-    echo "       Please create a feature branch and open a pull request."
+    echo "✗ Direct commits to 'main' are not allowed."
+    echo "  Please create a feature branch and open a pull request."
     exit 1
 fi
+
+echo "  branch : $BRANCH"
+echo ""
 
 # --- Python: ruff on staged .py files ---
 STAGED_PY=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$' || true)
 
 if [ -n "$STAGED_PY" ]; then
-    echo "Running ruff check on staged Python files..."
-    # shellcheck disable=SC2086
-    if ! uv run ruff check $STAGED_PY; then
-        echo "ERROR: ruff check failed. Run 'just lint' to see all issues."
-        exit 1
-    fi
+    echo "── Python staged files ──────────────────────────────"
+    for f in $STAGED_PY; do echo "   $f"; done
+    echo ""
 
-    echo "Running ruff format --check on staged Python files..."
+    echo "▶ ruff check ..."
     # shellcheck disable=SC2086
-    if ! uv run ruff format --check $STAGED_PY; then
-        echo "ERROR: ruff format check failed. Run 'just format' to fix."
+    if ! uv run ruff check --show-source $STAGED_PY; then
+        echo "✗ ruff check failed. Run 'just lint' to see all issues."
         exit 1
     fi
+    echo "✓ ruff check passed"
+    echo ""
+
+    echo "▶ ruff format --check ..."
+    # shellcheck disable=SC2086
+    if ! uv run ruff format --check --diff $STAGED_PY; then
+        echo "✗ ruff format check failed. Run 'just format' to fix."
+        exit 1
+    fi
+    echo "✓ ruff format passed"
+    echo ""
+else
+    echo "  (no staged Python files)"
+    echo ""
 fi
 
 # --- TypeScript/React: ESLint + Prettier on staged .ts/.tsx files ---
+# Paths are relative to repo root; strip the admin-shell/ prefix for ESLint
+# which runs from within admin-shell/
 STAGED_TS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' || true)
 
 if [ -n "$STAGED_TS" ]; then
-    echo "Running ESLint on staged TypeScript/React files..."
-    # shellcheck disable=SC2086
-    if ! npx eslint --max-warnings=0 $STAGED_TS; then
-        echo "ERROR: ESLint failed. Run 'just lint-frontend' to see all issues."
-        exit 1
-    fi
+    echo "── TypeScript staged files ──────────────────────────"
+    for f in $STAGED_TS; do echo "   $f"; done
+    echo ""
 
-    echo "Running Prettier check on staged TypeScript/React files..."
+    # Convert repo-root-relative paths to admin-shell-relative paths,
+    # then keep only files under src/ (skip root config files like vitest.config.ts)
+    STAGED_TS_REL=$(echo "$STAGED_TS" | sed 's|^admin-shell/||' | grep '^src/' || true)
+
+    if [ -z "$STAGED_TS_REL" ]; then
+        echo "  (no staged src/ TypeScript files to lint)"
+        echo ""
+    else
+
+    echo "▶ ESLint (via local install in admin-shell/) ..."
+    # Run from admin-shell so it picks up the local eslint + eslint.config.js
     # shellcheck disable=SC2086
-    if ! npx prettier --check $STAGED_TS; then
-        echo "ERROR: Prettier check failed. Run 'just format-frontend' to fix."
+    if ! (cd admin-shell && npx --no-install eslint --max-warnings=0 $STAGED_TS_REL); then
+        echo "✗ ESLint failed. Run 'just lint-frontend' to see all issues."
         exit 1
     fi
+    echo "✓ ESLint passed"
+    echo ""
+
+    echo "▶ Prettier --check ..."
+    # shellcheck disable=SC2086
+    if ! (cd admin-shell && npx --no-install prettier --check $STAGED_TS_REL); then
+        echo "✗ Prettier check failed. Run 'just format-frontend' to fix."
+        exit 1
+    fi
+    echo "✓ Prettier passed"
+    echo ""
+
+    fi  # end src/ files check
+else
+    echo "  (no staged TypeScript files)"
+    echo ""
 fi
 
-echo "pre-commit checks passed."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✓ pre-commit checks passed"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 exit 0
