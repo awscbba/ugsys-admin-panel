@@ -138,10 +138,10 @@ jobs:
         run: npm audit --audit-level=high
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Stage 6: Secret scan — Gitleaks (blocks merge)
+  # Stage 6: Secret scan — TruffleHog (blocks merge)
   # ─────────────────────────────────────────────────────────────────────────────
-  gitleaks:
-    name: Secret Scan (Gitleaks)
+  secret-scan:
+    name: Secret Scan (TruffleHog)
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -149,10 +149,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 7: Bundle analysis — vite build + size report (advisory)

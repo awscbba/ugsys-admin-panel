@@ -67,7 +67,11 @@ export class HttpClient {
     return response.json() as Promise<T>;
   }
 
-  async postJson<T>(url: string, body: unknown, init?: RequestInit): Promise<T> {
+  async postJson<T>(
+    url: string,
+    body: unknown,
+    init?: RequestInit,
+  ): Promise<T> {
     const response = await this.request(url, {
       ...init,
       method: "POST",
@@ -117,7 +121,10 @@ export class HttpClient {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  private async fetchWithHeaders(url: string, init: RequestInit): Promise<Response> {
+  private async fetchWithHeaders(
+    url: string,
+    init: RequestInit,
+  ): Promise<Response> {
     const method = (init.method ?? "GET").toUpperCase();
     const headers = new Headers(init.headers);
 

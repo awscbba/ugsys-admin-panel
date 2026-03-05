@@ -1,5 +1,5 @@
-import { Link, useLocation } from 'react-router-dom';
-import type { NavigationEntry } from '../../../domain/entities/ServiceRegistration';
+import { Link, useLocation } from "react-router-dom";
+import type { NavigationEntry } from "../../../domain/entities/ServiceRegistration";
 
 interface SidebarProps {
   navigationEntries: NavigationEntry[];
@@ -23,7 +23,7 @@ export function Sidebar({ navigationEntries, userRoles }: SidebarProps) {
   // Group by entry.group (default: 'General')
   const groups = new Map<string, NavigationEntry[]>();
   for (const entry of visible) {
-    const group = entry.group ?? 'General';
+    const group = entry.group ?? "General";
     if (!groups.has(group)) {
       groups.set(group, []);
     }
@@ -39,50 +39,54 @@ export function Sidebar({ navigationEntries, userRoles }: SidebarProps) {
     <nav
       aria-label="Sidebar navigation"
       style={{
-        width: '240px',
-        minHeight: '100%',
-        background: '#1e1e2e',
-        color: '#cdd6f4',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '16px 0',
+        width: "240px",
+        minHeight: "100%",
+        background: "#1e1e2e",
+        color: "#cdd6f4",
+        display: "flex",
+        flexDirection: "column",
+        padding: "16px 0",
         flexShrink: 0,
       }}
     >
       {Array.from(groups.entries()).map(([group, entries]) => (
-        <div key={group} style={{ marginBottom: '16px' }}>
+        <div key={group} style={{ marginBottom: "16px" }}>
           <p
             style={{
-              fontSize: '11px',
+              fontSize: "11px",
               fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: '#6c7086',
-              padding: '0 16px',
-              margin: '0 0 6px',
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "#6c7086",
+              padding: "0 16px",
+              margin: "0 0 6px",
             }}
           >
             {group}
           </p>
 
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
             {entries.map((entry) => {
               const isActive = location.pathname === entry.path;
               return (
                 <li key={entry.path}>
                   <Link
                     to={entry.path}
-                    aria-current={isActive ? 'page' : undefined}
+                    aria-current={isActive ? "page" : undefined}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      padding: '8px 16px',
-                      fontSize: '14px',
-                      textDecoration: 'none',
-                      color: isActive ? '#cba6f7' : '#cdd6f4',
-                      background: isActive ? 'rgba(203,166,247,0.12)' : 'transparent',
-                      borderLeft: isActive ? '3px solid #cba6f7' : '3px solid transparent',
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "8px 16px",
+                      fontSize: "14px",
+                      textDecoration: "none",
+                      color: isActive ? "#cba6f7" : "#cdd6f4",
+                      background: isActive
+                        ? "rgba(203,166,247,0.12)"
+                        : "transparent",
+                      borderLeft: isActive
+                        ? "3px solid #cba6f7"
+                        : "3px solid transparent",
                     }}
                   >
                     <span aria-hidden="true">{entry.icon}</span>

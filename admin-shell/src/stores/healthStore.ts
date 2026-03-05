@@ -10,12 +10,12 @@
  *   loadHealthStatuses() — fetch health data from the BFF and populate $healthStatuses
  */
 
-import { atom } from 'nanostores';
-import type { HealthStatus } from '../domain/entities/HealthStatus';
-import { HttpHealthRepository } from '../infrastructure/repositories/HttpHealthRepository';
-import { getServiceLogger } from '../utils/logger';
+import { atom } from "nanostores";
+import type { HealthStatus } from "../domain/entities/HealthStatus";
+import { HttpHealthRepository } from "../infrastructure/repositories/HttpHealthRepository";
+import { getServiceLogger } from "../utils/logger";
 
-const logger = getServiceLogger('healthStore');
+const logger = getServiceLogger("healthStore");
 
 // ── Atoms ─────────────────────────────────────────────────────────────────
 
@@ -40,7 +40,7 @@ function getRepo(): HttpHealthRepository {
  * Replaces the current $healthStatuses map.
  */
 export async function loadHealthStatuses(): Promise<void> {
-  logger.debug('Loading health statuses');
+  logger.debug("Loading health statuses");
 
   try {
     const statuses = await getRepo().getHealthStatuses();
@@ -52,10 +52,11 @@ export async function loadHealthStatuses(): Promise<void> {
       {},
     );
     $healthStatuses.set(statusMap);
-    logger.info('Health statuses loaded', { count: statuses.length });
+    logger.info("Health statuses loaded", { count: statuses.length });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to load health statuses';
-    logger.warn('Failed to load health statuses', { error: message });
+    const message =
+      err instanceof Error ? err.message : "Failed to load health statuses";
+    logger.warn("Failed to load health statuses", { error: message });
     throw err;
   }
 }

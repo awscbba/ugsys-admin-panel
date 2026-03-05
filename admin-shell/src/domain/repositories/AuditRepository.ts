@@ -1,4 +1,4 @@
-import type { AuditLogEntry } from '../entities/AuditLogEntry';
+import type { AuditLogEntry } from "../entities/AuditLogEntry";
 
 export interface AuditLogFilters {
   fromDate?: string;

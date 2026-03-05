@@ -18,33 +18,33 @@
  * Requirements: 1.5, 6.6, 13.6
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
   useParams,
-} from 'react-router-dom';
-import { useStore } from '@nanostores/react';
+} from "react-router-dom";
+import { useStore } from "@nanostores/react";
 
-import { AppShell } from './presentation/components/layout/AppShell';
-import { HealthDashboard } from './presentation/components/views/HealthDashboard';
-import { UserManagement } from './presentation/components/views/UserManagement';
-import { AuditLog } from './presentation/components/views/AuditLog';
-import { ConfigForm } from './presentation/components/views/ConfigForm';
-import { MicroFrontendLoader } from './presentation/components/MicroFrontendLoader';
-import { ErrorBoundary } from './presentation/components/ErrorBoundary';
-import { RbacProvider } from './presentation/components/RbacProvider';
-import { SessionMonitor } from './presentation/components/SessionMonitor';
+import { AppShell } from "./presentation/components/layout/AppShell";
+import { HealthDashboard } from "./presentation/components/views/HealthDashboard";
+import { UserManagement } from "./presentation/components/views/UserManagement";
+import { AuditLog } from "./presentation/components/views/AuditLog";
+import { ConfigForm } from "./presentation/components/views/ConfigForm";
+import { MicroFrontendLoader } from "./presentation/components/MicroFrontendLoader";
+import { ErrorBoundary } from "./presentation/components/ErrorBoundary";
+import { RbacProvider } from "./presentation/components/RbacProvider";
+import { SessionMonitor } from "./presentation/components/SessionMonitor";
 
-import { $user, logout } from './stores/authStore';
-import { $services } from './stores/registryStore';
-import { HttpAuthRepository } from './infrastructure/repositories/HttpAuthRepository';
+import { $user, logout } from "./stores/authStore";
+import { $services } from "./stores/registryStore";
+import { HttpAuthRepository } from "./infrastructure/repositories/HttpAuthRepository";
 
 // ── CSP helpers ───────────────────────────────────────────────────────────────
 
-const SHELL_ORIGIN = 'https://admin.apps.cloud.org.bo';
+const SHELL_ORIGIN = "https://admin.apps.cloud.org.bo";
 
 /** Extracts the scheme+host origin from a URL string. Returns null on parse failure. */
 function extractOrigin(url: string): string | null {
@@ -61,8 +61,10 @@ function extractOrigin(url: string): string | null {
  * unsafe-inline and unsafe-eval are intentionally omitted (Req 13.6).
  */
 function buildCsp(entryPointOrigins: string[]): string {
-  const uniqueOrigins = Array.from(new Set([SHELL_ORIGIN, ...entryPointOrigins]));
-  const scriptSrc = ["'self'", ...uniqueOrigins].join(' ');
+  const uniqueOrigins = Array.from(
+    new Set([SHELL_ORIGIN, ...entryPointOrigins]),
+  );
+  const scriptSrc = ["'self'", ...uniqueOrigins].join(" ");
 
   return [
     `default-src 'self'`,
@@ -75,18 +77,18 @@ function buildCsp(entryPointOrigins: string[]): string {
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,
-  ].join('; ');
+  ].join("; ");
 }
 
 /** Injects or updates the CSP <meta> tag in <head>. */
 function applyCspMeta(csp: string): void {
-  const META_ID = 'csp-meta';
+  const META_ID = "csp-meta";
   let meta = document.getElementById(META_ID) as HTMLMetaElement | null;
 
   if (!meta) {
-    meta = document.createElement('meta');
+    meta = document.createElement("meta");
     meta.id = META_ID;
-    meta.httpEquiv = 'Content-Security-Policy';
+    meta.httpEquiv = "Content-Security-Policy";
     document.head.appendChild(meta);
   }
 
@@ -119,7 +121,7 @@ function CspInjector(): null {
 
 /** Extracts :serviceName from the URL and passes it to ConfigForm. */
 function ConfigFormRoute(): React.ReactElement {
-  const { serviceName = '' } = useParams<{ serviceName: string }>();
+  const { serviceName = "" } = useParams<{ serviceName: string }>();
   return <ConfigForm serviceName={serviceName} />;
 }
 
@@ -130,7 +132,7 @@ function ConfigFormRoute(): React.ReactElement {
  * MicroFrontendLoader with the correct entryPoint and user context.
  */
 function MicroFrontendRoute(): React.ReactElement {
-  const { serviceName = '' } = useParams<{ serviceName: string }>();
+  const { serviceName = "" } = useParams<{ serviceName: string }>();
   const services = useStore($services);
   const user = useStore($user);
 
@@ -138,16 +140,16 @@ function MicroFrontendRoute(): React.ReactElement {
 
   if (!service?.manifest?.entryPoint) {
     return (
-      <div role="alert" style={{ padding: '1.5rem', color: '#991b1b' }}>
+      <div role="alert" style={{ padding: "1.5rem", color: "#991b1b" }}>
         Service <strong>{serviceName}</strong> not found or has no entry point.
       </div>
     );
   }
 
   const context = {
-    userId: user?.userId ?? '',
+    userId: user?.userId ?? "",
     roles: user?.roles ?? [],
-    displayName: user?.displayName ?? '',
+    displayName: user?.displayName ?? "",
     // Access token is managed server-side via httpOnly cookie; expose a no-op
     // accessor so micro-frontends that need it can call it without crashing.
     getAccessToken: () => null,
@@ -179,11 +181,11 @@ function getAuthRepo(): HttpAuthRepository {
  */
 function getTokenExpiry(): number | null {
   const match = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith('token_expiry='));
+    .split("; ")
+    .find((row) => row.startsWith("token_expiry="));
   if (!match) return null;
-  const value = match.split('=')[1];
-  const parsed = parseInt(value ?? '', 10);
+  const value = match.split("=")[1];
+  const parsed = parseInt(value ?? "", 10);
   return isNaN(parsed) ? null : parsed;
 }
 
@@ -225,7 +227,10 @@ export function App(): React.ReactElement {
               <Route path="config/:serviceName" element={<ConfigFormRoute />} />
 
               {/* Dynamic micro-frontend routes */}
-              <Route path="app/:serviceName/*" element={<MicroFrontendRoute />} />
+              <Route
+                path="app/:serviceName/*"
+                element={<MicroFrontendRoute />}
+              />
             </Route>
           </Routes>
         </RbacProvider>

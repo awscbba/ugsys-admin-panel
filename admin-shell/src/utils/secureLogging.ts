@@ -16,7 +16,7 @@ const SENSITIVE_PATTERNS = [
   /bearer/i,
 ];
 
-const REDACTED = '[REDACTED]';
+const REDACTED = "[REDACTED]";
 
 /**
  * Checks whether a field name matches any sensitive pattern.
@@ -34,7 +34,7 @@ export function sanitizeObject<T>(value: T): T {
     return value.map((item) => sanitizeObject(item)) as unknown as T;
   }
 
-  if (value !== null && typeof value === 'object') {
+  if (value !== null && typeof value === "object") {
     const result: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
       result[k] = isSensitiveKey(k) ? REDACTED : sanitizeObject(v);
@@ -53,7 +53,7 @@ function wrapConsoleMethod(
 ): (...args: unknown[]) => void {
   return (...args: unknown[]) => {
     const sanitized = args.map((arg) =>
-      arg !== null && typeof arg === 'object' ? sanitizeObject(arg) : arg,
+      arg !== null && typeof arg === "object" ? sanitizeObject(arg) : arg,
     );
     method(...sanitized);
   };

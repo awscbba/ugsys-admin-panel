@@ -1,4 +1,4 @@
-import type { ServiceRegistration } from '../entities/ServiceRegistration';
+import type { ServiceRegistration } from "../entities/ServiceRegistration";
 
 export interface RegistryRepository {
   listServices(): Promise<ServiceRegistration[]>;

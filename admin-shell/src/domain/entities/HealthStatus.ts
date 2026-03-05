@@ -1,4 +1,4 @@
-export type HealthState = 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
+export type HealthState = "healthy" | "degraded" | "unhealthy" | "unknown";
 
 export interface HealthStatus {
   serviceName: string;

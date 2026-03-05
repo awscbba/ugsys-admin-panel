@@ -5,9 +5,9 @@ import type {
   NavigationEntry,
   ServiceStatus,
   RegistrationSource,
-} from '../../domain/entities/ServiceRegistration';
-import type { RegistryRepository } from '../../domain/repositories/RegistryRepository';
-import { HttpClient } from '../http/HttpClient';
+} from "../../domain/entities/ServiceRegistration";
+import type { RegistryRepository } from "../../domain/repositories/RegistryRepository";
+import { HttpClient } from "../http/HttpClient";
 
 interface RouteDescriptorDto {
   path: string;
@@ -84,7 +84,9 @@ function mapManifest(dto: PluginManifestDto): PluginManifest {
   };
 }
 
-function mapServiceRegistration(dto: ServiceRegistrationDto): ServiceRegistration {
+function mapServiceRegistration(
+  dto: ServiceRegistrationDto,
+): ServiceRegistration {
   return {
     serviceName: dto.service_name,
     baseUrl: dto.base_url,
@@ -110,7 +112,7 @@ export class HttpRegistryRepository implements RegistryRepository {
 
   async listServices(): Promise<ServiceRegistration[]> {
     const data = await this.http.getJson<ServiceRegistrationDto[]>(
-      '/api/v1/registry/services',
+      "/api/v1/registry/services",
     );
     return data.map(mapServiceRegistration);
   }

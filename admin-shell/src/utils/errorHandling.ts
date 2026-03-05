@@ -8,13 +8,13 @@
  *         identifying the failed service and provide a retry button.
  */
 
-import { getServiceLogger } from './logger';
+import { getServiceLogger } from "./logger";
 
-const logger = getServiceLogger('errorHandling');
+const logger = getServiceLogger("errorHandling");
 
 // ── ErrorState ────────────────────────────────────────────────────────────────
 
-export type ErrorType = 'api' | 'network' | 'validation' | 'unknown';
+export type ErrorType = "api" | "network" | "validation" | "unknown";
 
 export interface ErrorState {
   message: string;
@@ -41,11 +41,11 @@ export interface ApiError {
 
 export function isApiError(value: unknown): value is ApiError {
   return (
-    typeof value === 'object' &&
+    typeof value === "object" &&
     value !== null &&
-    typeof (value as Record<string, unknown>)['status'] === 'number' &&
-    typeof (value as Record<string, unknown>)['error'] === 'string' &&
-    typeof (value as Record<string, unknown>)['message'] === 'string'
+    typeof (value as Record<string, unknown>)["status"] === "number" &&
+    typeof (value as Record<string, unknown>)["error"] === "string" &&
+    typeof (value as Record<string, unknown>)["message"] === "string"
   );
 }
 
@@ -63,51 +63,56 @@ export function isApiError(value: unknown): value is ApiError {
  */
 export function normalizeError(err: unknown): ErrorState {
   if (isApiError(err)) {
-    logger.warn('API error', { status: err.status, code: err.error });
+    logger.warn("API error", { status: err.status, code: err.error });
     return {
       message: err.message,
-      type: 'api',
+      type: "api",
       code: err.error,
     };
   }
 
   if (err instanceof TypeError) {
     // fetch() throws TypeError on network failures (e.g. DNS, CORS, offline)
-    logger.warn('Network error (TypeError)', { message: err.message });
+    logger.warn("Network error (TypeError)", { message: err.message });
     return {
-      message: 'A network error occurred. Please check your connection and try again.',
-      type: 'network',
+      message:
+        "A network error occurred. Please check your connection and try again.",
+      type: "network",
     };
   }
 
   if (err instanceof Error) {
-    if (err.name === 'NetworkError') {
-      logger.warn('Network error', { message: err.message });
+    if (err.name === "NetworkError") {
+      logger.warn("Network error", { message: err.message });
       return {
-        message: 'A network error occurred. Please check your connection and try again.',
-        type: 'network',
+        message:
+          "A network error occurred. Please check your connection and try again.",
+        type: "network",
       };
     }
 
-    if (err.name === 'ValidationError') {
-      logger.warn('Validation error', { message: err.message });
+    if (err.name === "ValidationError") {
+      logger.warn("Validation error", { message: err.message });
       return {
         message: err.message,
-        type: 'validation',
+        type: "validation",
       };
     }
 
-    logger.error('Unknown error (Error instance)', { name: err.name, message: err.message });
+    logger.error("Unknown error (Error instance)", {
+      name: err.name,
+      message: err.message,
+    });
     return {
-      message: err.message || 'An unexpected error occurred.',
-      type: 'unknown',
+      message: err.message || "An unexpected error occurred.",
+      type: "unknown",
     };
   }
 
-  logger.error('Unknown error (non-Error value)', { value: String(err) });
+  logger.error("Unknown error (non-Error value)", { value: String(err) });
   return {
-    message: 'An unexpected error occurred.',
-    type: 'unknown',
+    message: "An unexpected error occurred.",
+    type: "unknown",
   };
 }
 
@@ -123,38 +128,44 @@ export type ErrorMessageMap = Record<string, string> & { default: string };
 // Health Dashboard ─────────────────────────────────────────────────────────────
 
 export const HEALTH_DASHBOARD_ERRORS: ErrorMessageMap = {
-  default: 'Unable to load service health data. Please try again.',
-  FORBIDDEN: 'You do not have permission to view the health dashboard.',
-  SERVICE_NOT_FOUND: 'The requested service could not be found.',
-  GATEWAY_TIMEOUT: 'Health data request timed out. The service may be unavailable.',
-  EXTERNAL_SERVICE_ERROR: 'Could not reach the health aggregator. Please try again later.',
-  network: 'Network error while loading health data. Please check your connection.',
-  unknown: 'An unexpected error occurred while loading health data.',
+  default: "Unable to load service health data. Please try again.",
+  FORBIDDEN: "You do not have permission to view the health dashboard.",
+  SERVICE_NOT_FOUND: "The requested service could not be found.",
+  GATEWAY_TIMEOUT:
+    "Health data request timed out. The service may be unavailable.",
+  EXTERNAL_SERVICE_ERROR:
+    "Could not reach the health aggregator. Please try again later.",
+  network:
+    "Network error while loading health data. Please check your connection.",
+  unknown: "An unexpected error occurred while loading health data.",
 };
 
 // User Management ──────────────────────────────────────────────────────────────
 
 export const USER_MANAGEMENT_ERRORS: ErrorMessageMap = {
-  default: 'Unable to load user data. Please try again.',
-  FORBIDDEN: 'You do not have permission to manage users.',
-  SERVICE_NOT_FOUND: 'The user management service could not be found.',
-  GATEWAY_TIMEOUT: 'User data request timed out. Please try again.',
+  default: "Unable to load user data. Please try again.",
+  FORBIDDEN: "You do not have permission to manage users.",
+  SERVICE_NOT_FOUND: "The user management service could not be found.",
+  GATEWAY_TIMEOUT: "User data request timed out. Please try again.",
   EXTERNAL_SERVICE_ERROR:
-    'The identity or profile service is currently unavailable. Please try again later.',
-  network: 'Network error while loading user data. Please check your connection.',
-  unknown: 'An unexpected error occurred while loading user data.',
+    "The identity or profile service is currently unavailable. Please try again later.",
+  network:
+    "Network error while loading user data. Please check your connection.",
+  unknown: "An unexpected error occurred while loading user data.",
 };
 
 // Audit Log ────────────────────────────────────────────────────────────────────
 
 export const AUDIT_LOG_ERRORS: ErrorMessageMap = {
-  default: 'Unable to load audit log entries. Please try again.',
-  FORBIDDEN: 'You do not have permission to view the audit log.',
-  SERVICE_NOT_FOUND: 'The audit log service could not be found.',
-  GATEWAY_TIMEOUT: 'Audit log request timed out. Please try again.',
-  EXTERNAL_SERVICE_ERROR: 'The audit service is currently unavailable. Please try again later.',
-  network: 'Network error while loading audit log. Please check your connection.',
-  unknown: 'An unexpected error occurred while loading the audit log.',
+  default: "Unable to load audit log entries. Please try again.",
+  FORBIDDEN: "You do not have permission to view the audit log.",
+  SERVICE_NOT_FOUND: "The audit log service could not be found.",
+  GATEWAY_TIMEOUT: "Audit log request timed out. Please try again.",
+  EXTERNAL_SERVICE_ERROR:
+    "The audit service is currently unavailable. Please try again later.",
+  network:
+    "Network error while loading audit log. Please check your connection.",
+  unknown: "An unexpected error occurred while loading the audit log.",
 };
 
 // ── resolveErrorMessage ───────────────────────────────────────────────────────
@@ -168,7 +179,10 @@ export const AUDIT_LOG_ERRORS: ErrorMessageMap = {
  *   2. `state.type`  (error category, e.g. "network")
  *   3. `map.default` (catch-all)
  */
-export function resolveErrorMessage(state: ErrorState, map: ErrorMessageMap): string {
+export function resolveErrorMessage(
+  state: ErrorState,
+  map: ErrorMessageMap,
+): string {
   if (state.code !== undefined && state.code in map) {
     return map[state.code];
   }

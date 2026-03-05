@@ -1,4 +1,4 @@
-import type { HealthStatus } from '../entities/HealthStatus';
+import type { HealthStatus } from "../entities/HealthStatus";
 
 export interface HealthRepository {
   getHealthStatuses(): Promise<HealthStatus[]>;

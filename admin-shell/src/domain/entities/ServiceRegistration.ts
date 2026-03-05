@@ -1,5 +1,5 @@
-export type ServiceStatus = 'active' | 'degraded' | 'inactive';
-export type RegistrationSource = 'seed' | 'api';
+export type ServiceStatus = "active" | "degraded" | "inactive";
+export type RegistrationSource = "seed" | "api";
 
 export interface PluginManifest {
   name: string;
