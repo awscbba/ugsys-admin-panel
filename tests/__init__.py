@@ -1,0 +1,1 @@
+"""Admin Panel BFF tests."""

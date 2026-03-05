@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "TDD — Run Tests After Code Changes",
+  "description": "Enforces TDD workflow for React/TypeScript: after editing source or test files, run the relevant tests immediately using vitest.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/src/**/*.ts",
+      "**/src/**/*.tsx",
+      "**/tests/**/*.ts",
+      "**/tests/**/*.tsx",
+      "**/__tests__/**/*.ts",
+      "**/__tests__/**/*.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You just edited a TypeScript/React file. Follow the TDD workflow:\n\n1. If you wrote a TEST file: run it now with `npx vitest run <test_file> --reporter=verbose` — it should FAIL (RED). If it passes, you wrote the implementation first — that violates TDD.\n\n2. If you wrote a SOURCE file: run the corresponding test with `npx vitest run --reporter=verbose` — it should now PASS (GREEN). If it fails, fix it NOW before writing more code.\n\n3. NEVER skip running tests. NEVER write more implementation without a failing test first.\n\nRun the tests in the correct repo directory using cwd. Use `vitest run` (not watch mode)."
+  }
+}
