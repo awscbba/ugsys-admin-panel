@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# pre-push hook: block direct push to main, run full type-check + test suite with 80% coverage gate
+
+set -euo pipefail
+
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+
+if [ "$BRANCH" = "main" ]; then
+    echo "ERROR: Direct pushes to 'main' are not allowed."
+    echo "       Please open a pull request instead."
+    exit 1
+fi
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT/ugsys-admin-panel"
+
+FAILED=0
+
+echo "Running BFF type check..."
+if ! just type-check; then
+    echo "ERROR: mypy type checking failed. Run 'just type-check' for details."
+    FAILED=1
+fi
+
+echo "Running Admin Shell type check..."
+if ! just type-check-frontend; then
+    echo "ERROR: TypeScript type checking failed. Run 'just type-check-frontend' for details."
+    FAILED=1
+fi
+
+echo "Running BFF tests with 80% coverage gate..."
+if ! just test-coverage; then
+    echo "ERROR: BFF tests failed or coverage is below 80%. Run 'just test-coverage' for details."
+    FAILED=1
+fi
+
+echo "Running Admin Shell tests with coverage gate..."
+if ! just test-coverage-frontend; then
+    echo "ERROR: Frontend tests failed or coverage is below 80%. Run 'just test-coverage-frontend' for details."
+    FAILED=1
+fi
+
+if [ "$FAILED" -ne 0 ]; then
+    echo ""
+    echo "pre-push checks FAILED. Fix the errors above before pushing."
+    exit 1
+fi
+
+echo "pre-push checks passed."
+exit 0

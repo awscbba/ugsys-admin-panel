@@ -1,0 +1,245 @@
+"""Auth router — login, logout, token refresh, and current user.
+
+Endpoints:
+    POST /api/v1/auth/login    — authenticate and set httpOnly cookies
+    POST /api/v1/auth/logout   — clear cookies and call Identity Manager logout
+    POST /api/v1/auth/refresh  — transparent token refresh
+    GET  /api/v1/auth/me       — current user info (JWT + profile enrichment)
+
+Authentication failures are logged with source IP, path, and timestamp.
+Credentials and tokens are NEVER included in log entries (Req 13.7).
+
+Requirements: 2.1, 2.2, 2.5, 2.7, 13.7
+"""
+
+from __future__ import annotations
+
+import datetime
+
+import structlog
+from fastapi import APIRouter, Depends, Request, Response
+from pydantic import BaseModel, EmailStr
+
+from src.application.services.auth_service import AuthService
+from src.domain.exceptions import AuthenticationError
+from src.presentation.middleware.jwt_validation import get_current_user
+
+logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
+
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+# Cookie names — must match jwt_validation.py
+_ACCESS_TOKEN_COOKIE = "access_token"
+_REFRESH_TOKEN_COOKIE = "refresh_token"
+
+
+# ---------------------------------------------------------------------------
+# Request / Response models
+# ---------------------------------------------------------------------------
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class LoginResponse(BaseModel):
+    expires_in: int
+    token_type: str = "Bearer"
+
+
+class RefreshResponse(BaseModel):
+    expires_in: int
+    token_type: str = "Bearer"
+
+
+# ---------------------------------------------------------------------------
+# Dependency: resolve AuthService from app.state
+# ---------------------------------------------------------------------------
+
+def _get_auth_service(request: Request) -> AuthService:
+    return request.app.state.auth_service  # type: ignore[no-any-return]
+
+
+def _get_client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    if request.client:
+        return request.client.host
+    return "unknown"
+
+
+# ---------------------------------------------------------------------------
+# Routes
+# ---------------------------------------------------------------------------
+
+@router.post("/login", response_model=LoginResponse)
+async def login(
+    body: LoginRequest,
+    request: Request,
+    response: Response,
+    auth_service: AuthService = Depends(_get_auth_service),
+) -> LoginResponse:
+    """Authenticate and set httpOnly, Secure, SameSite=Lax cookies.
+
+    Requirements: 2.1, 2.2, 13.7
+    """
+    client_ip = _get_client_ip(request)
+    path = request.url.path
+    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+    try:
+        token_pair = await auth_service.login(body.email, body.password)
+    except AuthenticationError:
+        # Log failure with IP, path, timestamp — NO credentials or tokens (Req 13.7).
+        logger.warning(
+            "auth_login_failed",
+            source_ip=client_ip,
+            path=path,
+            timestamp=timestamp,
+        )
+        raise
+
+    access_token: str = token_pair.get("access_token", "")
+    refresh_token: str = token_pair.get("refresh_token", "")
+    expires_in: int = token_pair.get("expires_in", 900)
+
+    # Set httpOnly, Secure, SameSite=Lax cookies (Req 2.2).
+    response.set_cookie(
+        key=_ACCESS_TOKEN_COOKIE,
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        path="/",
+        max_age=expires_in,
+    )
+    if refresh_token:
+        response.set_cookie(
+            key=_REFRESH_TOKEN_COOKIE,
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            path="/",
+            max_age=60 * 60 * 24 * 30,  # 30 days
+        )
+
+    return LoginResponse(expires_in=expires_in)
+
+
+@router.post("/logout")
+async def logout(
+    request: Request,
+    response: Response,
+    auth_service: AuthService = Depends(_get_auth_service),
+) -> dict:
+    """Clear auth cookies and call Identity Manager logout.
+
+    Requirements: 2.7
+    """
+    access_token = request.cookies.get(_ACCESS_TOKEN_COOKIE, "")
+
+    # Best-effort logout — clear cookies regardless of Identity Manager response.
+    if access_token:
+        try:
+            await auth_service.logout(access_token)
+        except Exception:  # noqa: BLE001
+            logger.warning("auth_logout_identity_manager_failed")
+
+    # Clear both cookies.
+    response.delete_cookie(key=_ACCESS_TOKEN_COOKIE, path="/")
+    response.delete_cookie(key=_REFRESH_TOKEN_COOKIE, path="/")
+
+    return {"message": "Logged out successfully."}
+
+
+@router.post("/refresh", response_model=RefreshResponse)
+async def refresh(
+    request: Request,
+    response: Response,
+    auth_service: AuthService = Depends(_get_auth_service),
+) -> RefreshResponse:
+    """Transparently refresh the token pair.
+
+    Requirements: 2.4, 2.5
+    """
+    refresh_token = request.cookies.get(_REFRESH_TOKEN_COOKIE, "")
+    client_ip = _get_client_ip(request)
+    path = request.url.path
+    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+    if not refresh_token:
+        logger.warning(
+            "auth_refresh_failed_no_token",
+            source_ip=client_ip,
+            path=path,
+            timestamp=timestamp,
+        )
+        raise AuthenticationError("No refresh token provided.")
+
+    try:
+        token_pair = await auth_service.refresh(refresh_token)
+    except AuthenticationError:
+        # Log failure — no tokens in log (Req 13.7).
+        logger.warning(
+            "auth_refresh_failed",
+            source_ip=client_ip,
+            path=path,
+            timestamp=timestamp,
+        )
+        # Clear stale cookies on refresh failure (Req 2.5).
+        response.delete_cookie(key=_ACCESS_TOKEN_COOKIE, path="/")
+        response.delete_cookie(key=_REFRESH_TOKEN_COOKIE, path="/")
+        raise
+
+    new_access: str = token_pair.get("access_token", "")
+    new_refresh: str = token_pair.get("refresh_token", "")
+    expires_in: int = token_pair.get("expires_in", 900)
+
+    response.set_cookie(
+        key=_ACCESS_TOKEN_COOKIE,
+        value=new_access,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        path="/",
+        max_age=expires_in,
+    )
+    if new_refresh:
+        response.set_cookie(
+            key=_REFRESH_TOKEN_COOKIE,
+            value=new_refresh,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            path="/",
+            max_age=60 * 60 * 24 * 30,
+        )
+
+    return RefreshResponse(expires_in=expires_in)
+
+
+@router.get("/me")
+async def me(
+    request: Request,
+    auth_service: AuthService = Depends(_get_auth_service),
+) -> dict:
+    """Return current user info enriched with profile data.
+
+    Requirements: 2.7
+    """
+    # JWT middleware already validated the token and populated request.state.
+    user_id: str = getattr(request.state, "user_id", "")
+    email: str = getattr(request.state, "email", "")
+    raw_roles: list[str] = getattr(request.state, "roles", [])
+
+    admin_user = await auth_service.get_current_user(user_id, email, raw_roles)
+
+    return {
+        "user_id": admin_user.user_id,
+        "email": admin_user.email,
+        "roles": [r.value for r in admin_user.roles],
+        "display_name": admin_user.display_name,
+        "avatar_url": admin_user.avatar_url,
+    }

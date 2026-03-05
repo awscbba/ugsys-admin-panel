@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "services": [
+    {
+      "service_name": "identity-manager",
+      "base_url": "https://identity.apps.cloud.org.bo",
+      "health_endpoint": "/health",
+      "manifest_url": "https://identity.apps.cloud.org.bo/plugin-manifest.json",
+      "min_role": "admin"
+    },
+    {
+      "service_name": "user-profile-service",
+      "base_url": "https://profiles.apps.cloud.org.bo",
+      "health_endpoint": "/health",
+      "manifest_url": "https://profiles.apps.cloud.org.bo/plugin-manifest.json",
+      "min_role": "admin"
+    },
+    {
+      "service_name": "projects-registry",
+      "base_url": "https://projects.apps.cloud.org.bo",
+      "health_endpoint": "/health",
+      "manifest_url": "https://projects.apps.cloud.org.bo/plugin-manifest.json",
+      "min_role": "moderator"
+    },
+    {
+      "service_name": "mass-messaging",
+      "base_url": "https://messaging.apps.cloud.org.bo",
+      "health_endpoint": "/health",
+      "manifest_url": "https://messaging.apps.cloud.org.bo/plugin-manifest.json",
+      "min_role": "admin"
+    },
+    {
+      "service_name": "omnichannel-service",
+      "base_url": "https://omnichannel.apps.cloud.org.bo",
+      "health_endpoint": "/health",
+      "manifest_url": "https://omnichannel.apps.cloud.org.bo/plugin-manifest.json",
+      "min_role": "admin"
+    }
+  ]
+}
