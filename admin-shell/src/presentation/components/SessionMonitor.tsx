@@ -19,8 +19,8 @@
  *   - Cleans up all timers on unmount.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { getComponentLogger } from '../../utils/logger';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { getComponentLogger } from "../../utils/logger";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ const DEFAULT_WARNING_THRESHOLD_S = 300; // 5 minutes
 
 // ── Logger ────────────────────────────────────────────────────────────────────
 
-const logger = getComponentLogger('SessionMonitor');
+const logger = getComponentLogger("SessionMonitor");
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -97,14 +97,14 @@ export function SessionMonitor({
     const remaining = expiry - nowS;
 
     if (remaining <= 0) {
-      logger.warn('Session token has expired — triggering logout');
+      logger.warn("Session token has expired — triggering logout");
       setSecondsRemaining(null);
       onSessionExpiredRef.current();
       return;
     }
 
     if (remaining <= warningThreshold) {
-      logger.info('Session token nearing expiry — showing warning', {
+      logger.info("Session token nearing expiry — showing warning", {
         secondsRemaining: remaining,
         warningThreshold,
       });
@@ -134,7 +134,7 @@ export function SessionMonitor({
         const next = prev - 1;
 
         if (next <= 0) {
-          logger.warn('Countdown reached zero — triggering logout');
+          logger.warn("Countdown reached zero — triggering logout");
           onSessionExpiredRef.current();
           return null;
         }
@@ -152,16 +152,22 @@ export function SessionMonitor({
     if (isRefreshing) return;
 
     setIsRefreshing(true);
-    logger.logUserAction({ action: 'continue_session', target: 'SessionMonitor' });
+    logger.logUserAction({
+      action: "continue_session",
+      target: "SessionMonitor",
+    });
 
     try {
       await onRefreshRef.current();
       // Refresh succeeded — hide the warning.
       setSecondsRemaining(null);
-      logger.info('Silent token refresh succeeded — warning dismissed');
+      logger.info("Silent token refresh succeeded — warning dismissed");
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Token refresh failed';
-      logger.warn('Silent token refresh failed — session will expire', { error: message });
+      const message =
+        err instanceof Error ? err.message : "Token refresh failed";
+      logger.warn("Silent token refresh failed — session will expire", {
+        error: message,
+      });
       // Let the countdown continue; the next poll or countdown tick will
       // call onSessionExpired when the token actually expires.
     } finally {
@@ -175,7 +181,13 @@ export function SessionMonitor({
     return null;
   }
 
-  return <WarningToast secondsRemaining={secondsRemaining} isRefreshing={isRefreshing} onContinue={handleContinue} />;
+  return (
+    <WarningToast
+      secondsRemaining={secondsRemaining}
+      isRefreshing={isRefreshing}
+      onContinue={handleContinue}
+    />
+  );
 }
 
 // ── Warning Toast ─────────────────────────────────────────────────────────────
@@ -186,12 +198,16 @@ interface WarningToastProps {
   onContinue: () => void;
 }
 
-function WarningToast({ secondsRemaining, isRefreshing, onContinue }: WarningToastProps): React.ReactElement {
+function WarningToast({
+  secondsRemaining,
+  isRefreshing,
+  onContinue,
+}: WarningToastProps): React.ReactElement {
   const minutes = Math.floor(secondsRemaining / 60);
   const seconds = secondsRemaining % 60;
   const countdownLabel =
     minutes > 0
-      ? `${minutes}m ${String(seconds).padStart(2, '0')}s`
+      ? `${minutes}m ${String(seconds).padStart(2, "0")}s`
       : `${seconds}s`;
 
   return (
@@ -200,18 +216,18 @@ function WarningToast({ secondsRemaining, isRefreshing, onContinue }: WarningToa
       aria-live="polite"
       aria-atomic="true"
       style={{
-        position: 'fixed',
-        bottom: '1.5rem',
-        right: '1.5rem',
+        position: "fixed",
+        bottom: "1.5rem",
+        right: "1.5rem",
         zIndex: 9999,
-        width: '22rem',
-        padding: '1rem 1.25rem',
-        backgroundColor: '#fffbeb',
-        border: '1px solid #f59e0b',
-        borderRadius: '0.5rem',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        fontFamily: 'sans-serif',
-        animation: 'sessionMonitorSlideIn 0.25s ease-out',
+        width: "22rem",
+        padding: "1rem 1.25rem",
+        backgroundColor: "#fffbeb",
+        border: "1px solid #f59e0b",
+        borderRadius: "0.5rem",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        fontFamily: "sans-serif",
+        animation: "sessionMonitorSlideIn 0.25s ease-out",
       }}
     >
       {/* Inject keyframe once via a <style> tag */}
@@ -224,10 +240,10 @@ function WarningToast({ secondsRemaining, isRefreshing, onContinue }: WarningToa
 
       <p
         style={{
-          margin: '0 0 0.25rem',
-          fontSize: '0.9375rem',
+          margin: "0 0 0.25rem",
+          fontSize: "0.9375rem",
           fontWeight: 600,
-          color: '#92400e',
+          color: "#92400e",
         }}
       >
         Your session is about to expire
@@ -235,15 +251,15 @@ function WarningToast({ secondsRemaining, isRefreshing, onContinue }: WarningToa
 
       <p
         style={{
-          margin: '0 0 0.875rem',
-          fontSize: '0.875rem',
-          color: '#78350f',
+          margin: "0 0 0.875rem",
+          fontSize: "0.875rem",
+          color: "#78350f",
         }}
       >
-        Session expires in{' '}
+        Session expires in{" "}
         <strong
           aria-label={`${secondsRemaining} seconds remaining`}
-          style={{ fontVariantNumeric: 'tabular-nums' }}
+          style={{ fontVariantNumeric: "tabular-nums" }}
         >
           {countdownLabel}
         </strong>
@@ -256,19 +272,19 @@ function WarningToast({ secondsRemaining, isRefreshing, onContinue }: WarningToa
         disabled={isRefreshing}
         aria-busy={isRefreshing}
         style={{
-          padding: '0.4375rem 1rem',
-          backgroundColor: isRefreshing ? '#d97706' : '#f59e0b',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '0.375rem',
-          cursor: isRefreshing ? 'not-allowed' : 'pointer',
-          fontSize: '0.875rem',
+          padding: "0.4375rem 1rem",
+          backgroundColor: isRefreshing ? "#d97706" : "#f59e0b",
+          color: "#fff",
+          border: "none",
+          borderRadius: "0.375rem",
+          cursor: isRefreshing ? "not-allowed" : "pointer",
+          fontSize: "0.875rem",
           fontWeight: 500,
           opacity: isRefreshing ? 0.75 : 1,
-          transition: 'opacity 0.15s, background-color 0.15s',
+          transition: "opacity 0.15s, background-color 0.15s",
         }}
       >
-        {isRefreshing ? 'Refreshing…' : 'Continue Session'}
+        {isRefreshing ? "Refreshing…" : "Continue Session"}
       </button>
     </div>
   );

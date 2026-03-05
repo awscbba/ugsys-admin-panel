@@ -9,7 +9,7 @@
  *   - Production: INFO level and above
  */
 
-export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR";
 
 export interface LogEntry {
   timestamp: string;
@@ -58,9 +58,9 @@ function getMinLevel(): LogLevel {
   // Vite exposes import.meta.env.DEV at build time.
   // We guard with typeof to keep the module testable in Node environments.
   const isDev =
-    typeof import.meta !== 'undefined' &&
+    typeof import.meta !== "undefined" &&
     (import.meta as { env?: { DEV?: boolean } }).env?.DEV === true;
-  return isDev ? 'DEBUG' : 'INFO';
+  return isDev ? "DEBUG" : "INFO";
 }
 
 export class FrontendLogger {
@@ -75,38 +75,38 @@ export class FrontendLogger {
   // ── Core log methods ──────────────────────────────────────────────────────
 
   debug(message: string, context?: Record<string, unknown>): void {
-    this.log('DEBUG', message, context);
+    this.log("DEBUG", message, context);
   }
 
   info(message: string, context?: Record<string, unknown>): void {
-    this.log('INFO', message, context);
+    this.log("INFO", message, context);
   }
 
   warn(message: string, context?: Record<string, unknown>): void {
-    this.log('WARN', message, context);
+    this.log("WARN", message, context);
   }
 
   error(message: string, context?: Record<string, unknown>): void {
-    this.log('ERROR', message, context);
+    this.log("ERROR", message, context);
   }
 
   // ── Specialised methods ───────────────────────────────────────────────────
 
   logApiRequest(ctx: ApiRequestContext): void {
-    this.debug('API request', { ...ctx });
+    this.debug("API request", { ...ctx });
   }
 
   logApiResponse(ctx: ApiResponseContext): void {
-    const level: LogLevel = ctx.status >= 400 ? 'WARN' : 'DEBUG';
-    this.log(level, 'API response', { ...ctx });
+    const level: LogLevel = ctx.status >= 400 ? "WARN" : "DEBUG";
+    this.log(level, "API response", { ...ctx });
   }
 
   logUserAction(ctx: UserActionContext): void {
-    this.info('User action', { ...ctx });
+    this.info("User action", { ...ctx });
   }
 
   logComponentEvent(ctx: ComponentEventContext): void {
-    this.debug('Component event', { ...ctx });
+    this.debug("Component event", { ...ctx });
   }
 
   // ── Internal ──────────────────────────────────────────────────────────────
@@ -131,16 +131,16 @@ export class FrontendLogger {
     const output = JSON.stringify(entry);
 
     switch (level) {
-      case 'DEBUG':
+      case "DEBUG":
         console.debug(output);
         break;
-      case 'INFO':
+      case "INFO":
         console.info(output);
         break;
-      case 'WARN':
+      case "WARN":
         console.warn(output);
         break;
-      case 'ERROR':
+      case "ERROR":
         console.error(output);
         break;
     }

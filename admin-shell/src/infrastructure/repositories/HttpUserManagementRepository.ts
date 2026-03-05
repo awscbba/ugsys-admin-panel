@@ -1,10 +1,10 @@
-import type { AdminUser } from '../../domain/entities/AdminUser';
+import type { AdminUser } from "../../domain/entities/AdminUser";
 import type {
   UserManagementRepository,
   UserListQuery,
   PaginatedUsers,
-} from '../../domain/repositories/UserManagementRepository';
-import { HttpClient } from '../http/HttpClient';
+} from "../../domain/repositories/UserManagementRepository";
+import { HttpClient } from "../http/HttpClient";
 
 interface AdminUserDto {
   user_id: string;
@@ -32,15 +32,16 @@ function mapAdminUser(dto: AdminUserDto): AdminUser {
 }
 
 function buildQueryString(query?: UserListQuery): string {
-  if (!query) return '';
+  if (!query) return "";
   const params = new URLSearchParams();
-  if (query.search !== undefined) params.set('search', query.search);
-  if (query.page !== undefined) params.set('page', String(query.page));
-  if (query.pageSize !== undefined) params.set('page_size', String(query.pageSize));
-  if (query.role !== undefined) params.set('role', query.role);
-  if (query.status !== undefined) params.set('status', query.status);
+  if (query.search !== undefined) params.set("search", query.search);
+  if (query.page !== undefined) params.set("page", String(query.page));
+  if (query.pageSize !== undefined)
+    params.set("page_size", String(query.pageSize));
+  if (query.role !== undefined) params.set("role", query.role);
+  if (query.status !== undefined) params.set("status", query.status);
   const qs = params.toString();
-  return qs ? `?${qs}` : '';
+  return qs ? `?${qs}` : "";
 }
 
 export class HttpUserManagementRepository implements UserManagementRepository {
@@ -52,7 +53,9 @@ export class HttpUserManagementRepository implements UserManagementRepository {
 
   async listUsers(query?: UserListQuery): Promise<PaginatedUsers> {
     const qs = buildQueryString(query);
-    const data = await this.http.getJson<PaginatedUsersDto>(`/api/v1/users${qs}`);
+    const data = await this.http.getJson<PaginatedUsersDto>(
+      `/api/v1/users${qs}`,
+    );
     return {
       items: data.items.map(mapAdminUser),
       total: data.total,
@@ -64,14 +67,17 @@ export class HttpUserManagementRepository implements UserManagementRepository {
   async changeRoles(userId: string, roles: string[]): Promise<void> {
     await this.http.request(
       `/api/v1/users/${encodeURIComponent(userId)}/roles`,
-      { method: 'PATCH', body: JSON.stringify({ roles }) },
+      { method: "PATCH", body: JSON.stringify({ roles }) },
     );
   }
 
-  async changeStatus(userId: string, status: 'active' | 'inactive'): Promise<void> {
+  async changeStatus(
+    userId: string,
+    status: "active" | "inactive",
+  ): Promise<void> {
     await this.http.request(
       `/api/v1/users/${encodeURIComponent(userId)}/status`,
-      { method: 'PATCH', body: JSON.stringify({ status }) },
+      { method: "PATCH", body: JSON.stringify({ status }) },
     );
   }
 }

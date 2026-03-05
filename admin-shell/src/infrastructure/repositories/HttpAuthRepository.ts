@@ -1,6 +1,6 @@
-import type { AdminUser } from '../../domain/entities/AdminUser';
-import type { AuthRepository } from '../../domain/repositories/AuthRepository';
-import { HttpClient } from '../http/HttpClient';
+import type { AdminUser } from "../../domain/entities/AdminUser";
+import type { AuthRepository } from "../../domain/repositories/AuthRepository";
+import { HttpClient } from "../http/HttpClient";
 
 interface LoginResponseDto {
   accessToken: string;
@@ -40,7 +40,7 @@ export class HttpAuthRepository implements AuthRepository {
 
   async login(email: string, password: string): Promise<AdminUser> {
     const data = await this.http.postJson<LoginResponseDto>(
-      '/api/v1/auth/login',
+      "/api/v1/auth/login",
       { email, password },
     );
     this.http.setAccessToken(data.accessToken);
@@ -48,20 +48,20 @@ export class HttpAuthRepository implements AuthRepository {
   }
 
   async logout(): Promise<void> {
-    await this.http.postJson<void>('/api/v1/auth/logout', {});
+    await this.http.postJson<void>("/api/v1/auth/logout", {});
     this.http.setAccessToken(null);
   }
 
   async refresh(): Promise<void> {
     const data = await this.http.postJson<{ accessToken: string }>(
-      '/api/v1/auth/refresh',
+      "/api/v1/auth/refresh",
       {},
     );
     this.http.setAccessToken(data.accessToken);
   }
 
   async getCurrentUser(): Promise<AdminUser> {
-    const data = await this.http.getJson<MeResponseDto>('/api/v1/auth/me');
+    const data = await this.http.getJson<MeResponseDto>("/api/v1/auth/me");
     return mapToAdminUser(data);
   }
 }

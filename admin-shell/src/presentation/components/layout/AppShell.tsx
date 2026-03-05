@@ -1,11 +1,18 @@
-import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import { useStore } from '@nanostores/react';
-import { $user, $isAuthenticated, $isLoading, login, logout, initializeAuth } from '../../../stores/authStore';
-import { $services, loadServices } from '../../../stores/registryStore';
-import type { NavigationEntry } from '../../../domain/entities/ServiceRegistration';
-import { Sidebar } from './Sidebar';
-import { TopBar } from './TopBar';
+import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
+import { useStore } from "@nanostores/react";
+import {
+  $user,
+  $isAuthenticated,
+  $isLoading,
+  login,
+  logout,
+  initializeAuth,
+} from "../../../stores/authStore";
+import { $services, loadServices } from "../../../stores/registryStore";
+import type { NavigationEntry } from "../../../domain/entities/ServiceRegistration";
+import { Sidebar } from "./Sidebar";
+import { TopBar } from "./TopBar";
 
 /**
  * AppShell — main layout component.
@@ -22,8 +29,8 @@ export function AppShell() {
   const isLoading = useStore($isLoading);
   const services = useStore($services);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
 
   // Restore session on mount
@@ -53,12 +60,12 @@ export function AppShell() {
     return (
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          fontSize: '16px',
-          color: '#6b7280',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          fontSize: "16px",
+          color: "#6b7280",
         }}
       >
         Loading…
@@ -75,39 +82,53 @@ export function AppShell() {
       try {
         await login(email, password);
       } catch (err) {
-        setLoginError(err instanceof Error ? err.message : 'Login failed');
+        setLoginError(err instanceof Error ? err.message : "Login failed");
       }
     };
 
     return (
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          background: '#f9fafb',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          background: "#f9fafb",
         }}
       >
         <form
           onSubmit={handleSubmit}
           aria-label="Login form"
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            padding: '40px',
-            background: '#fff',
-            borderRadius: '12px',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-            width: '360px',
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+            padding: "40px",
+            background: "#fff",
+            borderRadius: "12px",
+            boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+            width: "360px",
           }}
         >
-          <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 700, color: '#111827' }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "22px",
+              fontWeight: 700,
+              color: "#111827",
+            }}
+          >
             Admin Panel
           </h1>
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
+          <label
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+              fontSize: "14px",
+            }}
+          >
             Email
             <input
               type="email"
@@ -116,15 +137,22 @@ export function AppShell() {
               required
               autoComplete="email"
               style={{
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px',
+                padding: "8px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: "6px",
+                fontSize: "14px",
               }}
             />
           </label>
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
+          <label
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+              fontSize: "14px",
+            }}
+          >
             Password
             <input
               type="password"
@@ -133,16 +161,19 @@ export function AppShell() {
               required
               autoComplete="current-password"
               style={{
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px',
+                padding: "8px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: "6px",
+                fontSize: "14px",
               }}
             />
           </label>
 
           {loginError && (
-            <p role="alert" style={{ margin: 0, fontSize: '13px', color: '#dc2626' }}>
+            <p
+              role="alert"
+              style={{ margin: 0, fontSize: "13px", color: "#dc2626" }}
+            >
               {loginError}
             </p>
           )}
@@ -151,18 +182,18 @@ export function AppShell() {
             type="submit"
             disabled={isLoading}
             style={{
-              padding: '10px',
-              background: '#6366f1',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
+              padding: "10px",
+              background: "#6366f1",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              fontSize: "14px",
               fontWeight: 600,
-              cursor: isLoading ? 'not-allowed' : 'pointer',
+              cursor: isLoading ? "not-allowed" : "pointer",
               opacity: isLoading ? 0.7 : 1,
             }}
           >
-            {isLoading ? 'Signing in…' : 'Sign in'}
+            {isLoading ? "Signing in…" : "Sign in"}
           </button>
         </form>
       </div>
@@ -172,18 +203,25 @@ export function AppShell() {
   // ── Authenticated layout ──────────────────────────────────────────────
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <Sidebar navigationEntries={navigationEntries} userRoles={userRoles} />
 
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          overflow: "hidden",
+        }}
+      >
         <TopBar user={user!} onLogout={logout} />
 
         <main
           style={{
             flex: 1,
-            overflow: 'auto',
-            padding: '24px',
-            background: '#f9fafb',
+            overflow: "auto",
+            padding: "24px",
+            background: "#f9fafb",
           }}
         >
           <Outlet />

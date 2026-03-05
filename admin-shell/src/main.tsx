@@ -8,15 +8,15 @@
  * Requirements: 13.7
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { enableSecureLogging } from './utils/secureLogging';
-import { App } from './App';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { enableSecureLogging } from "./utils/secureLogging";
+import { App } from "./App";
 
 // Enable secure console logging before anything else runs.
 enableSecureLogging();
 
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById("root");
 
 if (!rootElement) {
   throw new Error(

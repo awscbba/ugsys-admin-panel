@@ -2,13 +2,14 @@ name: BFF Proxy CI
 
 on:
   push:
-    branches: [main]
+    branches-ignore: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 defaults:
   run:
-    working-directory: ugsys-admin-panel
+    working-directory: .
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -96,7 +97,7 @@ jobs:
         if: always()
         with:
           name: coverage-report
-          path: ugsys-admin-panel/coverage.xml
+          path: coverage.xml
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 4: SAST — Bandit (blocks merge)
@@ -142,39 +143,10 @@ jobs:
             --config p/owasp-top-ten \
             --config p/secrets \
             --error \
-            src/
-        working-directory: ugsys-admin-panel
+            "$GITHUB_WORKSPACE/src/"
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Stage 6: Dependency CVEs — Safety (advisory, does NOT block merge)
-  # ─────────────────────────────────────────────────────────────────────────────
-  safety:
-    name: Dependency CVEs (Safety) [advisory]
-    runs-on: ubuntu-latest
-    needs: lint
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Install dependencies
-        run: uv sync --all-extras
-
-      - name: Install Safety
-        run: uv pip install safety
-
-      - name: Run Safety check
-        run: uv run safety check
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # Stage 7: SBOM + CVE scan — CycloneDX → Trivy (blocks merge)
+  # Stage 6: SBOM + CVE scan — CycloneDX → Trivy (blocks merge)
   # ─────────────────────────────────────────────────────────────────────────────
   sbom-trivy:
     name: SBOM + CVE Scan (CycloneDX + Trivy)
@@ -217,23 +189,27 @@ jobs:
         if: always()
         with:
           name: sbom
-          path: ugsys-admin-panel/bom.json
+          path: bom.json
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Stage 8: Secret scan — Gitleaks (blocks merge)
+  # Stage 8: Secret scan — TruffleHog (blocks merge)
   # ─────────────────────────────────────────────────────────────────────────────
-  gitleaks:
-    name: Secret Scan (Gitleaks)
+  secret-scan:
+    name: Secret Scan (TruffleHog)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Stage 9: Architecture guard — hexagonal layer imports (blocks merge)

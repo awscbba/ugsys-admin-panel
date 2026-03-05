@@ -1,10 +1,10 @@
-import type { AuditLogEntry } from '../../domain/entities/AuditLogEntry';
+import type { AuditLogEntry } from "../../domain/entities/AuditLogEntry";
 import type {
   AuditRepository,
   AuditLogFilters,
   PaginatedAuditLogs,
-} from '../../domain/repositories/AuditRepository';
-import { HttpClient } from '../http/HttpClient';
+} from "../../domain/repositories/AuditRepository";
+import { HttpClient } from "../http/HttpClient";
 
 interface AuditLogEntryDto {
   id: string;
@@ -42,17 +42,21 @@ function mapAuditLogEntry(dto: AuditLogEntryDto): AuditLogEntry {
 }
 
 function buildQueryString(filters?: AuditLogFilters): string {
-  if (!filters) return '';
+  if (!filters) return "";
   const params = new URLSearchParams();
-  if (filters.fromDate !== undefined) params.set('from_date', filters.fromDate);
-  if (filters.toDate !== undefined) params.set('to_date', filters.toDate);
-  if (filters.actorUserId !== undefined) params.set('actor_user_id', filters.actorUserId);
-  if (filters.targetService !== undefined) params.set('target_service', filters.targetService);
-  if (filters.httpMethod !== undefined) params.set('http_method', filters.httpMethod);
-  if (filters.page !== undefined) params.set('page', String(filters.page));
-  if (filters.pageSize !== undefined) params.set('page_size', String(filters.pageSize));
+  if (filters.fromDate !== undefined) params.set("from_date", filters.fromDate);
+  if (filters.toDate !== undefined) params.set("to_date", filters.toDate);
+  if (filters.actorUserId !== undefined)
+    params.set("actor_user_id", filters.actorUserId);
+  if (filters.targetService !== undefined)
+    params.set("target_service", filters.targetService);
+  if (filters.httpMethod !== undefined)
+    params.set("http_method", filters.httpMethod);
+  if (filters.page !== undefined) params.set("page", String(filters.page));
+  if (filters.pageSize !== undefined)
+    params.set("page_size", String(filters.pageSize));
   const qs = params.toString();
-  return qs ? `?${qs}` : '';
+  return qs ? `?${qs}` : "";
 }
 
 export class HttpAuditRepository implements AuditRepository {
@@ -64,7 +68,9 @@ export class HttpAuditRepository implements AuditRepository {
 
   async queryLogs(filters?: AuditLogFilters): Promise<PaginatedAuditLogs> {
     const qs = buildQueryString(filters);
-    const data = await this.http.getJson<PaginatedAuditLogsDto>(`/api/v1/audit/logs${qs}`);
+    const data = await this.http.getJson<PaginatedAuditLogsDto>(
+      `/api/v1/audit/logs${qs}`,
+    );
     return {
       items: data.items.map(mapAuditLogEntry),
       total: data.total,

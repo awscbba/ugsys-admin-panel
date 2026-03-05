@@ -12,17 +12,17 @@
  *   super_admin | admin | moderator | auditor
  */
 
-import React, { createContext, useContext, useMemo } from 'react';
-import { useStore } from '@nanostores/react';
-import { $user } from '../../stores/authStore';
+import React, { createContext, useContext, useMemo } from "react";
+import { useStore } from "@nanostores/react";
+import { $user } from "../../stores/authStore";
 
 // ── Constants ─────────────────────────────────────────────────────────────
 
 export const ADMIN_ROLES = new Set([
-  'super_admin',
-  'admin',
-  'moderator',
-  'auditor',
+  "super_admin",
+  "admin",
+  "moderator",
+  "auditor",
 ]);
 
 // ── Context shape ─────────────────────────────────────────────────────────
@@ -48,7 +48,9 @@ interface RbacProviderProps {
   children: React.ReactNode;
 }
 
-export function RbacProvider({ children }: RbacProviderProps): React.JSX.Element {
+export function RbacProvider({
+  children,
+}: RbacProviderProps): React.JSX.Element {
   const user = useStore($user);
 
   const value = useMemo<RbacContextValue>(() => {
@@ -74,7 +76,7 @@ export function RbacProvider({ children }: RbacProviderProps): React.JSX.Element
 export function useRbac(): RbacContextValue {
   const ctx = useContext(RbacContext);
   if (ctx === null) {
-    throw new Error('useRbac must be used within a RbacProvider');
+    throw new Error("useRbac must be used within a RbacProvider");
   }
   return ctx;
 }

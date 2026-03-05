@@ -1,4 +1,4 @@
-import type { AdminUser } from '../entities/AdminUser';
+import type { AdminUser } from "../entities/AdminUser";
 
 export interface AuthRepository {
   login(email: string, password: string): Promise<AdminUser>;

@@ -1,6 +1,9 @@
-import type { HealthStatus, HealthState } from '../../domain/entities/HealthStatus';
-import type { HealthRepository } from '../../domain/repositories/HealthRepository';
-import { HttpClient } from '../http/HttpClient';
+import type {
+  HealthStatus,
+  HealthState,
+} from "../../domain/entities/HealthStatus";
+import type { HealthRepository } from "../../domain/repositories/HealthRepository";
+import { HttpClient } from "../http/HttpClient";
 
 interface HealthStatusDto {
   service_name: string;
@@ -31,7 +34,7 @@ export class HttpHealthRepository implements HealthRepository {
 
   async getHealthStatuses(): Promise<HealthStatus[]> {
     const data = await this.http.getJson<HealthStatusDto[]>(
-      '/api/v1/health/services',
+      "/api/v1/health/services",
     );
     return data.map(mapHealthStatus);
   }

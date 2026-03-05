@@ -13,27 +13,31 @@
  * - Shows success message on successful submission
  */
 
-import { useEffect, useRef, useState } from 'react';
-import { HttpRegistryRepository } from '../../../infrastructure/repositories/HttpRegistryRepository';
-import { HttpClient } from '../../../infrastructure/http/HttpClient';
-import { API_CONFIG } from '../../../config/api';
-import { useRbac } from '../RbacProvider';
-import { getComponentLogger } from '../../../utils/logger';
-import { normalizeError, resolveErrorMessage } from '../../../utils/errorHandling';
-import type { ErrorMessageMap } from '../../../utils/errorHandling';
+import { useEffect, useRef, useState } from "react";
+import { HttpRegistryRepository } from "../../../infrastructure/repositories/HttpRegistryRepository";
+import { HttpClient } from "../../../infrastructure/http/HttpClient";
+import { API_CONFIG } from "../../../config/api";
+import { useRbac } from "../RbacProvider";
+import { getComponentLogger } from "../../../utils/logger";
+import {
+  normalizeError,
+  resolveErrorMessage,
+} from "../../../utils/errorHandling";
+import type { ErrorMessageMap } from "../../../utils/errorHandling";
 
-const logger = getComponentLogger('ConfigForm');
+const logger = getComponentLogger("ConfigForm");
 
 // ── Error messages ────────────────────────────────────────────────────────────
 
 const CONFIG_FORM_ERRORS: ErrorMessageMap = {
-  default: 'Unable to load configuration schema. Please try again.',
-  FORBIDDEN: 'You do not have permission to manage this service configuration.',
-  SERVICE_NOT_FOUND: 'The service configuration schema could not be found.',
-  GATEWAY_TIMEOUT: 'Request timed out. Please try again.',
-  EXTERNAL_SERVICE_ERROR: 'The service is currently unavailable. Please try again later.',
-  network: 'Network error. Please check your connection and try again.',
-  unknown: 'An unexpected error occurred.',
+  default: "Unable to load configuration schema. Please try again.",
+  FORBIDDEN: "You do not have permission to manage this service configuration.",
+  SERVICE_NOT_FOUND: "The service configuration schema could not be found.",
+  GATEWAY_TIMEOUT: "Request timed out. Please try again.",
+  EXTERNAL_SERVICE_ERROR:
+    "The service is currently unavailable. Please try again later.",
+  network: "Network error. Please check your connection and try again.",
+  unknown: "An unexpected error occurred.",
 };
 
 // ── JSON Schema types ─────────────────────────────────────────────────────────
@@ -69,23 +73,25 @@ interface ValidationError {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function getFieldType(schema: JsonSchemaProperty): 'string' | 'number' | 'boolean' | 'enum' | 'object' {
-  if (schema.enum !== undefined && schema.enum.length > 0) return 'enum';
+function getFieldType(
+  schema: JsonSchemaProperty,
+): "string" | "number" | "boolean" | "enum" | "object" {
+  if (schema.enum !== undefined && schema.enum.length > 0) return "enum";
   const t = Array.isArray(schema.type) ? schema.type[0] : schema.type;
-  if (t === 'boolean') return 'boolean';
-  if (t === 'number' || t === 'integer') return 'number';
-  if (t === 'object') return 'object';
-  return 'string';
+  if (t === "boolean") return "boolean";
+  if (t === "number" || t === "integer") return "number";
+  if (t === "object") return "object";
+  return "string";
 }
 
 function getDefaultValue(schema: JsonSchemaProperty): unknown {
   if (schema.default !== undefined) return schema.default;
   const type = getFieldType(schema);
-  if (type === 'boolean') return false;
-  if (type === 'number') return '';
-  if (type === 'object') return {};
-  if (type === 'enum') return schema.enum?.[0] ?? '';
-  return '';
+  if (type === "boolean") return false;
+  if (type === "number") return "";
+  if (type === "object") return {};
+  if (type === "enum") return schema.enum?.[0] ?? "";
+  return "";
 }
 
 function buildInitialValues(schema: JsonSchema): Record<string, unknown> {
@@ -93,7 +99,7 @@ function buildInitialValues(schema: JsonSchema): Record<string, unknown> {
   if (!schema.properties) return values;
   for (const [key, prop] of Object.entries(schema.properties)) {
     const type = getFieldType(prop);
-    if (type === 'object' && prop.properties) {
+    if (type === "object" && prop.properties) {
       values[key] = buildInitialValues(prop as JsonSchema);
     } else {
       values[key] = getDefaultValue(prop);
@@ -118,7 +124,7 @@ function setNestedValue(
 function getNestedValue(obj: Record<string, unknown>, path: string[]): unknown {
   let current: unknown = obj;
   for (const key of path) {
-    if (typeof current !== 'object' || current === null) return undefined;
+    if (typeof current !== "object" || current === null) return undefined;
     current = (current as Record<string, unknown>)[key];
   }
   return current;
@@ -127,40 +133,40 @@ function getNestedValue(obj: Record<string, unknown>, path: string[]): unknown {
 // ── Shared styles ─────────────────────────────────────────────────────────────
 
 const labelStyle: React.CSSProperties = {
-  display: 'block',
-  fontSize: '13px',
+  display: "block",
+  fontSize: "13px",
   fontWeight: 600,
-  color: '#374151',
-  marginBottom: '4px',
+  color: "#374151",
+  marginBottom: "4px",
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '8px 10px',
-  border: '1px solid #d1d5db',
-  borderRadius: '6px',
-  fontSize: '14px',
-  color: '#111827',
-  background: '#fff',
-  outline: 'none',
-  boxSizing: 'border-box',
+  width: "100%",
+  padding: "8px 10px",
+  border: "1px solid #d1d5db",
+  borderRadius: "6px",
+  fontSize: "14px",
+  color: "#111827",
+  background: "#fff",
+  outline: "none",
+  boxSizing: "border-box",
 };
 
 const inputErrorStyle: React.CSSProperties = {
   ...inputStyle,
-  border: '1px solid #f87171',
+  border: "1px solid #f87171",
 };
 
 const fieldErrorStyle: React.CSSProperties = {
-  fontSize: '12px',
-  color: '#b91c1c',
-  marginTop: '4px',
+  fontSize: "12px",
+  color: "#b91c1c",
+  marginTop: "4px",
 };
 
 const descriptionStyle: React.CSSProperties = {
-  fontSize: '12px',
-  color: '#6b7280',
-  marginTop: '3px',
+  fontSize: "12px",
+  color: "#6b7280",
+  marginTop: "3px",
 };
 
 // ── SchemaField ───────────────────────────────────────────────────────────────
@@ -187,39 +193,49 @@ function SchemaField({
   const type = getFieldType(schema);
   const label = schema.title ?? fieldKey;
   const fieldPath = [...path, fieldKey];
-  const fieldId = fieldPath.join('.');
-  const currentValue = getNestedValue(values, fieldPath.slice(path.length === 0 ? 0 : path.length));
-  const errorKey = fieldPath.join('.');
+  const fieldId = fieldPath.join(".");
+  const currentValue = getNestedValue(
+    values,
+    fieldPath.slice(path.length === 0 ? 0 : path.length),
+  );
+  const errorKey = fieldPath.join(".");
   const errorMsg = fieldErrors[errorKey];
   const hasError = errorMsg !== undefined;
 
   // For nested objects, recurse
-  if (type === 'object' && schema.properties) {
+  if (type === "object" && schema.properties) {
     const nestedValues = (currentValue as Record<string, unknown>) ?? {};
     return (
       <fieldset
         style={{
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '16px',
-          margin: '0 0 16px',
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          padding: "16px",
+          margin: "0 0 16px",
         }}
       >
         <legend
           style={{
-            fontSize: '13px',
+            fontSize: "13px",
             fontWeight: 700,
-            color: '#374151',
-            padding: '0 6px',
+            color: "#374151",
+            padding: "0 6px",
           }}
         >
           {label}
           {required && (
-            <span aria-hidden="true" style={{ color: '#ef4444', marginLeft: '3px' }}>*</span>
+            <span
+              aria-hidden="true"
+              style={{ color: "#ef4444", marginLeft: "3px" }}
+            >
+              *
+            </span>
           )}
         </legend>
         {schema.description && (
-          <p style={{ ...descriptionStyle, marginTop: 0, marginBottom: '12px' }}>
+          <p
+            style={{ ...descriptionStyle, marginTop: 0, marginBottom: "12px" }}
+          >
             {schema.description}
           </p>
         )}
@@ -244,21 +260,26 @@ function SchemaField({
   };
 
   return (
-    <div style={{ marginBottom: '16px' }}>
-      {type !== 'boolean' && (
+    <div style={{ marginBottom: "16px" }}>
+      {type !== "boolean" && (
         <label htmlFor={fieldId} style={labelStyle}>
           {label}
           {required && (
-            <span aria-hidden="true" style={{ color: '#ef4444', marginLeft: '3px' }}>*</span>
+            <span
+              aria-hidden="true"
+              style={{ color: "#ef4444", marginLeft: "3px" }}
+            >
+              *
+            </span>
           )}
         </label>
       )}
 
-      {type === 'string' && (
+      {type === "string" && (
         <input
           id={fieldId}
           type="text"
-          value={String(currentValue ?? '')}
+          value={String(currentValue ?? "")}
           onChange={(e) => handleChange(e.target.value)}
           style={hasError ? inputErrorStyle : inputStyle}
           aria-describedby={schema.description ? `${fieldId}-desc` : undefined}
@@ -269,14 +290,14 @@ function SchemaField({
         />
       )}
 
-      {type === 'number' && (
+      {type === "number" && (
         <input
           id={fieldId}
           type="number"
-          value={String(currentValue ?? '')}
+          value={String(currentValue ?? "")}
           onChange={(e) => {
             const v = e.target.value;
-            handleChange(v === '' ? '' : Number(v));
+            handleChange(v === "" ? "" : Number(v));
           }}
           style={hasError ? inputErrorStyle : inputStyle}
           aria-describedby={schema.description ? `${fieldId}-desc` : undefined}
@@ -287,16 +308,16 @@ function SchemaField({
         />
       )}
 
-      {type === 'boolean' && (
+      {type === "boolean" && (
         <label
           htmlFor={fieldId}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '14px',
-            color: '#374151',
-            cursor: 'pointer',
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "14px",
+            color: "#374151",
+            cursor: "pointer",
           }}
         >
           <input
@@ -304,23 +325,31 @@ function SchemaField({
             type="checkbox"
             checked={Boolean(currentValue)}
             onChange={(e) => handleChange(e.target.checked)}
-            aria-describedby={schema.description ? `${fieldId}-desc` : undefined}
+            aria-describedby={
+              schema.description ? `${fieldId}-desc` : undefined
+            }
             aria-required={required}
-            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+            style={{ width: "16px", height: "16px", cursor: "pointer" }}
           />
           {label}
           {required && (
-            <span aria-hidden="true" style={{ color: '#ef4444' }}>*</span>
+            <span aria-hidden="true" style={{ color: "#ef4444" }}>
+              *
+            </span>
           )}
         </label>
       )}
 
-      {type === 'enum' && (
+      {type === "enum" && (
         <select
           id={fieldId}
-          value={String(currentValue ?? '')}
+          value={String(currentValue ?? "")}
           onChange={(e) => handleChange(e.target.value)}
-          style={hasError ? { ...inputErrorStyle, cursor: 'pointer' } : { ...inputStyle, cursor: 'pointer' }}
+          style={
+            hasError
+              ? { ...inputErrorStyle, cursor: "pointer" }
+              : { ...inputStyle, cursor: "pointer" }
+          }
           aria-describedby={schema.description ? `${fieldId}-desc` : undefined}
           aria-invalid={hasError}
           aria-required={required}
@@ -356,7 +385,7 @@ export interface ConfigFormProps {
 
 export function ConfigForm({ serviceName }: ConfigFormProps) {
   const { hasAnyRole } = useRbac();
-  const canView = hasAnyRole(['super_admin', 'admin']);
+  const canView = hasAnyRole(["super_admin", "admin"]);
 
   const repo = useRef(new HttpRegistryRepository());
   const http = useRef(HttpClient.getInstance());
@@ -377,18 +406,29 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
     setIsLoadingSchema(true);
     setSchemaError(null);
     setSubmitSuccess(false);
-    logger.logComponentEvent({ event: 'load_schema_start', component: 'ConfigForm', context: { serviceName } });
+    logger.logComponentEvent({
+      event: "load_schema_start",
+      component: "ConfigForm",
+      context: { serviceName },
+    });
 
     try {
       const raw = await repo.current.getConfigSchema(serviceName);
       const loaded = raw as JsonSchema;
       setSchema(loaded);
       setValues(buildInitialValues(loaded));
-      logger.logComponentEvent({ event: 'load_schema_success', component: 'ConfigForm', context: { serviceName } });
+      logger.logComponentEvent({
+        event: "load_schema_success",
+        component: "ConfigForm",
+        context: { serviceName },
+      });
     } catch (err) {
       const state = normalizeError(err);
       const msg = resolveErrorMessage(state, CONFIG_FORM_ERRORS);
-      logger.warn('Failed to load config schema', { error: state, serviceName });
+      logger.warn("Failed to load config schema", {
+        error: state,
+        serviceName,
+      });
       setSchemaError(msg);
     } finally {
       setIsLoadingSchema(false);
@@ -407,7 +447,7 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
   const handleFieldChange = (path: string[], value: unknown) => {
     setValues((prev) => setNestedValue(prev, path, value));
     // Clear field error on change
-    const key = path.join('.');
+    const key = path.join(".");
     if (fieldErrors[key]) {
       setFieldErrors((prev) => {
         const next = { ...prev };
@@ -425,21 +465,30 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
     setSubmitError(null);
     setSubmitSuccess(false);
     setFieldErrors({});
-    logger.logUserAction({ action: 'submit_config', context: { serviceName } });
+    logger.logUserAction({ action: "submit_config", context: { serviceName } });
 
     try {
       const url = API_CONFIG.proxy.config(serviceName);
       await http.current.postJson<unknown>(url, values);
       setSubmitSuccess(true);
-      logger.logComponentEvent({ event: 'submit_success', component: 'ConfigForm', context: { serviceName } });
+      logger.logComponentEvent({
+        event: "submit_success",
+        component: "ConfigForm",
+        context: { serviceName },
+      });
     } catch (err) {
       // Handle 422 validation errors from BFF
       if (
-        typeof err === 'object' &&
+        typeof err === "object" &&
         err !== null &&
-        (err as Record<string, unknown>)['status'] === 422
+        (err as Record<string, unknown>)["status"] === 422
       ) {
-        const apiErr = err as { status: number; error: string; message: string; data?: { errors?: ValidationError[] } };
+        const apiErr = err as {
+          status: number;
+          error: string;
+          message: string;
+          data?: { errors?: ValidationError[] };
+        };
         const errors: Record<string, string> = {};
         if (apiErr.data?.errors) {
           for (const ve of apiErr.data.errors) {
@@ -448,15 +497,15 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
         }
         if (Object.keys(errors).length > 0) {
           setFieldErrors(errors);
-          setSubmitError('Please fix the validation errors below.');
+          setSubmitError("Please fix the validation errors below.");
         } else {
-          setSubmitError(apiErr.message || 'Configuration validation failed.');
+          setSubmitError(apiErr.message || "Configuration validation failed.");
         }
-        logger.warn('Config validation failed', { serviceName, errors });
+        logger.warn("Config validation failed", { serviceName, errors });
       } else {
         const state = normalizeError(err);
         const msg = resolveErrorMessage(state, CONFIG_FORM_ERRORS);
-        logger.warn('Config submit failed', { error: state, serviceName });
+        logger.warn("Config submit failed", { error: state, serviceName });
         setSubmitError(msg);
       }
     } finally {
@@ -472,20 +521,27 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
         role="alert"
         aria-live="polite"
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '64px 24px',
-          color: '#6b7280',
-          textAlign: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "64px 24px",
+          color: "#6b7280",
+          textAlign: "center",
         }}
       >
-        <span style={{ fontSize: '40px', marginBottom: '16px' }} aria-hidden="true">🔒</span>
-        <p style={{ margin: 0, fontSize: '16px', fontWeight: 500 }}>Access denied</p>
-        <p style={{ margin: '8px 0 0', fontSize: '14px' }}>
-          You need the <strong>admin</strong> or <strong>super_admin</strong> role to manage
-          service configuration.
+        <span
+          style={{ fontSize: "40px", marginBottom: "16px" }}
+          aria-hidden="true"
+        >
+          🔒
+        </span>
+        <p style={{ margin: 0, fontSize: "16px", fontWeight: 500 }}>
+          Access denied
+        </p>
+        <p style={{ margin: "8px 0 0", fontSize: "14px" }}>
+          You need the <strong>admin</strong> or <strong>super_admin</strong>{" "}
+          role to manage service configuration.
         </p>
       </div>
     );
@@ -497,18 +553,21 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
     return (
       <div aria-busy="true" aria-label="Loading configuration schema">
         <h2 style={headingStyle}>
-          Configuration — <span style={{ fontWeight: 400, color: '#6b7280' }}>{serviceName}</span>
+          Configuration —{" "}
+          <span style={{ fontWeight: 400, color: "#6b7280" }}>
+            {serviceName}
+          </span>
         </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
               aria-hidden="true"
               style={{
-                height: '56px',
-                borderRadius: '6px',
-                background: '#e5e7eb',
-                animation: 'pulse 1.5s ease-in-out infinite',
+                height: "56px",
+                borderRadius: "6px",
+                background: "#e5e7eb",
+                animation: "pulse 1.5s ease-in-out infinite",
               }}
             />
           ))}
@@ -524,23 +583,33 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
     return (
       <div>
         <h2 style={headingStyle}>
-          Configuration — <span style={{ fontWeight: 400, color: '#6b7280' }}>{serviceName}</span>
+          Configuration —{" "}
+          <span style={{ fontWeight: 400, color: "#6b7280" }}>
+            {serviceName}
+          </span>
         </h2>
         <div
           role="alert"
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '40px 24px',
-            background: '#fef2f2',
-            border: '1px solid #fca5a5',
-            borderRadius: '10px',
-            textAlign: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
+            padding: "40px 24px",
+            background: "#fef2f2",
+            border: "1px solid #fca5a5",
+            borderRadius: "10px",
+            textAlign: "center",
           }}
         >
-          <p style={{ margin: 0, fontSize: '15px', color: '#b91c1c', fontWeight: 500 }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "15px",
+              color: "#b91c1c",
+              fontWeight: 500,
+            }}
+          >
             {schemaError}
           </p>
           <button type="button" onClick={loadSchema} style={primaryBtnStyle}>
@@ -553,13 +622,20 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
 
   // ── No schema available ───────────────────────────────────────────────
 
-  if (schema === null || !schema.properties || Object.keys(schema.properties).length === 0) {
+  if (
+    schema === null ||
+    !schema.properties ||
+    Object.keys(schema.properties).length === 0
+  ) {
     return (
       <div>
         <h2 style={headingStyle}>
-          Configuration — <span style={{ fontWeight: 400, color: '#6b7280' }}>{serviceName}</span>
+          Configuration —{" "}
+          <span style={{ fontWeight: 400, color: "#6b7280" }}>
+            {serviceName}
+          </span>
         </h2>
-        <p style={{ color: '#6b7280', fontSize: '14px' }}>
+        <p style={{ color: "#6b7280", fontSize: "14px" }}>
           No configuration schema is available for this service.
         </p>
       </div>
@@ -573,11 +649,12 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
   return (
     <div>
       <h2 style={headingStyle}>
-        Configuration — <span style={{ fontWeight: 400, color: '#6b7280' }}>{serviceName}</span>
+        Configuration —{" "}
+        <span style={{ fontWeight: 400, color: "#6b7280" }}>{serviceName}</span>
       </h2>
 
       {schema.description && (
-        <p style={{ margin: '0 0 20px', fontSize: '14px', color: '#6b7280' }}>
+        <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#6b7280" }}>
           {schema.description}
         </p>
       )}
@@ -588,18 +665,18 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
           role="status"
           aria-live="polite"
           style={{
-            marginBottom: '20px',
-            padding: '12px 16px',
-            background: '#f0fdf4',
-            border: '1px solid #86efac',
-            borderRadius: '8px',
-            fontSize: '14px',
-            color: '#15803d',
+            marginBottom: "20px",
+            padding: "12px 16px",
+            background: "#f0fdf4",
+            border: "1px solid #86efac",
+            borderRadius: "8px",
+            fontSize: "14px",
+            color: "#15803d",
             fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "12px",
           }}
         >
           <span>✓ Configuration updated successfully.</span>
@@ -608,13 +685,13 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
             aria-label="Dismiss success message"
             onClick={() => setSubmitSuccess(false)}
             style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#15803d',
-              fontSize: '16px',
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#15803d",
+              fontSize: "16px",
               lineHeight: 1,
-              padding: '0 4px',
+              padding: "0 4px",
             }}
           >
             ×
@@ -627,17 +704,17 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
         <div
           role="alert"
           style={{
-            marginBottom: '20px',
-            padding: '12px 16px',
-            background: '#fef2f2',
-            border: '1px solid #fca5a5',
-            borderRadius: '8px',
-            fontSize: '14px',
-            color: '#b91c1c',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
+            marginBottom: "20px",
+            padding: "12px 16px",
+            background: "#fef2f2",
+            border: "1px solid #fca5a5",
+            borderRadius: "8px",
+            fontSize: "14px",
+            color: "#b91c1c",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "12px",
           }}
         >
           <span>{submitError}</span>
@@ -646,13 +723,13 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
             aria-label="Dismiss error"
             onClick={() => setSubmitError(null)}
             style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#b91c1c',
-              fontSize: '16px',
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#b91c1c",
+              fontSize: "16px",
               lineHeight: 1,
-              padding: '0 4px',
+              padding: "0 4px",
             }}
           >
             ×
@@ -665,10 +742,10 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
         noValidate
         aria-label={`Configuration form for ${serviceName}`}
         style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: '10px',
-          padding: '24px',
+          background: "#fff",
+          border: "1px solid #e5e7eb",
+          borderRadius: "10px",
+          padding: "24px",
         }}
       >
         {Object.entries(schema.properties).map(([key, prop]) => (
@@ -686,12 +763,12 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
 
         <div
           style={{
-            display: 'flex',
-            gap: '10px',
-            justifyContent: 'flex-end',
-            marginTop: '8px',
-            paddingTop: '16px',
-            borderTop: '1px solid #f3f4f6',
+            display: "flex",
+            gap: "10px",
+            justifyContent: "flex-end",
+            marginTop: "8px",
+            paddingTop: "16px",
+            borderTop: "1px solid #f3f4f6",
           }}
         >
           <button
@@ -713,7 +790,7 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
             style={primaryBtnStyle}
             aria-busy={isSubmitting}
           >
-            {isSubmitting ? 'Saving…' : 'Save configuration'}
+            {isSubmitting ? "Saving…" : "Save configuration"}
           </button>
         </div>
       </form>
@@ -724,33 +801,33 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
 // ── Shared style helpers ──────────────────────────────────────────────────────
 
 const headingStyle: React.CSSProperties = {
-  margin: '0 0 20px',
-  fontSize: '20px',
+  margin: "0 0 20px",
+  fontSize: "20px",
   fontWeight: 700,
-  color: '#111827',
+  color: "#111827",
 };
 
 const primaryBtnStyle: React.CSSProperties = {
-  padding: '9px 22px',
-  background: '#6366f1',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '6px',
-  fontSize: '14px',
+  padding: "9px 22px",
+  background: "#6366f1",
+  color: "#fff",
+  border: "none",
+  borderRadius: "6px",
+  fontSize: "14px",
   fontWeight: 600,
-  cursor: 'pointer',
+  cursor: "pointer",
 };
 
 function secondaryBtnStyle(disabled: boolean): React.CSSProperties {
   return {
-    padding: '9px 22px',
-    background: '#fff',
-    color: '#374151',
-    border: '1px solid #d1d5db',
-    borderRadius: '6px',
-    fontSize: '14px',
+    padding: "9px 22px",
+    background: "#fff",
+    color: "#374151",
+    border: "1px solid #d1d5db",
+    borderRadius: "6px",
+    fontSize: "14px",
     fontWeight: 500,
-    cursor: disabled ? 'not-allowed' : 'pointer',
+    cursor: disabled ? "not-allowed" : "pointer",
     opacity: disabled ? 0.6 : 1,
   };
 }
