@@ -95,26 +95,45 @@ export class HttpClient {
 
   /**
    * Executes a fetch request with automatic header injection and 401 retry.
-   * Throws on network errors; returns the Response for non-401 status codes.
+   * Throws on network errors or non-2xx responses (except 401 which is retried).
    */
   async request(url: string, init: RequestInit = {}): Promise<Response> {
     const response = await this.fetchWithHeaders(url, init);
 
-    if (response.status !== 401) {
-      return response;
+    if (response.status === 401) {
+      // --- 401 handling: attempt silent refresh then retry once ---
+      const newToken = await this.silentRefresh();
+
+      if (!newToken) {
+        // Refresh failed — force logout and surface the 401 to the caller
+        this.triggerForceLogout();
+        throw new Error("Session expired. Please log in again.");
+      }
+
+      // Retry the original request with the refreshed token
+      const retried = await this.fetchWithHeaders(url, init);
+      if (!retried.ok) {
+        throw new Error(`Request failed with status ${retried.status}`);
+      }
+      return retried;
     }
 
-    // --- 401 handling: attempt silent refresh then retry once ---
-    const newToken = await this.silentRefresh();
-
-    if (!newToken) {
-      // Refresh failed — force logout and surface the 401 to the caller
-      this.triggerForceLogout();
-      return response;
+    if (!response.ok) {
+      // Try to extract a meaningful error message from the response body.
+      let message = `Request failed with status ${response.status}`;
+      try {
+        const body = (await response.json()) as {
+          message?: string;
+          detail?: string;
+        };
+        message = body.message ?? body.detail ?? message;
+      } catch {
+        // ignore parse errors — use the default message
+      }
+      throw new Error(message);
     }
 
-    // Retry the original request with the refreshed token
-    return this.fetchWithHeaders(url, init);
+    return response;
   }
 
   // ---------------------------------------------------------------------------
