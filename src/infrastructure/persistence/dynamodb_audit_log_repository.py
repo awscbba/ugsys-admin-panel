@@ -23,9 +23,9 @@ from datetime import datetime
 from typing import Any
 
 import boto3
-import ulid
 from boto3.dynamodb.conditions import Attr, Key
 from botocore.exceptions import ClientError
+from ulid import ULID
 
 from src.domain.entities import AuditLogEntry
 from src.domain.exceptions import RepositoryError
@@ -136,7 +136,7 @@ class DynamoDBAuditLogRepository(AuditLogRepository):
         """
         if not entry.id:
             entry = AuditLogEntry(
-                id=str(ulid.new()),
+                id=str(ULID()),
                 timestamp=entry.timestamp,
                 actor_user_id=entry.actor_user_id,
                 actor_display_name=entry.actor_display_name,
