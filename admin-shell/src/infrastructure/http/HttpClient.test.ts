@@ -283,7 +283,7 @@ describe("force logout on refresh failure", () => {
     const client = HttpClient.getInstance();
     client.setForceLogoutCallback(forceLogout);
 
-    await client.request("/api/protected");
+    await expect(client.request("/api/protected")).rejects.toThrow();
 
     expect(forceLogout).toHaveBeenCalledOnce();
   });
@@ -300,7 +300,7 @@ describe("force logout on refresh failure", () => {
     client.setAccessToken("old-token");
     client.setForceLogoutCallback(vi.fn());
 
-    await client.request("/api/protected");
+    await expect(client.request("/api/protected")).rejects.toThrow();
 
     expect(client.getAccessToken()).toBeNull();
   });
@@ -317,12 +317,12 @@ describe("force logout on refresh failure", () => {
     const client = HttpClient.getInstance();
     client.setForceLogoutCallback(forceLogout);
 
-    await client.request("/api/protected");
+    await expect(client.request("/api/protected")).rejects.toThrow();
 
     expect(forceLogout).toHaveBeenCalledOnce();
   });
 
-  it("returns the 401 response when refresh fails", async () => {
+  it("throws when refresh fails", async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(makeResponse(401))
@@ -333,9 +333,45 @@ describe("force logout on refresh failure", () => {
     const client = HttpClient.getInstance();
     client.setForceLogoutCallback(vi.fn());
 
-    const response = await client.request("/api/protected");
+    await expect(client.request("/api/protected")).rejects.toThrow(
+      "Session expired",
+    );
+  });
+});
 
-    expect(response.status).toBe(401);
+describe("non-2xx error handling", () => {
+  it("throws on 500 with message from response body", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        makeResponse(500, { message: "Internal server error" }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = HttpClient.getInstance();
+    await expect(client.request("/api/test")).rejects.toThrow(
+      "Internal server error",
+    );
+  });
+
+  it("throws on 403 with fallback message when body has no message", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(makeResponse(403, {}));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = HttpClient.getInstance();
+    await expect(client.request("/api/test")).rejects.toThrow(
+      "Request failed with status 403",
+    );
+  });
+
+  it("throws on 404", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(makeResponse(404, { message: "Not found" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = HttpClient.getInstance();
+    await expect(client.request("/api/test")).rejects.toThrow("Not found");
   });
 });
 

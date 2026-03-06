@@ -8,8 +8,10 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 # Copy dependency manifests first for layer caching
 COPY pyproject.toml uv.lock ./
 
-# Install production dependencies only (no dev extras)
-RUN uv sync --no-dev --frozen --no-cache
+# Install production dependencies into the system Python (Lambda runtime path).
+# UV_SYSTEM_PYTHON=1 bypasses venv creation so packages land in site-packages
+# that the Lambda runtime can find.
+RUN UV_SYSTEM_PYTHON=1 uv sync --no-dev --frozen --no-cache
 
 # Copy application source
 COPY src/ ./src/

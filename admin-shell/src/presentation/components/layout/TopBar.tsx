@@ -11,7 +11,7 @@ interface TopBarProps {
  * Requirements: 1.3
  */
 export function TopBar({ user, onLogout }: TopBarProps) {
-  const initials = user.displayName
+  const initials = (user.displayName || user.email || "?")
     .split(" ")
     .map((part) => part[0])
     .join("")
