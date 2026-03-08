@@ -3,8 +3,10 @@ name: BFF Proxy CI
 on:
   push:
     branches-ignore: [main]
+    paths-ignore: [".kiro/**"]
   pull_request:
     branches: [main]
+    paths-ignore: [".kiro/**"]
   workflow_dispatch:
 
 defaults:
