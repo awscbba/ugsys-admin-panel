@@ -9,7 +9,8 @@
     "awscli2@latest",
     "just@latest",
     "git@latest",
-    "gh@latest"
+    "gh@latest",
+    "pnpm@latest"
   ],
   "shell": {
     "init_hook": [

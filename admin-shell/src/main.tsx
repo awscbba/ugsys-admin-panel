@@ -12,6 +12,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { enableSecureLogging } from "./utils/secureLogging";
 import { App } from "./App";
+import "./index.css";
 
 // Enable secure console logging before anything else runs.
 enableSecureLogging();

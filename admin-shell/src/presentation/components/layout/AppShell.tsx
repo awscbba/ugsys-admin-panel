@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useStore } from "@nanostores/react";
 import {
   $user,
   $isAuthenticated,
   $isLoading,
-  login,
   logout,
   initializeAuth,
 } from "../../../stores/authStore";
@@ -13,6 +12,7 @@ import { $services, loadServices } from "../../../stores/registryStore";
 import type { NavigationEntry } from "../../../domain/entities/ServiceRegistration";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+import { LoginPage } from "../views/LoginPage";
 
 /**
  * AppShell — main layout component.
@@ -28,10 +28,6 @@ export function AppShell() {
   const isAuthenticated = useStore($isAuthenticated);
   const isLoading = useStore($isLoading);
   const services = useStore($services);
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loginError, setLoginError] = useState<string | null>(null);
 
   // Restore session on mount
   useEffect(() => {
@@ -58,16 +54,7 @@ export function AppShell() {
 
   if (isLoading && !isAuthenticated) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          fontSize: "16px",
-          color: "#6b7280",
-        }}
-      >
+      <div className="flex items-center justify-center h-screen text-base text-gray-500 bg-primary font-sans">
         Loading…
       </div>
     );
@@ -76,128 +63,7 @@ export function AppShell() {
   // ── Login screen ──────────────────────────────────────────────────────
 
   if (!isAuthenticated) {
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setLoginError(null);
-      try {
-        await login(email, password);
-      } catch (err) {
-        setLoginError(err instanceof Error ? err.message : "Login failed");
-      }
-    };
-
-    return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          background: "#f9fafb",
-        }}
-      >
-        <form
-          onSubmit={handleSubmit}
-          aria-label="Login form"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "16px",
-            padding: "40px",
-            background: "#fff",
-            borderRadius: "12px",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-            width: "360px",
-          }}
-        >
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "22px",
-              fontWeight: 700,
-              color: "#111827",
-            }}
-          >
-            Admin Panel
-          </h1>
-
-          <label
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "4px",
-              fontSize: "14px",
-            }}
-          >
-            Email
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              style={{
-                padding: "8px 12px",
-                border: "1px solid #d1d5db",
-                borderRadius: "6px",
-                fontSize: "14px",
-              }}
-            />
-          </label>
-
-          <label
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "4px",
-              fontSize: "14px",
-            }}
-          >
-            Password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              style={{
-                padding: "8px 12px",
-                border: "1px solid #d1d5db",
-                borderRadius: "6px",
-                fontSize: "14px",
-              }}
-            />
-          </label>
-
-          {loginError && (
-            <p
-              role="alert"
-              style={{ margin: 0, fontSize: "13px", color: "#dc2626" }}
-            >
-              {loginError}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              padding: "10px",
-              background: "#6366f1",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px",
-              fontSize: "14px",
-              fontWeight: 600,
-              cursor: isLoading ? "not-allowed" : "pointer",
-              opacity: isLoading ? 0.7 : 1,
-            }}
-          >
-            {isLoading ? "Signing in…" : "Sign in"}
-          </button>
-        </form>
-      </div>
-    );
+    return <LoginPage />;
   }
 
   // ── Authenticated layout ──────────────────────────────────────────────
