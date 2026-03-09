@@ -36,9 +36,7 @@ export function LoginPage(): React.ReactElement {
         aria-label="Login form"
         className="flex flex-col gap-4 p-10 bg-white rounded-xl shadow-lg w-[360px]"
       >
-        <h1 className="m-0 text-[22px] font-bold text-gray-900">
-          Admin Panel
-        </h1>
+        <h1 className="m-0 text-[22px] font-bold text-gray-900">Admin Panel</h1>
 
         <label className="flex flex-col gap-1 text-sm text-gray-700">
           Email
