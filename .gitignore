@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+admin-shell/node_modules/
+
+# Build outputs
+admin-shell/dist/
+admin-shell/coverage/
+
+# pnpm
+admin-shell/pnpm-lock.yaml.bak
+
+# Vite
+admin-shell/.vite/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Editor
+.DS_Store
+*.local
