@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@ugsys/ui-lib/tokens.css";
+@import "@ugsys/ui-lib/dist/tokens.css";
 
 /* Scan ui-lib dist for Tailwind class usage */
 @source '../../node_modules/@ugsys/ui-lib/dist';
