@@ -230,3 +230,40 @@ jobs:
 
       - name: Check hexagonal layer import rules
         run: python scripts/check_architecture.py
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Notify — Slack on any job failure
+  # ─────────────────────────────────────────────────────────────────────────────
+  notify-failure:
+    name: Notify Failure (Slack)
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, test, bandit, semgrep, sbom-trivy, secret-scan, architecture-guard]
+    if: failure()
+    steps:
+      - name: Slack — CI failure
+        continue-on-error: true
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "username": "ugsys CI/CD",
+              "icon_emoji": ":x:",
+              "text": "❌ BFF CI failed — ugsys-admin-panel",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {"type": "plain_text", "text": "❌ BFF CI failed — ugsys-admin-panel", "emoji": true}
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {"type": "mrkdwn", "text": "*Branch:*\n${{ github.ref_name }}"},
+                    {"type": "mrkdwn", "text": "*By:*\n${{ github.actor }}"},
+                    {"type": "mrkdwn", "text": "*Run:*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>"}
+                  ]
+                }
+              ]
+            }

@@ -255,3 +255,40 @@ jobs:
                 size=$(du -sh "$f" | cut -f1)
                 echo "| $f | $size |" >> $GITHUB_STEP_SUMMARY
               done
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Notify — Slack on any job failure
+  # ─────────────────────────────────────────────────────────────────────────────
+  notify-failure:
+    name: Notify Failure (Slack)
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, test, semgrep, pnpm-audit, secret-scan, build]
+    if: failure()
+    steps:
+      - name: Slack — CI failure
+        continue-on-error: true
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "username": "ugsys CI/CD",
+              "icon_emoji": ":x:",
+              "text": "❌ Admin Shell CI failed — ugsys-admin-panel",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {"type": "plain_text", "text": "❌ Admin Shell CI failed — ugsys-admin-panel", "emoji": true}
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {"type": "mrkdwn", "text": "*Branch:*\n${{ github.ref_name }}"},
+                    {"type": "mrkdwn", "text": "*By:*\n${{ github.actor }}"},
+                    {"type": "mrkdwn", "text": "*Run:*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>"}
+                  ]
+                }
+              ]
+            }
