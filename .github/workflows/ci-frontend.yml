@@ -24,7 +24,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          package_json_file: admin-shell/package.json
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -55,7 +55,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          package_json_file: admin-shell/package.json
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -83,7 +83,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          package_json_file: admin-shell/package.json
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -141,7 +141,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          package_json_file: admin-shell/package.json
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -189,7 +189,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          package_json_file: admin-shell/package.json
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -225,7 +225,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          package_json_file: admin-shell/package.json
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
