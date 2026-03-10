@@ -14,7 +14,9 @@ Requirements: 2.1, 2.2, 2.5, 2.7, 13.7
 
 from __future__ import annotations
 
+import base64
 import datetime
+import json as _json
 from typing import Any
 
 import structlog
@@ -22,7 +24,7 @@ from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, EmailStr
 
 from src.application.services.auth_service import AuthService
-from src.domain.exceptions import AuthenticationError
+from src.domain.exceptions import AuthenticationError, AuthorizationError
 
 logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
 
@@ -31,6 +33,27 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 # Cookie names — must match jwt_validation.py
 _ACCESS_TOKEN_COOKIE = "access_token"
 _REFRESH_TOKEN_COOKIE = "refresh_token"
+
+# Roles that are permitted to access the Admin Panel
+_ADMIN_ROLES: frozenset[str] = frozenset({"admin", "super_admin"})
+
+
+def _extract_roles_from_token(token: str) -> list[str]:
+    """Decode JWT payload segment without signature verification.
+
+    The token was just issued by the Identity Manager in this same request,
+    so the payload is trusted. Returns [] on any parse error (safe default).
+    """
+    try:
+        parts = token.split(".")
+        if len(parts) != 3:
+            return []
+        padded = parts[1] + "=" * (-len(parts[1]) % 4)
+        payload = _json.loads(base64.urlsafe_b64decode(padded))
+        raw = payload.get("roles", [])
+        return [str(r) for r in raw] if isinstance(raw, list) else []
+    except Exception:
+        return []
 
 
 # ---------------------------------------------------------------------------
@@ -106,6 +129,28 @@ async def login(
     access_token: str = token_pair.get("access_token", "")
     refresh_token: str = token_pair.get("refresh_token", "")
     expires_in: int = token_pair.get("expires_in", 900)
+
+    # ── Admin role gate (Req 5.1, 5.2, 5.3) ──────────────────────────────
+    roles = _extract_roles_from_token(access_token)
+    if not _ADMIN_ROLES.intersection(roles):
+        # Decode sub for audit log — token value MUST NOT appear in log.
+        try:
+            parts = access_token.split(".")
+            padded = parts[1] + "=" * (-len(parts[1]) % 4)
+            sub = _json.loads(base64.urlsafe_b64decode(padded)).get("sub", "unknown")
+        except Exception:
+            sub = "unknown"
+        logger.warning(
+            "auth_login_forbidden_role",
+            user_id=sub,
+            roles=roles,
+            # token is intentionally NOT logged
+        )
+        raise AuthorizationError(
+            message="You do not have permission to access the Admin Panel",
+            error_code="FORBIDDEN",
+        )
+    # ─────────────────────────────────────────────────────────────────────
 
     # Set httpOnly, Secure, SameSite=Lax cookies (Req 2.2).
     response.set_cookie(

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useStore } from "@nanostores/react";
-import { $isLoading, login } from "../../../stores/authStore";
+import { $isLoading, $error, $user, login } from "../../../stores/authStore";
 
 /**
  * LoginPage — standalone authentication screen.
@@ -15,17 +16,20 @@ import { $isLoading, login } from "../../../stores/authStore";
  */
 export function LoginPage(): React.ReactElement {
   const isLoading = useStore($isLoading);
+  const authError = useStore($error);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loginError, setLoginError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get("redirect") ?? "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError(null);
-    try {
-      await login(email, password);
-    } catch (err) {
-      setLoginError(err instanceof Error ? err.message : "Login failed");
+    await login(email, password);
+    // Navigate on success — $user is set by the store action
+    if ($user.get() !== null) {
+      navigate(redirect, { replace: true });
     }
   };
 
@@ -62,9 +66,9 @@ export function LoginPage(): React.ReactElement {
           />
         </label>
 
-        {loginError && (
+        {authError && (
           <p role="alert" className="m-0 text-[13px] text-red-600">
-            {loginError}
+            {authError}
           </p>
         )}
 

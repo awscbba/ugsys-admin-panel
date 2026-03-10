@@ -25,10 +25,12 @@ import {
   Route,
   Navigate,
   useParams,
+  useSearchParams,
 } from "react-router-dom";
 import { useStore } from "@nanostores/react";
 
 import { AppShell } from "./presentation/components/layout/AppShell";
+import { LoginPage } from "./presentation/components/views/LoginPage";
 import { HealthDashboard } from "./presentation/components/views/HealthDashboard";
 import { UserManagement } from "./presentation/components/views/UserManagement";
 import { AuditLog } from "./presentation/components/views/AuditLog";
@@ -38,7 +40,7 @@ import { ErrorBoundary } from "./presentation/components/ErrorBoundary";
 import { RbacProvider } from "./presentation/components/RbacProvider";
 import { SessionMonitor } from "./presentation/components/SessionMonitor";
 
-import { $user, logout } from "./stores/authStore";
+import { $user, $isAuthenticated, logout } from "./stores/authStore";
 import { $services } from "./stores/registryStore";
 import { HttpAuthRepository } from "./infrastructure/repositories/HttpAuthRepository";
 
@@ -197,6 +199,21 @@ async function handleSessionExpired(): Promise<void> {
   await logout();
 }
 
+// ── Login route ───────────────────────────────────────────────────────────────
+
+/**
+ * Renders LoginPage for unauthenticated users.
+ * Redirects to `?redirect` param (or /dashboard) when already authenticated.
+ * Requirements: 3.1, 3.3, 3.7
+ */
+function LoginRoute(): React.ReactElement {
+  const isAuthenticated = useStore($isAuthenticated);
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get("redirect") ?? "/dashboard";
+  if (isAuthenticated) return <Navigate to={redirect} replace />;
+  return <LoginPage />;
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export function App(): React.ReactElement {
@@ -215,6 +232,9 @@ export function App(): React.ReactElement {
           />
 
           <Routes>
+            {/* Public login route — outside AppShell (no auth required) */}
+            <Route path="login" element={<LoginRoute />} />
+
             {/* AppShell provides the authenticated layout (sidebar + topbar + Outlet) */}
             <Route element={<AppShell />}>
               {/* Default redirect */}

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, Navigate } from "react-router-dom";
 import { useStore } from "@nanostores/react";
 import {
   $user,
@@ -12,7 +12,6 @@ import { $services, loadServices } from "../../../stores/registryStore";
 import type { NavigationEntry } from "../../../domain/entities/ServiceRegistration";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
-import { LoginPage } from "../views/LoginPage";
 
 /**
  * AppShell — main layout component.
@@ -28,6 +27,7 @@ export function AppShell() {
   const isAuthenticated = useStore($isAuthenticated);
   const isLoading = useStore($isLoading);
   const services = useStore($services);
+  const location = useLocation();
 
   // Restore session on mount
   useEffect(() => {
@@ -60,10 +60,11 @@ export function AppShell() {
     );
   }
 
-  // ── Login screen ──────────────────────────────────────────────────────
+  // ── Login redirect ────────────────────────────────────────────────────
 
   if (!isAuthenticated) {
-    return <LoginPage />;
+    const redirect = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/login?redirect=${redirect}`} replace />;
   }
 
   // ── Authenticated layout ──────────────────────────────────────────────
