@@ -36,6 +36,10 @@ _STATE_CHANGING_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 _CSRF_COOKIE_NAME = "csrf_token"
 _CSRF_HEADER_NAME = "X-CSRF-Token"
 
+# Paths exempt from CSRF validation — login and refresh use credentials/tokens,
+# not cookies, so CSRF protection is not applicable.
+_CSRF_EXEMPT_PATHS = frozenset({"/api/v1/auth/login", "/api/v1/auth/refresh"})
+
 # Secret key for HMAC signing — loaded from environment or generated at startup.
 # In production this MUST be set via the CSRF_SECRET environment variable.
 _CSRF_SECRET: bytes = os.environ.get("CSRF_SECRET", secrets.token_hex(32)).encode()
@@ -78,7 +82,7 @@ class CsrfMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         # Validate CSRF token on state-changing requests.
-        if request.method in _STATE_CHANGING_METHODS:
+        if request.method in _STATE_CHANGING_METHODS and request.url.path not in _CSRF_EXEMPT_PATHS:
             cookie_token = request.cookies.get(_CSRF_COOKIE_NAME)
             header_token = request.headers.get(_CSRF_HEADER_NAME)
 
