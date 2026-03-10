@@ -263,7 +263,13 @@ class IdentityManagerClient(IdentityClient):
             # return 204 No Content — return an empty dict in that case.
             if response.status_code == 204 or not response.content:
                 return {}
-            return dict(response.json())
+            body = response.json()
+            # Identity Manager wraps all responses in {"data": ..., "meta": ...}.
+            # Unwrap the envelope so callers receive the payload directly.
+            if isinstance(body, dict) and "data" in body:
+                data = body["data"]
+                return dict(data) if isinstance(data, dict) else {"items": data, "meta": body.get("meta", {})}
+            return dict(body)
 
         if response.status_code == 401:
             raise AuthenticationError(
