@@ -17,3 +17,13 @@
   --color-background: var(--color-background);
   --font-family-sans: var(--font-sans);
 }
+
+@layer base {
+  body {
+    background-color: #161d2b;
+    color: #f0f4ff;
+    min-height: 100vh;
+    font-family: var(--font-sans, system-ui, sans-serif);
+    -webkit-font-smoothing: antialiased;
+  }
+}
