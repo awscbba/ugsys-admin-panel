@@ -3,14 +3,8 @@ import type { AuthRepository } from "../../domain/repositories/AuthRepository";
 import { HttpClient } from "../http/HttpClient";
 
 interface LoginResponseDto {
-  accessToken: string;
-  user: {
-    user_id: string;
-    email: string;
-    roles: string[];
-    display_name: string;
-    avatar: string | null;
-  };
+  expires_in: number;
+  token_type: string;
 }
 
 interface MeResponseDto {
@@ -39,25 +33,25 @@ export class HttpAuthRepository implements AuthRepository {
   }
 
   async login(email: string, password: string): Promise<AdminUser> {
-    const data = await this.http.postJson<LoginResponseDto>(
-      "/api/v1/auth/login",
-      { email, password },
-    );
-    this.http.setAccessToken(data.accessToken);
-    return mapToAdminUser(data.user);
+    await this.http.postJson<LoginResponseDto>("/api/v1/auth/login", {
+      email,
+      password,
+    });
+    // BFF sets httpOnly cookies on login — no token in response body.
+    // Fetch the current user from /me now that the cookie is set.
+    return this.getCurrentUser();
   }
 
   async logout(): Promise<void> {
     await this.http.postJson<void>("/api/v1/auth/logout", {});
-    this.http.setAccessToken(null);
   }
 
   async refresh(): Promise<void> {
-    const data = await this.http.postJson<{ accessToken: string }>(
+    await this.http.postJson<{ expires_in: number }>(
       "/api/v1/auth/refresh",
       {},
     );
-    this.http.setAccessToken(data.accessToken);
+    // BFF rotates cookies server-side — nothing to do client-side.
   }
 
   async getCurrentUser(): Promise<AdminUser> {
