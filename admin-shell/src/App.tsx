@@ -60,9 +60,12 @@ function extractOrigin(url: string): string | null {
 /**
  * Builds the CSP string from the set of registered entryPoint origins.
  * script-src: 'self' + each unique entryPoint origin.
- * unsafe-inline and unsafe-eval are intentionally omitted (Req 13.6).
+ * unsafe-eval is intentionally omitted (Req 13.6).
+ * unsafe-inline is required for style-src (UI lib embeds inline styles).
+ *
+ * Exported for unit testing only.
  */
-function buildCsp(entryPointOrigins: string[]): string {
+export function buildCsp(entryPointOrigins: string[]): string {
   const uniqueOrigins = Array.from(
     new Set([SHELL_ORIGIN, ...entryPointOrigins]),
   );
@@ -71,9 +74,12 @@ function buildCsp(entryPointOrigins: string[]): string {
   return [
     `default-src 'self'`,
     `script-src ${scriptSrc}`,
-    `style-src 'self'`,
+    // 'unsafe-inline' required: UI component libraries embed inline styles.
+    // This matches the CloudFront response headers policy intentionally.
+    `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' data: https:`,
-    `font-src 'self'`,
+    // data: required: @ugsys/ui-lib CSS bundle embeds base64-encoded fonts.
+    `font-src 'self' data:`,
     `connect-src 'self'`,
     `frame-ancestors 'none'`,
     `object-src 'none'`,
