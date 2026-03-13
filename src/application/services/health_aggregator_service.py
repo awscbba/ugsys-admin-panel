@@ -185,7 +185,7 @@ class HealthAggregatorService:
                 )
 
         self._cache[service_name] = health_status
-        logger.debug(
+        logger.info(
             "health_check_completed",
             service_name=service_name,
             status=status.value,
