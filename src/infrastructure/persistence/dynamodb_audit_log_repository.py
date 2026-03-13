@@ -35,8 +35,12 @@ _TTL_SECONDS = 365 * 24 * 3600  # 365 days in seconds
 
 
 def _table_name() -> str:
+    # CDK sets AUDIT_LOG_TABLE_NAME — use it when available.
+    explicit = os.getenv("AUDIT_LOG_TABLE_NAME")
+    if explicit:
+        return explicit
     env = os.getenv("ENVIRONMENT", "dev")
-    return f"ugsys-admin-audit-{env}"
+    return f"ugsys-admin-audit-log-{env}"
 
 
 def _pk(entry_id: str) -> str:
@@ -65,8 +69,8 @@ def _compute_ttl(timestamp_iso: str) -> int:
 def _to_item(entry: AuditLogEntry) -> dict[str, Any]:
     """Map a domain entity to a DynamoDB item dict."""
     return {
-        "PK": _pk(entry.id),
-        "SK": _SK,
+        "pk": _pk(entry.id),
+        "sk": _SK,
         "id": entry.id,
         "timestamp": entry.timestamp,
         "actor_user_id": entry.actor_user_id,
@@ -280,7 +284,7 @@ class DynamoDBAuditLogRepository(AuditLogRepository):
         next_token: str | None,
     ) -> tuple[list[AuditLogEntry], str | None]:
         """Full table scan with optional filter expressions."""
-        filter_expr = Attr("SK").eq(_SK)
+        filter_expr = Attr("sk").eq(_SK)
 
         if start_date is not None:
             filter_expr = filter_expr & Attr("timestamp").gte(start_date)

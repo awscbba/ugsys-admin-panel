@@ -23,8 +23,13 @@ from src.domain.value_objects import NavigationEntry, RouteDescriptor, ServiceSt
 
 
 def _table_name() -> str:
+    # CDK sets SERVICE_REGISTRY_TABLE_NAME — use it when available.
+    # Fallback matches the CDK-provisioned name for local/test environments.
+    explicit = os.getenv("SERVICE_REGISTRY_TABLE_NAME")
+    if explicit:
+        return explicit
     env = os.getenv("ENVIRONMENT", "dev")
-    return f"ugsys-admin-registry-{env}"
+    return f"ugsys-admin-service-registry-{env}"
 
 
 def _pk(service_name: str) -> str:
@@ -112,8 +117,8 @@ def _deserialize_manifest(raw: str | None) -> PluginManifest | None:
 def _to_item(reg: ServiceRegistration) -> dict[str, Any]:
     """Map a domain entity to a DynamoDB item dict."""
     item: dict[str, Any] = {
-        "PK": _pk(reg.service_name),
-        "SK": _SK,
+        "pk": _pk(reg.service_name),
+        "sk": _SK,
         "service_name": reg.service_name,
         "base_url": reg.base_url,
         "health_endpoint": reg.health_endpoint,
@@ -183,7 +188,7 @@ class DynamoDBServiceRegistryRepository(ServiceRegistryRepository):
         """Fetch a single registration by service name."""
         try:
             response = self._table.get_item(
-                Key={"PK": _pk(service_name), "SK": _SK},
+                Key={"pk": _pk(service_name), "sk": _SK},
             )
         except ClientError as exc:
             raise RepositoryError(
@@ -200,7 +205,7 @@ class DynamoDBServiceRegistryRepository(ServiceRegistryRepository):
         try:
             items: list[dict[str, Any]] = []
             scan_kwargs: dict[str, Any] = {
-                "FilterExpression": boto3.dynamodb.conditions.Attr("SK").eq(_SK),
+                "FilterExpression": boto3.dynamodb.conditions.Attr("sk").eq(_SK),
             }
             while True:
                 response = self._table.scan(**scan_kwargs)
@@ -220,8 +225,8 @@ class DynamoDBServiceRegistryRepository(ServiceRegistryRepository):
         """Remove a registration. Raises ``NotFoundError`` if absent."""
         try:
             self._table.delete_item(
-                Key={"PK": _pk(service_name), "SK": _SK},
-                ConditionExpression="attribute_exists(PK)",
+                Key={"pk": _pk(service_name), "sk": _SK},
+                ConditionExpression="attribute_exists(pk)",
             )
         except ClientError as exc:
             if exc.response["Error"]["Code"] == "ConditionalCheckFailedException":
@@ -245,7 +250,7 @@ class DynamoDBServiceRegistryRepository(ServiceRegistryRepository):
         try:
             self._table.put_item(
                 Item=item,
-                ConditionExpression=("attribute_not_exists(PK) OR version < :v"),
+                ConditionExpression=("attribute_not_exists(pk) OR version < :v"),
                 ExpressionAttributeValues={":v": registration.version},
             )
         except ClientError as exc:
