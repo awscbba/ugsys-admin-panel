@@ -21,7 +21,7 @@ import time
 from collections.abc import Awaitable, Callable
 from typing import TypeVar
 
-from src.domain.exceptions import ExternalServiceError
+from src.domain.exceptions import AuthenticationError, ExternalServiceError
 from src.domain.repositories.circuit_breaker import CircuitBreaker
 
 T = TypeVar("T")
@@ -107,6 +107,15 @@ class InMemoryCircuitBreaker(CircuitBreaker):
         # --- Execute the function outside the lock ---
         try:
             result: T = await func(*args, **kwargs)
+        except AuthenticationError:
+            # 401 from the downstream service is a valid business response,
+            # not a service outage — do NOT count it as a circuit failure
+            # and re-raise it unchanged so callers get a proper 401.
+            async with self._lock:
+                if current_state == _STATE_HALF_OPEN:
+                    # Restore HALF_OPEN so the next real probe can run.
+                    self._state = _STATE_HALF_OPEN
+            raise
         except Exception as exc:
             async with self._lock:
                 self._record_failure()
