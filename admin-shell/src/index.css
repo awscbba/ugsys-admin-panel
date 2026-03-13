@@ -2,7 +2,7 @@
 @import "@ugsys/ui-lib/tokens.css";
 
 /* Scan ui-lib src for Tailwind class usage — src/ is included in the published package */
-@source "../../node_modules/@ugsys/ui-lib/src";
+@source "../node_modules/@ugsys/ui-lib/src";
 
 /*
  * @theme inline — tells Tailwind v4 to emit utilities that reference these
