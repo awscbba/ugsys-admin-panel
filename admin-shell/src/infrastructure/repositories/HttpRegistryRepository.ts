@@ -49,6 +49,7 @@ interface ServiceRegistrationDto {
   updated_at: string;
   registered_by: string;
   registration_source: string;
+  has_config_schema: boolean;
 }
 
 function mapRoute(dto: RouteDescriptorDto): RouteDescriptor {
@@ -100,6 +101,7 @@ function mapServiceRegistration(
     updatedAt: dto.updated_at,
     registeredBy: dto.registered_by,
     registrationSource: dto.registration_source as RegistrationSource,
+    hasConfigSchema: dto.has_config_schema ?? false,
   };
 }
 

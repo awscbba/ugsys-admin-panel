@@ -41,4 +41,5 @@ export interface ServiceRegistration {
   updatedAt: string;
   registeredBy: string;
   registrationSource: RegistrationSource;
+  hasConfigSchema: boolean;
 }

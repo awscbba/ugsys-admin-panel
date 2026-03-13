@@ -30,6 +30,7 @@ const mockService: ServiceRegistration = {
   updatedAt: "2024-01-01T00:00:00Z",
   registeredBy: "system",
   registrationSource: "seed",
+  hasConfigSchema: false,
 };
 
 const mockService2: ServiceRegistration = {

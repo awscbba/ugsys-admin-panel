@@ -43,10 +43,24 @@ export function AppShell() {
     }
   }, [isAuthenticated]);
 
-  // Collect all navigation entries from registered services
-  const navigationEntries: NavigationEntry[] = services.flatMap(
-    (svc) => svc.manifest?.navigation ?? [],
-  );
+  // Collect all navigation entries from registered services,
+  // then append synthetic "Configuration" entries for services that
+  // expose a config schema (admin/super_admin only).
+  const navigationEntries: NavigationEntry[] = [
+    ...services.flatMap((svc) => svc.manifest?.navigation ?? []),
+    ...services
+      .filter((svc) => svc.hasConfigSchema)
+      .map(
+        (svc): NavigationEntry => ({
+          label: svc.serviceName,
+          icon: "⚙️",
+          path: `/config/${svc.serviceName}`,
+          requiredRoles: ["admin", "super_admin"],
+          group: "Configuration",
+          order: 0,
+        }),
+      ),
+  ];
 
   const userRoles = user?.roles ?? [];
 
