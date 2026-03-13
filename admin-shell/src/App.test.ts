@@ -15,9 +15,7 @@ import { buildCsp } from "./App";
 describe("buildCsp", () => {
   it("includes shell origin in script-src with no extra origins", () => {
     const csp = buildCsp([]);
-    expect(csp).toContain(
-      "script-src 'self' https://admin.apps.cloud.org.bo",
-    );
+    expect(csp).toContain("script-src 'self' https://admin.apps.cloud.org.bo");
   });
 
   it("adds micro-frontend origins to script-src", () => {
