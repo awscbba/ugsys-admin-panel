@@ -1,11 +1,11 @@
 {
-  "version": 1,
+  "version": 2,
   "services": [
     {
       "service_name": "identity-manager",
-      "base_url": "https://identity.apps.cloud.org.bo",
+      "base_url": "https://auth.apps.cloud.org.bo",
       "health_endpoint": "/health",
-      "manifest_url": "https://identity.apps.cloud.org.bo/plugin-manifest.json",
+      "manifest_url": "https://auth.apps.cloud.org.bo/plugin-manifest.json",
       "min_role": "admin"
     },
     {
@@ -17,9 +17,9 @@
     },
     {
       "service_name": "projects-registry",
-      "base_url": "https://projects.apps.cloud.org.bo",
+      "base_url": "https://api.apps.cloud.org.bo",
       "health_endpoint": "/health",
-      "manifest_url": "https://projects.apps.cloud.org.bo/plugin-manifest.json",
+      "manifest_url": "https://api.apps.cloud.org.bo/plugin-manifest.json",
       "min_role": "moderator"
     },
     {
