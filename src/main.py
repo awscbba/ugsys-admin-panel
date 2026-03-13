@@ -167,7 +167,19 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     except Exception as exc:
         logger.error("seed_services_load_failed", error=str(exc))
 
-    # --- Start health polling ---
+    # --- Initial health poll (eager, synchronous) ---
+    # In Lambda, background asyncio tasks created by start_polling() may never
+    # execute between invocations.  Running poll_once() here ensures the cache
+    # is populated before the first request is served, regardless of execution model.
+    try:
+        await health_aggregator_service.poll_once()
+        logger.info("health_initial_poll_complete")
+    except Exception as exc:
+        # Non-fatal — cache stays empty; the dashboard will show "no services" until
+        # the next poll cycle rather than crashing startup.
+        logger.warning("health_initial_poll_failed", error=str(exc))
+
+    # --- Start health polling (background loop for long-running containers) ---
     await health_aggregator_service.start_polling()
 
     logger.info("bff_startup_complete")

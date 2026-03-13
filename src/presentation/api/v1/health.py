@@ -69,9 +69,17 @@ async def get_health_statuses(
 ) -> list[HealthStatusResponse]:
     """Return aggregated health status of all registered services.
 
+    If the in-memory cache is empty (e.g. Lambda cold start where the
+    background polling task hasn't run yet), trigger a synchronous poll
+    before returning so the caller always gets fresh data.
+
     Restricted to admin and super_admin roles.
 
     Requirements: 8.2, 8.3
     """
     statuses = health_service.get_all_statuses()
+    if not statuses:
+        # Cache miss — poll inline so the response is never empty on cold start.
+        await health_service.poll_once()
+        statuses = health_service.get_all_statuses()
     return [_to_response(hs) for hs in statuses]
