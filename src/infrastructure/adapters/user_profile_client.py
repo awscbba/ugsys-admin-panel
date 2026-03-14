@@ -61,7 +61,7 @@ class UserProfileClient(ProfileClient):
     # ProfileClient port implementation
     # ------------------------------------------------------------------
 
-    async def get_profile(self, user_id: str) -> dict[str, Any]:
+    async def get_profile(self, user_id: str, *, token: str) -> dict[str, Any]:
         """Fetch a single user profile via ``GET /api/v1/profiles/{user_id}``.
 
         Returns the profile data dict on success.
@@ -75,11 +75,13 @@ class UserProfileClient(ProfileClient):
         GatewayTimeoutError
             When the request times out.
         """
-        return await self._cb.call(self._get_profile, user_id)
+        return await self._cb.call(self._get_profile, user_id, token=token)
 
     async def get_profiles(
         self,
         user_ids: list[str],
+        *,
+        token: str,
     ) -> dict[str, dict[str, Any]]:
         """Fetch multiple user profiles concurrently.
 
@@ -100,7 +102,7 @@ class UserProfileClient(ProfileClient):
             return {}
 
         results = await asyncio.gather(
-            *[self.get_profile(uid) for uid in user_ids],
+            *[self.get_profile(uid, token=token) for uid in user_ids],
             return_exceptions=True,
         )
 
@@ -118,12 +120,13 @@ class UserProfileClient(ProfileClient):
     # Private HTTP helper
     # ------------------------------------------------------------------
 
-    async def _get_profile(self, user_id: str) -> dict[str, Any]:
+    async def _get_profile(self, user_id: str, *, token: str = "") -> dict[str, Any]:
         path = f"/api/v1/profiles/{user_id}"
         url = f"{self._base_url}{path}"
+        headers = {"Authorization": f"Bearer {token}"} if token else {}
         async with httpx.AsyncClient(timeout=self._timeout) as client:
             try:
-                response = await client.get(url)
+                response = await client.get(url, headers=headers)
             except httpx.TimeoutException as exc:
                 raise GatewayTimeoutError(
                     f"User Profile Service did not respond in time (GET {path}).",

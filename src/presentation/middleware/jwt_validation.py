@@ -24,11 +24,13 @@ Requirements: 2.3, 2.4, 2.6
 from __future__ import annotations
 
 import contextlib
+import json
 import os
 import time
 from collections.abc import Callable
 from typing import Any
 
+import boto3
 import jwt as pyjwt
 from fastapi import Depends, Request
 from jwt.exceptions import ExpiredSignatureError
@@ -46,8 +48,33 @@ __all__ = ["AdminRole", "JwtValidationMiddleware", "get_current_user", "require_
 # Configuration — loaded from environment variables
 # ---------------------------------------------------------------------------
 
-# RS256 public key in PEM format.  Must be set in production.
-_JWT_PUBLIC_KEY: str = os.environ.get("JWT_PUBLIC_KEY", "")
+
+def _resolve_jwt_public_key() -> str:
+    """Resolve the RS256 public key for JWT verification.
+
+    Priority:
+      1. JWT_PUBLIC_KEY env var — PEM string (local dev / CI / direct Lambda config)
+      2. JWT_KEYS_SECRET_ARN env var → fetch from Secrets Manager (prod Lambda)
+         Secret schema: { "public_key": "..." } (same schema as identity-manager)
+      3. Returns empty string — _decode_token() will raise JWTError on first use
+    """
+    public_key = os.environ.get("JWT_PUBLIC_KEY", "")
+    if public_key:
+        return public_key
+
+    secret_arn = os.environ.get("JWT_KEYS_SECRET_ARN", "")
+    if secret_arn:
+        region = os.environ.get("AWS_REGION", "us-east-1")
+        client = boto3.client("secretsmanager", region_name=region)
+        response = client.get_secret_value(SecretId=secret_arn)
+        parsed: dict[str, str] = json.loads(response.get("SecretString", "{}"))
+        return parsed.get("public_key", "")
+
+    return ""
+
+
+# RS256 public key in PEM format — resolved once at module load (Lambda cold start).
+_JWT_PUBLIC_KEY: str = _resolve_jwt_public_key()
 
 # Expected audience and issuer claims.
 _JWT_AUDIENCE: str = os.environ.get("JWT_AUDIENCE", "admin-panel")

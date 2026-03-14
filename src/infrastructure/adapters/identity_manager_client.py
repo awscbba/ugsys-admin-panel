@@ -122,6 +122,7 @@ class IdentityManagerClient(IdentityClient):
     async def list_users(
         self,
         *,
+        token: str,
         search: str | None = None,
         page: int = 1,
         page_size: int = 20,
@@ -143,9 +144,10 @@ class IdentityManagerClient(IdentityClient):
             self._get,
             "/api/v1/users",
             params=params,
+            token=token,
         )
 
-    async def update_roles(self, user_id: str, roles: list[str]) -> None:
+    async def update_roles(self, user_id: str, roles: list[str], *, token: str) -> None:
         """Change a user's roles via ``PATCH /api/v1/users/{user_id}/roles``.
 
         Raises
@@ -159,9 +161,10 @@ class IdentityManagerClient(IdentityClient):
             self._patch,
             f"/api/v1/users/{user_id}/roles",
             json={"roles": roles},
+            token=token,
         )
 
-    async def update_status(self, user_id: str, status: str) -> None:
+    async def update_status(self, user_id: str, status: str, *, token: str) -> None:
         """Activate or deactivate a user via ``PATCH /api/v1/users/{user_id}/status``.
 
         Raises
@@ -175,6 +178,7 @@ class IdentityManagerClient(IdentityClient):
             self._patch,
             f"/api/v1/users/{user_id}/status",
             json={"status": status},
+            token=token,
         )
 
     # ------------------------------------------------------------------
@@ -186,11 +190,13 @@ class IdentityManagerClient(IdentityClient):
         path: str,
         *,
         params: dict[str, Any] | None = None,
+        token: str = "",
     ) -> dict[str, Any]:
         url = f"{self._base_url}{path}"
+        headers = {"Authorization": f"Bearer {token}"} if token else {}
         async with httpx.AsyncClient(timeout=self._timeout) as client:
             try:
-                response = await client.get(url, params=params)
+                response = await client.get(url, params=params, headers=headers)
             except httpx.TimeoutException as exc:
                 raise GatewayTimeoutError(
                     f"Identity Manager did not respond in time (GET {path}).",
@@ -206,11 +212,13 @@ class IdentityManagerClient(IdentityClient):
         path: str,
         *,
         json: dict[str, Any] | None = None,
+        token: str = "",
     ) -> dict[str, Any]:
         url = f"{self._base_url}{path}"
+        headers = {"Authorization": f"Bearer {token}"} if token else {}
         async with httpx.AsyncClient(timeout=self._timeout) as client:
             try:
-                response = await client.post(url, json=json)
+                response = await client.post(url, json=json, headers=headers)
             except httpx.TimeoutException as exc:
                 raise GatewayTimeoutError(
                     f"Identity Manager did not respond in time (POST {path}).",
@@ -226,11 +234,13 @@ class IdentityManagerClient(IdentityClient):
         path: str,
         *,
         json: dict[str, Any] | None = None,
+        token: str = "",
     ) -> dict[str, Any]:
         url = f"{self._base_url}{path}"
+        headers = {"Authorization": f"Bearer {token}"} if token else {}
         async with httpx.AsyncClient(timeout=self._timeout) as client:
             try:
-                response = await client.patch(url, json=json)
+                response = await client.patch(url, json=json, headers=headers)
             except httpx.TimeoutException as exc:
                 raise GatewayTimeoutError(
                     f"Identity Manager did not respond in time (PATCH {path}).",

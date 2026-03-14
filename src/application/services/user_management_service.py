@@ -42,6 +42,7 @@ class UserManagementService:
     async def list_users(
         self,
         *,
+        token: str,
         search: str | None = None,
         page: int = 1,
         page_size: int = 20,
@@ -52,6 +53,9 @@ class UserManagementService:
 
         Parameters
         ----------
+        token:
+            Bearer token from the authenticated admin session, forwarded to
+            upstream services.
         search:
             Optional search query (name, email).
         page:
@@ -72,6 +76,7 @@ class UserManagementService:
         # Fetch user list from Identity Manager (circuit breaker applied at adapter level).
         try:
             identity_result = await self._identity.list_users(
+                token=token,
                 search=search,
                 page=page,
                 page_size=page_size,
@@ -94,7 +99,7 @@ class UserManagementService:
         # Enrich with profile data (Req 9.2).
         user_ids = [u.get("id") or u.get("user_id", "") for u in users]
         try:
-            profiles = await self._profile.get_profiles(user_ids)
+            profiles = await self._profile.get_profiles(user_ids, token=token)
         except ExternalServiceError:
             logger.warning("user_management_profile_service_unavailable")
             profiles = {}
@@ -122,26 +127,12 @@ class UserManagementService:
         user_id: str,
         roles: list[str],
         requesting_user_roles: list[str],
+        *,
+        token: str,
     ) -> None:
         """Change a user's roles (super_admin only).
 
         Requirements: 9.4
-
-        Parameters
-        ----------
-        user_id:
-            Target user ID.
-        roles:
-            New role list.
-        requesting_user_roles:
-            Roles of the requesting admin user.
-
-        Raises
-        ------
-        AuthorizationError
-            When the requesting user is not a super_admin.
-        ExternalServiceError
-            When the Identity Manager is unavailable (Req 9.6).
         """
         if AdminRole.SUPER_ADMIN.value not in requesting_user_roles:
             raise AuthorizationError(
@@ -150,7 +141,7 @@ class UserManagementService:
             )
 
         try:
-            await self._identity.update_roles(user_id, roles)
+            await self._identity.update_roles(user_id, roles, token=token)
             logger.info("user_roles_changed", user_id=user_id, new_roles=roles)
         except ExternalServiceError:
             logger.error("user_management_role_change_failed", user_id=user_id)
@@ -161,26 +152,12 @@ class UserManagementService:
         user_id: str,
         status: str,
         requesting_user_roles: list[str],
+        *,
+        token: str,
     ) -> None:
         """Activate or deactivate a user (super_admin, admin).
 
         Requirements: 9.5
-
-        Parameters
-        ----------
-        user_id:
-            Target user ID.
-        status:
-            New status (``"active"`` or ``"inactive"``).
-        requesting_user_roles:
-            Roles of the requesting admin user.
-
-        Raises
-        ------
-        AuthorizationError
-            When the requesting user is neither super_admin nor admin.
-        ExternalServiceError
-            When the Identity Manager is unavailable (Req 9.6).
         """
         allowed_roles = {AdminRole.SUPER_ADMIN.value, AdminRole.ADMIN.value}
         if not set(requesting_user_roles).intersection(allowed_roles):
@@ -190,7 +167,7 @@ class UserManagementService:
             )
 
         try:
-            await self._identity.update_status(user_id, status)
+            await self._identity.update_status(user_id, status, token=token)
             logger.info("user_status_changed", user_id=user_id, new_status=status)
         except ExternalServiceError:
             logger.error("user_management_status_change_failed", user_id=user_id)

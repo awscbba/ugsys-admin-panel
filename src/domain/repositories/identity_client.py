@@ -38,17 +38,27 @@ class IdentityClient(ABC):
     async def list_users(
         self,
         *,
+        token: str,
         search: str | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> dict[str, Any]:
-        """Fetch a paginated user list from the Identity Manager."""
+        """Fetch a paginated user list from the Identity Manager.
+
+        Parameters
+        ----------
+        token:
+            Bearer token forwarded from the authenticated admin user's session.
+            Required — the Identity Manager enforces authentication on this endpoint.
+        """
 
     @abstractmethod
     async def update_roles(
         self,
         user_id: str,
         roles: list[str],
+        *,
+        token: str,
     ) -> None:
         """Change a user's roles via the Identity Manager."""
 
@@ -57,5 +67,7 @@ class IdentityClient(ABC):
         self,
         user_id: str,
         status: str,
+        *,
+        token: str,
     ) -> None:
         """Activate or deactivate a user via the Identity Manager."""
