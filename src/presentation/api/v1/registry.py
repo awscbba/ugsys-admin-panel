@@ -41,11 +41,39 @@ class RegisterServiceRequest(BaseModel):
     min_role: str = "admin"
 
 
+class RouteDescriptorResponse(BaseModel):
+    path: str
+    required_roles: list[str]
+    label: str
+
+
+class NavigationEntryResponse(BaseModel):
+    label: str
+    icon: str
+    path: str
+    required_roles: list[str]
+    group: str | None = None
+    order: int = 0
+
+
+class PluginManifestResponse(BaseModel):
+    name: str
+    version: str
+    entryPoint: str
+    routes: list[RouteDescriptorResponse]
+    navigation: list[NavigationEntryResponse]
+    stylesheetUrl: str | None = None
+    configSchema: dict[str, Any] | None = None
+    healthEndpoint: str | None = None
+    requiredPermissions: list[str] | None = None
+
+
 class ServiceResponse(BaseModel):
     service_name: str
     base_url: str
     health_endpoint: str
     manifest_url: str
+    manifest: PluginManifestResponse | None
     min_role: str
     status: str
     version: int
@@ -57,12 +85,46 @@ class ServiceResponse(BaseModel):
     has_config_schema: bool
 
 
+def _manifest_to_response(manifest: Any) -> PluginManifestResponse | None:
+    if manifest is None:
+        return None
+    return PluginManifestResponse(
+        name=manifest.name,
+        version=manifest.version,
+        entryPoint=manifest.entry_point,
+        routes=[
+            RouteDescriptorResponse(
+                path=r.path,
+                required_roles=list(r.required_roles),
+                label=r.label,
+            )
+            for r in manifest.routes
+        ],
+        navigation=[
+            NavigationEntryResponse(
+                label=n.label,
+                icon=n.icon,
+                path=n.path,
+                required_roles=list(n.required_roles),
+                group=n.group,
+                order=n.order,
+            )
+            for n in manifest.navigation
+        ],
+        stylesheetUrl=manifest.stylesheet_url,
+        configSchema=manifest.config_schema,
+        healthEndpoint=manifest.health_endpoint,
+        requiredPermissions=manifest.required_permissions,
+    )
+
+
 def _to_response(reg: ServiceRegistration) -> ServiceResponse:
     return ServiceResponse(
         service_name=reg.service_name,
         base_url=reg.base_url,
         health_endpoint=reg.health_endpoint,
         manifest_url=reg.manifest_url,
+        manifest=_manifest_to_response(reg.manifest),
         min_role=reg.min_role,
         status=reg.status.value,
         version=reg.version,
