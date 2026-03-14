@@ -5,6 +5,10 @@ entry into the Service Registry.  Environment variable overrides of the
 form ``SEED_{SERVICE_NAME}_BASE_URL`` (service name upper-cased, hyphens
 replaced with underscores) take precedence over the JSON file values.
 
+After upserting, the loader attempts to fetch and validate each service's
+Plugin Manifest so that navigation entries are available immediately on
+startup without requiring a manual re-registration call.
+
 Requirements: 4.1, 4.2
 """
 
@@ -18,9 +22,12 @@ from typing import Any
 
 import structlog
 
+from src.application.interfaces.manifest_validator import validate_manifest
 from src.domain.entities import ServiceRegistration
+from src.domain.exceptions import ExternalServiceError, GatewayTimeoutError, ValidationError
 from src.domain.repositories.service_registry_repository import ServiceRegistryRepository
 from src.domain.value_objects import ServiceStatus
+from src.infrastructure.adapters.manifest_fetcher import fetch_manifest
 
 logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
 
@@ -127,3 +134,56 @@ async def load_seed_services(
             logger.exception("seed_service_upsert_failed", service_name=service_name)
 
     logger.info("seed_loading_completed", service_count=len(services))
+
+    # --- Fetch manifests for all seed entries that have none ---
+    # upsert_seed stores manifest=None; we now attempt to fetch each manifest
+    # so navigation entries are populated without requiring a manual re-registration.
+    await _refresh_missing_manifests(registry_repo)
+
+
+async def _refresh_missing_manifests(registry_repo: ServiceRegistryRepository) -> None:
+    """Fetch Plugin Manifests for any registered service that has none.
+
+    Called once after the seed upsert loop.  Failures are logged and
+    skipped — a missing manifest degrades gracefully (service stays
+    registered but navigation entries won't appear until the next
+    successful fetch).
+    """
+    try:
+        all_services = await registry_repo.list_all()
+    except Exception:
+        logger.exception("seed_manifest_refresh_list_failed")
+        return
+
+    for svc in all_services:
+        if svc.manifest is not None:
+            continue  # already has a manifest — skip
+
+        try:
+            raw = await fetch_manifest(svc.manifest_url)
+            manifest = validate_manifest(raw)
+            now = datetime.now(UTC).isoformat()
+            updated = ServiceRegistration(
+                service_name=svc.service_name,
+                base_url=svc.base_url,
+                health_endpoint=svc.health_endpoint,
+                manifest_url=svc.manifest_url,
+                manifest=manifest,
+                min_role=svc.min_role,
+                status=ServiceStatus.ACTIVE,
+                version=svc.version,
+                registered_at=svc.registered_at,
+                updated_at=now,
+                registered_by=svc.registered_by,
+                registration_source=svc.registration_source,
+            )
+            await registry_repo.save(updated)
+            logger.info("seed_manifest_fetched", service_name=svc.service_name)
+        except (GatewayTimeoutError, ExternalServiceError, ValidationError) as exc:
+            logger.warning(
+                "seed_manifest_fetch_failed",
+                service_name=svc.service_name,
+                error=str(exc),
+            )
+        except Exception:
+            logger.exception("seed_manifest_fetch_error", service_name=svc.service_name)
