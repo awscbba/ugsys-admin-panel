@@ -14,6 +14,8 @@ import os
 from typing import Any
 
 import boto3
+import boto3.dynamodb.conditions
+from boto3.dynamodb.conditions import Attr
 from botocore.exceptions import ClientError
 
 from src.domain.entities import PluginManifest, ServiceRegistration
@@ -205,7 +207,7 @@ class DynamoDBServiceRegistryRepository(ServiceRegistryRepository):
         try:
             items: list[dict[str, Any]] = []
             scan_kwargs: dict[str, Any] = {
-                "FilterExpression": boto3.dynamodb.conditions.Attr("sk").eq(_SK),
+                "FilterExpression": Attr("sk").eq(_SK),
             }
             while True:
                 response = self._table.scan(**scan_kwargs)

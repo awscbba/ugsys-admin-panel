@@ -66,7 +66,7 @@ class UserManagementService:
         Returns
         -------
         dict
-            Paginated result with ``users``, ``total``, ``page``, ``page_size``.
+            Paginated result with ``items``, ``total``, ``page``, ``page_size``.
 
         Raises
         ------
@@ -85,12 +85,14 @@ class UserManagementService:
             logger.error("user_management_identity_unavailable")
             raise
 
-        users: list[dict[str, Any]] = identity_result.get("users", [])
-        total: int = identity_result.get("total", len(users))
+        # IdentityManagerClient unwraps {"data": [...]} → {"items": [...], "meta": {...}}
+        users: list[dict[str, Any]] = identity_result.get("items", identity_result.get("users", []))
+        meta: dict[str, Any] = identity_result.get("meta", {})
+        total: int = meta.get("total", identity_result.get("total", len(users)))
 
         if not users:
             return {
-                "users": [],
+                "items": [],
                 "total": total,
                 "page": page,
                 "page_size": page_size,
@@ -110,13 +112,16 @@ class UserManagementService:
             profile = profiles.get(uid, {})
             enriched = {
                 **user,
-                "display_name": profile.get("display_name") or profile.get("name") or user.get("email", ""),
-                "avatar_url": profile.get("avatar_url"),
+                "user_id": uid,  # normalize: frontend expects user_id
+                "display_name": (
+                    profile.get("display_name") or profile.get("name") or user.get("full_name") or user.get("email", "")
+                ),
+                "avatar": profile.get("avatar_url"),
             }
             enriched_users.append(enriched)
 
         return {
-            "users": enriched_users,
+            "items": enriched_users,
             "total": total,
             "page": page,
             "page_size": page_size,
