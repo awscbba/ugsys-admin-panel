@@ -111,7 +111,7 @@ class AuthService:
         logger.info("auth_token_refresh_success")
         return token_pair
 
-    async def get_current_user(self, user_id: str, email: str, raw_roles: list[str]) -> AdminUser:
+    async def get_current_user(self, user_id: str, email: str, raw_roles: list[str], *, token: str = "") -> AdminUser:
         """Build an enriched AdminUser from JWT claims and profile data.
 
         Fetches the user's display name and avatar from the User Profile
@@ -144,7 +144,7 @@ class AuthService:
         display_name = email
         avatar_url: str | None = None
         try:
-            profile = await self._profile.get_profile(user_id)
+            profile = await self._profile.get_profile(user_id, token=token)
             display_name = profile.get("display_name") or profile.get("name") or email
             avatar_url = profile.get("avatar_url")
         except (ExternalServiceError, Exception):

@@ -282,7 +282,8 @@ async def me(
     email: str = getattr(request.state, "email", "")
     raw_roles: list[str] = getattr(request.state, "roles", [])
 
-    admin_user = await auth_service.get_current_user(user_id, email, raw_roles)
+    token = request.cookies.get("access_token", "")
+    admin_user = await auth_service.get_current_user(user_id, email, raw_roles, token=token)
 
     return {
         "user_id": admin_user.user_id,

@@ -64,7 +64,9 @@ async def list_users(
 
     Requirements: 9.1
     """
+    token = request.cookies.get("access_token", "")
     return await user_management_service.list_users(
+        token=token,
         search=search,
         page=page,
         page_size=page_size,
@@ -83,11 +85,13 @@ async def change_roles(
 
     Requirements: 9.4
     """
+    token = request.cookies.get("access_token", "")
     requesting_roles = [r.value for r in current_user.roles]
     await user_management_service.change_roles(
         user_id=user_id,
         roles=body.roles,
         requesting_user_roles=requesting_roles,
+        token=token,
     )
 
 
@@ -103,9 +107,11 @@ async def change_status(
 
     Requirements: 9.5
     """
+    token = request.cookies.get("access_token", "")
     requesting_roles = [r.value for r in current_user.roles]
     await user_management_service.change_status(
         user_id=user_id,
         status=body.status,
         requesting_user_roles=requesting_roles,
+        token=token,
     )
