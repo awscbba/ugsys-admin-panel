@@ -15,6 +15,7 @@ from typing import Any
 
 import boto3
 import boto3.dynamodb.conditions
+import structlog
 from boto3.dynamodb.conditions import Attr
 from botocore.exceptions import ClientError
 
@@ -22,6 +23,8 @@ from src.domain.entities import PluginManifest, ServiceRegistration
 from src.domain.exceptions import NotFoundError, RepositoryError
 from src.domain.repositories.service_registry_repository import ServiceRegistryRepository
 from src.domain.value_objects import NavigationEntry, RouteDescriptor, ServiceStatus
+
+logger = structlog.get_logger(__name__)
 
 
 def _table_name() -> str:
@@ -216,10 +219,23 @@ class DynamoDBServiceRegistryRepository(ServiceRegistryRepository):
                 if last_key is None:
                     break
                 scan_kwargs["ExclusiveStartKey"] = last_key
+            return [_from_item(item) for item in items]
         except ClientError as exc:
+            error_code = exc.response["Error"]["Code"]
+            logger.error(
+                "dynamodb.list_all_failed",
+                table=self._table.name,
+                error_code=error_code,
+                error=str(exc),
+            )
             raise RepositoryError("Failed to list service registrations.") from exc
-
-        return [_from_item(item) for item in items]
+        except Exception as exc:
+            logger.error(
+                "dynamodb.list_all_deserialization_failed",
+                table=self._table.name,
+                error=str(exc),
+            )
+            raise RepositoryError("Failed to list service registrations.") from exc
 
     # -- delete --------------------------------------------------------------
 
