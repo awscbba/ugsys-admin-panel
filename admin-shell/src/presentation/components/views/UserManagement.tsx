@@ -18,7 +18,9 @@ import type {
   PaginatedUsers,
   UserListQuery,
 } from "../../../domain/repositories/UserManagementRepository";
+import type { UpsProfile } from "../../../domain/entities/UpsProfile";
 import { HttpUserManagementRepository } from "../../../infrastructure/repositories/HttpUserManagementRepository";
+import { HttpUserProfileClient } from "../../../infrastructure/repositories/HttpUserProfileClient";
 import { useRbac } from "../RbacProvider";
 import { EditProfileModal } from "../modals/EditProfileModal";
 import { getComponentLogger } from "../../../utils/logger";
@@ -383,6 +385,7 @@ export function UserManagement() {
   const canEdit = hasAnyRole(["super_admin", "admin"]);
 
   const repo = useRef(new HttpUserManagementRepository());
+  const upsClient = useRef(new HttpUserProfileClient());
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -400,6 +403,13 @@ export function UserManagement() {
   const [roleModalUser, setRoleModalUser] = useState<AdminUser | null>(null);
   const [isSavingRoles, setIsSavingRoles] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [editLoadingUserId, setEditLoadingUserId] = useState<string | null>(
+    null,
+  );
+  const [editingUpsProfile, setEditingUpsProfile] = useState<
+    UpsProfile | null | undefined
+  >(undefined);
+  const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
 
   // ── Fetch ───────────────────────────────────────────────────────────────
 
@@ -498,6 +508,40 @@ export function UserManagement() {
       setActionError(msg);
     } finally {
       setActionInProgress(null);
+    }
+  };
+
+  // ── Edit (with UPS pre-population) ─────────────────────────────────────
+
+  const handleEdit = async (user: AdminUser) => {
+    setEditLoadingUserId(user.userId);
+    setRowErrors((prev) => {
+      const next = { ...prev };
+      delete next[user.userId];
+      return next;
+    });
+    try {
+      const upsProfile = await upsClient.current.getProfile(user.userId);
+      setEditingUpsProfile(upsProfile);
+      setEditingUser(user);
+    } catch (err) {
+      // 404 → open modal with null upsProfile (new profile)
+      const isNotFound =
+        (err instanceof Error &&
+          (err as Error & { status?: number }).status === 404) ||
+        (err instanceof Error &&
+          err.message.toLowerCase().includes("not found"));
+      if (isNotFound) {
+        setEditingUpsProfile(null);
+        setEditingUser(user);
+      } else {
+        // 5xx / network → row error, do not open modal
+        const msg =
+          err instanceof Error ? err.message : "Failed to load profile data.";
+        setRowErrors((prev) => ({ ...prev, [user.userId]: msg }));
+      }
+    } finally {
+      setEditLoadingUserId(null);
     }
   };
 
@@ -643,7 +687,23 @@ export function UserManagement() {
               pageSize: PAGE_SIZE,
             })
           }
-          onClose={() => setEditingUser(null)}
+          onClose={() => {
+            setEditingUser(null);
+            setEditingUpsProfile(undefined);
+          }}
+          upsProfile={editingUpsProfile}
+          onSavePersonal={(userId, fields) =>
+            upsClient.current.updatePersonal(userId, fields)
+          }
+          onSaveContact={(userId, fields) =>
+            upsClient.current.updateContact(userId, fields)
+          }
+          onSaveDisplay={(userId, fields) =>
+            upsClient.current.updateDisplay(userId, fields)
+          }
+          onSavePreferences={(userId, fields) =>
+            upsClient.current.updatePreferences(userId, fields)
+          }
         />
       )}
 
@@ -751,6 +811,51 @@ export function UserManagement() {
         </div>
       )}
 
+      {/* Row-level UPS fetch error banners */}
+      {Object.entries(rowErrors).map(([userId, msg]) => (
+        <div
+          key={userId}
+          role="alert"
+          style={{
+            marginBottom: "8px",
+            padding: "10px 16px",
+            background: "#fef2f2",
+            border: "1px solid #fca5a5",
+            borderRadius: "6px",
+            fontSize: "14px",
+            color: "#b91c1c",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "12px",
+          }}
+        >
+          <span>{msg}</span>
+          <button
+            type="button"
+            aria-label="Dismiss error"
+            onClick={() =>
+              setRowErrors((prev) => {
+                const next = { ...prev };
+                delete next[userId];
+                return next;
+              })
+            }
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#b91c1c",
+              fontSize: "16px",
+              lineHeight: 1,
+              padding: "0 4px",
+            }}
+          >
+            ×
+          </button>
+        </div>
+      ))}
+
       {/* Table */}
       <div
         style={{
@@ -833,8 +938,8 @@ export function UserManagement() {
                     canEdit={canEdit}
                     onChangeRoles={setRoleModalUser}
                     onToggleStatus={handleToggleStatus}
-                    onEdit={setEditingUser}
-                    actionInProgress={actionInProgress}
+                    onEdit={handleEdit}
+                    actionInProgress={actionInProgress ?? editLoadingUserId}
                   />
                 ))
               )}
