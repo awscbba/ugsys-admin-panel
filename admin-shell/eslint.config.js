@@ -37,17 +37,9 @@ const browserGlobals = {
   React: 'readonly',
 };
 
-const vitestGlobals = {
-  describe: 'readonly',
-  it: 'readonly',
-  test: 'readonly',
-  expect: 'readonly',
-  beforeEach: 'readonly',
-  afterEach: 'readonly',
-  beforeAll: 'readonly',
-  afterAll: 'readonly',
-  vi: 'readonly',
-};
+// No vitest globals needed — test files import explicitly from 'vitest',
+// so ESLint can correctly track unused imports via @typescript-eslint/no-unused-vars.
+// Declaring them as globals would suppress the unused-import check.
 
 export default [
   js.configs.recommended,
@@ -95,7 +87,7 @@ export default [
         sourceType: 'module',
         ecmaFeatures: { jsx: true },
       },
-      globals: { ...browserGlobals, ...vitestGlobals },
+      globals: browserGlobals,
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
