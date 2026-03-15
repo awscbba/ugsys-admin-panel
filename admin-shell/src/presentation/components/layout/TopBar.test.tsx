@@ -11,7 +11,11 @@ import { TopBar } from "./TopBar";
 
 // Mock child components to isolate TopBar logic
 vi.mock("./ProfileDropdown", () => ({
-  ProfileDropdown: ({ onClose, onEditProfile, onLogout }: {
+  ProfileDropdown: ({
+    onClose,
+    onEditProfile,
+    onLogout,
+  }: {
     onClose: () => void;
     onEditProfile: () => void;
     onLogout: () => void;

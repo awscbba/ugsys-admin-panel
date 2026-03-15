@@ -65,7 +65,8 @@ export class HttpAuthRepository implements AuthRepository {
   async updateOwnProfile(fields: SelfProfileUpdateFields): Promise<void> {
     // Map camelCase domain fields → snake_case BFF contract (P3: only send changed fields)
     const body: Record<string, string> = {};
-    if (fields.displayName !== undefined) body.display_name = fields.displayName;
+    if (fields.displayName !== undefined)
+      body.display_name = fields.displayName;
     if (fields.password !== undefined) body.password = fields.password;
 
     await this.http.request("/api/v1/auth/me", {

@@ -55,9 +55,8 @@ export function ProfileDropdown({
 
   // Up/Down Arrow key navigation
   function handleKeyDown(e: React.KeyboardEvent) {
-    const items = menuRef.current?.querySelectorAll<HTMLElement>(
-      '[role="menuitem"]',
-    );
+    const items =
+      menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
     if (!items || items.length === 0) return;
     const idx = Array.from(items).indexOf(
       document.activeElement as HTMLElement,

@@ -22,7 +22,9 @@ function renderDropdown(overrides?: {
   // Render a trigger button so triggerRef is attached to a real DOM node
   const { unmount } = render(
     <>
-      <button ref={triggerRef as React.RefObject<HTMLButtonElement>}>Trigger</button>
+      <button ref={triggerRef as React.RefObject<HTMLButtonElement>}>
+        Trigger
+      </button>
       <ProfileDropdown
         triggerRef={triggerRef as React.RefObject<HTMLButtonElement | null>}
         onClose={onClose}
@@ -56,7 +58,9 @@ describe("ProfileDropdown", () => {
   it("calls onEditProfile when Edit Profile is clicked", async () => {
     const onEditProfile = vi.fn();
     renderDropdown({ onEditProfile });
-    await userEvent.click(screen.getByRole("menuitem", { name: "Edit Profile" }));
+    await userEvent.click(
+      screen.getByRole("menuitem", { name: "Edit Profile" }),
+    );
     expect(onEditProfile).toHaveBeenCalledOnce();
   });
 

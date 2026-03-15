@@ -80,7 +80,10 @@ describe("SelfEditProfileModal", () => {
   it("shows error when display name exceeds 100 chars", async () => {
     renderModal();
     await userEvent.clear(screen.getByLabelText(/display name/i));
-    await userEvent.type(screen.getByLabelText(/display name/i), "a".repeat(101));
+    await userEvent.type(
+      screen.getByLabelText(/display name/i),
+      "a".repeat(101),
+    );
     await userEvent.click(screen.getByRole("button", { name: /save/i }));
     expect(screen.getByText(/100 characters/i)).toBeInTheDocument();
     expect(updateOwnProfile).not.toHaveBeenCalled();
@@ -98,7 +101,10 @@ describe("SelfEditProfileModal", () => {
   it("shows error when passwords do not match (P6)", async () => {
     renderModal();
     await userEvent.type(screen.getByLabelText(/new password/i), "password123");
-    await userEvent.type(screen.getByLabelText(/confirm password/i), "different1");
+    await userEvent.type(
+      screen.getByLabelText(/confirm password/i),
+      "different1",
+    );
     await userEvent.click(screen.getByRole("button", { name: /save/i }));
     expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
     expect(updateOwnProfile).not.toHaveBeenCalled();
@@ -111,7 +117,10 @@ describe("SelfEditProfileModal", () => {
     renderModal();
     // displayName unchanged — only set a new password
     await userEvent.type(screen.getByLabelText(/new password/i), "newpass123");
-    await userEvent.type(screen.getByLabelText(/confirm password/i), "newpass123");
+    await userEvent.type(
+      screen.getByLabelText(/confirm password/i),
+      "newpass123",
+    );
     await userEvent.click(screen.getByRole("button", { name: /save/i }));
     await waitFor(() => expect(updateOwnProfile).toHaveBeenCalledOnce());
     const [fields] = vi.mocked(updateOwnProfile).mock.calls[0]!;
@@ -136,7 +145,10 @@ describe("SelfEditProfileModal", () => {
     vi.mocked(updateOwnProfile).mockResolvedValue(undefined);
     const { onClose } = renderModal();
     await userEvent.clear(screen.getByLabelText(/display name/i));
-    await userEvent.type(screen.getByLabelText(/display name/i), "Updated Name");
+    await userEvent.type(
+      screen.getByLabelText(/display name/i),
+      "Updated Name",
+    );
     await userEvent.click(screen.getByRole("button", { name: /save/i }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
   });
@@ -144,13 +156,17 @@ describe("SelfEditProfileModal", () => {
   // ── Error banner ───────────────────────────────────────────────────────────
 
   it("shows dismissible error banner on failure", async () => {
-    vi.mocked(updateOwnProfile).mockRejectedValue(new Error("Service unavailable"));
+    vi.mocked(updateOwnProfile).mockRejectedValue(
+      new Error("Service unavailable"),
+    );
     renderModal();
     await userEvent.clear(screen.getByLabelText(/display name/i));
     await userEvent.type(screen.getByLabelText(/display name/i), "New Name");
     await userEvent.click(screen.getByRole("button", { name: /save/i }));
     await waitFor(() =>
-      expect(screen.getByRole("alert")).toHaveTextContent("Service unavailable"),
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Service unavailable",
+      ),
     );
   });
 
@@ -170,7 +186,9 @@ describe("SelfEditProfileModal", () => {
   it("disables Save and Cancel while saving", async () => {
     let resolve!: () => void;
     vi.mocked(updateOwnProfile).mockReturnValue(
-      new Promise<void>((r) => { resolve = r; }),
+      new Promise<void>((r) => {
+        resolve = r;
+      }),
     );
     renderModal();
     await userEvent.clear(screen.getByLabelText(/display name/i));

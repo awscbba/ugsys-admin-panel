@@ -148,14 +148,18 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
             style={{
               width: "100%",
               padding: "8px 10px",
-              border: errors.displayName ? "1px solid #ef4444" : "1px solid #d1d5db",
+              border: errors.displayName
+                ? "1px solid #ef4444"
+                : "1px solid #d1d5db",
               borderRadius: "6px",
               fontSize: "14px",
               boxSizing: "border-box",
             }}
           />
           {errors.displayName && (
-            <p style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}>
+            <p
+              style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}
+            >
               {errors.displayName}
             </p>
           )}
@@ -179,14 +183,18 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
             style={{
               width: "100%",
               padding: "8px 10px",
-              border: errors.newPassword ? "1px solid #ef4444" : "1px solid #d1d5db",
+              border: errors.newPassword
+                ? "1px solid #ef4444"
+                : "1px solid #d1d5db",
               borderRadius: "6px",
               fontSize: "14px",
               boxSizing: "border-box",
             }}
           />
           {errors.newPassword && (
-            <p style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}>
+            <p
+              style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}
+            >
               {errors.newPassword}
             </p>
           )}
@@ -209,21 +217,27 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
             style={{
               width: "100%",
               padding: "8px 10px",
-              border: errors.confirmPassword ? "1px solid #ef4444" : "1px solid #d1d5db",
+              border: errors.confirmPassword
+                ? "1px solid #ef4444"
+                : "1px solid #d1d5db",
               borderRadius: "6px",
               fontSize: "14px",
               boxSizing: "border-box",
             }}
           />
           {errors.confirmPassword && (
-            <p style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}>
+            <p
+              style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}
+            >
               {errors.confirmPassword}
             </p>
           )}
         </div>
 
         {/* Actions */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+        <div
+          style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}
+        >
           <button
             onClick={onClose}
             disabled={saving}
