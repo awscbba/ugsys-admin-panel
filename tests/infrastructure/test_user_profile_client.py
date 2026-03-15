@@ -45,3 +45,13 @@ class TestHandleResponse:
         resp = _make_response(401, {"error": "unauthorized"})
         with pytest.raises(ExternalServiceError):
             UserProfileClient._handle_response(resp, "/api/v1/profiles/u1")
+
+    def test_raises_external_service_error_on_malformed_json_body(self) -> None:
+        """Regression: UPS returns 200 with non-JSON body → ExternalServiceError, not JSONDecodeError."""
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.is_success = True
+        resp.content = b"not json"
+        resp.json.side_effect = ValueError("Expecting value: line 1 column 1 (char 0)")
+        with pytest.raises(ExternalServiceError, match=r"malformed.*JSON"):
+            UserProfileClient._handle_response(resp, "/api/v1/profiles/u1")
