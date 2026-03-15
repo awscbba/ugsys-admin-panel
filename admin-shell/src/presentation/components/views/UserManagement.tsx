@@ -20,6 +20,7 @@ import type {
 } from "../../../domain/repositories/UserManagementRepository";
 import { HttpUserManagementRepository } from "../../../infrastructure/repositories/HttpUserManagementRepository";
 import { useRbac } from "../RbacProvider";
+import { EditProfileModal } from "../modals/EditProfileModal";
 import { getComponentLogger } from "../../../utils/logger";
 import {
   USER_MANAGEMENT_ERRORS,
@@ -196,8 +197,10 @@ interface UserRowProps {
   user: AdminUser;
   canChangeRoles: boolean;
   canChangeStatus: boolean;
+  canEdit: boolean;
   onChangeRoles: (user: AdminUser) => void;
   onToggleStatus: (user: AdminUser) => void;
+  onEdit: (user: AdminUser) => void;
   actionInProgress: string | null; // userId of the user being acted on
 }
 
@@ -205,8 +208,10 @@ function UserRow({
   user,
   canChangeRoles,
   canChangeStatus,
+  canEdit,
   onChangeRoles,
   onToggleStatus,
+  onEdit,
   actionInProgress,
 }: UserRowProps) {
   const isBusy = actionInProgress === user.userId;
@@ -293,6 +298,17 @@ function UserRow({
 
       <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
         <div style={{ display: "flex", gap: "8px" }}>
+          {canEdit && (
+            <button
+              type="button"
+              aria-label={`Edit profile for ${user.displayName || user.email}`}
+              onClick={() => onEdit(user)}
+              disabled={isBusy}
+              style={actionBtnStyle(isBusy, "#0369a1")}
+            >
+              Edit
+            </button>
+          )}
           {canChangeRoles && (
             <button
               type="button"
@@ -364,6 +380,7 @@ export function UserManagement() {
   const canView = hasAnyRole(["super_admin", "admin"]);
   const canChangeRoles = hasRole("super_admin");
   const canChangeStatus = hasAnyRole(["super_admin", "admin"]);
+  const canEdit = hasAnyRole(["super_admin", "admin"]);
 
   const repo = useRef(new HttpUserManagementRepository());
 
@@ -382,6 +399,7 @@ export function UserManagement() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [roleModalUser, setRoleModalUser] = useState<AdminUser | null>(null);
   const [isSavingRoles, setIsSavingRoles] = useState(false);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
 
   // ── Fetch ───────────────────────────────────────────────────────────────
 
@@ -612,6 +630,19 @@ export function UserManagement() {
         />
       )}
 
+      {/* Edit profile modal */}
+      {editingUser && (
+        <EditProfileModal
+          user={editingUser}
+          isSuperAdmin={hasRole("super_admin")}
+          onSave={repo.current.updateProfile.bind(repo.current)}
+          onSuccess={() =>
+            fetchUsers({ search: search || undefined, page, pageSize: PAGE_SIZE })
+          }
+          onClose={() => setEditingUser(null)}
+        />
+      )}
+
       {/* Header */}
       <div
         style={{
@@ -795,8 +826,10 @@ export function UserManagement() {
                     user={user}
                     canChangeRoles={canChangeRoles}
                     canChangeStatus={canChangeStatus}
+                    canEdit={canEdit}
                     onChangeRoles={setRoleModalUser}
                     onToggleStatus={handleToggleStatus}
+                    onEdit={setEditingUser}
                     actionInProgress={actionInProgress}
                   />
                 ))
