@@ -637,7 +637,11 @@ export function UserManagement() {
           isSuperAdmin={hasRole("super_admin")}
           onSave={repo.current.updateProfile.bind(repo.current)}
           onSuccess={() =>
-            fetchUsers({ search: search || undefined, page, pageSize: PAGE_SIZE })
+            fetchUsers({
+              search: search || undefined,
+              page,
+              pageSize: PAGE_SIZE,
+            })
           }
           onClose={() => setEditingUser(null)}
         />

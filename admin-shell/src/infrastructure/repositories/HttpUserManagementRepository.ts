@@ -88,7 +88,8 @@ export class HttpUserManagementRepository implements UserManagementRepository {
   ): Promise<void> {
     // Map camelCase domain fields → snake_case API body; omit undefined fields.
     const body: Record<string, string> = {};
-    if (fields.displayName !== undefined) body.display_name = fields.displayName;
+    if (fields.displayName !== undefined)
+      body.display_name = fields.displayName;
     if (fields.email !== undefined) body.email = fields.email;
     if (fields.password !== undefined) body.password = fields.password;
 
