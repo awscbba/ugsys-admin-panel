@@ -159,6 +159,23 @@ class TestGetProfile:
         call_args = mock_client.get.call_args
         assert call_args[1]["headers"].get("X-Request-ID") == "req-xyz"
 
+    @pytest.mark.asyncio
+    async def test_raises_external_service_error_on_malformed_json_body(self, adapter) -> None:
+        """Regression: UPS returns 200 with non-JSON body → ExternalServiceError, not JSONDecodeError."""
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.is_success = True
+        resp.content = b"not json"
+        resp.json.side_effect = ValueError("Expecting value: line 1 column 1 (char 0)")
+
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client_cls.return_value.__aenter__.return_value = mock_client
+            mock_client.get.return_value = resp
+
+            with pytest.raises(ExternalServiceError, match=r"malformed.*JSON"):
+                await adapter.get_profile("u1", token="tok")
+
 
 # ---------------------------------------------------------------------------
 # update_personal
