@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EditProfileModal } from "./EditProfileModal";
 import type { AdminUser } from "../../../domain/entities/AdminUser";
 import type { ProfileUpdateFields } from "../../../domain/repositories/UserManagementRepository";
@@ -160,15 +160,10 @@ describe("EditProfileModal — save behaviour", () => {
   it("calls onSave with userId and changed displayName", async () => {
     const { onSave } = renderModal();
     await userEvent.clear(screen.getByLabelText("Display Name"));
-    await userEvent.type(
-      screen.getByLabelText("Display Name"),
-      "Alice Updated",
-    );
+    await userEvent.type(screen.getByLabelText("Display Name"), "Alice Updated");
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     await waitFor(() => expect(onSave).toHaveBeenCalled());
-    expect(onSave).toHaveBeenCalledWith("u-001", {
-      displayName: "Alice Updated",
-    });
+    expect(onSave).toHaveBeenCalledWith("u-001", { displayName: "Alice Updated" });
   });
 
   it("sends displayName even when nothing changed (no-op diff)", async () => {
@@ -176,9 +171,7 @@ describe("EditProfileModal — save behaviour", () => {
     // displayName unchanged — should still send it
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     await waitFor(() => expect(onSave).toHaveBeenCalled());
-    expect(onSave).toHaveBeenCalledWith("u-001", {
-      displayName: "Alice Admin",
-    });
+    expect(onSave).toHaveBeenCalledWith("u-001", { displayName: "Alice Admin" });
   });
 
   it("calls onSuccess and onClose after successful save", async () => {
