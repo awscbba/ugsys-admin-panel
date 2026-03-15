@@ -175,3 +175,86 @@ class TestChangeOwnPassword:
         for arg in cb.call.call_args[0]:
             if isinstance(arg, str):
                 assert secret not in arg, "Password leaked into a positional string arg"
+
+
+class TestUpdateProfile:
+    """update_profile delegates to circuit breaker with PATCH and correct path (admin action)."""
+
+    async def test_happy_path_calls_cb_with_patch(self) -> None:
+        from unittest.mock import AsyncMock, MagicMock
+
+        cb = MagicMock()
+        cb.call = AsyncMock(return_value={})
+        client = IdentityManagerClient(circuit_breaker=cb, base_url="http://im")
+
+        await client.update_profile("usr-2", {"display_name": "Bob", "email": "bob@example.com"}, token="admin-tok")
+
+        cb.call.assert_awaited_once()
+        args = cb.call.call_args
+        assert args[0][1] == "/api/v1/users/usr-2"
+        assert args[1]["json"] == {"display_name": "Bob", "email": "bob@example.com"}
+        assert args[1]["token"] == "admin-tok"
+
+    async def test_propagates_external_service_error(self) -> None:
+        from unittest.mock import AsyncMock, MagicMock
+
+        cb = MagicMock()
+        cb.call = AsyncMock(side_effect=ExternalServiceError("IM down"))
+        client = IdentityManagerClient(circuit_breaker=cb, base_url="http://im")
+
+        with pytest.raises(ExternalServiceError):
+            await client.update_profile("usr-2", {"display_name": "Bob"}, token="admin-tok")
+
+    def test_handle_response_raises_on_4xx(self) -> None:
+        resp = _make_response(422, body={"detail": "validation error"})
+        with pytest.raises(ExternalServiceError):
+            IdentityManagerClient._handle_response(resp, "/api/v1/users/usr-2")
+
+    def test_handle_response_raises_on_5xx(self) -> None:
+        resp = _make_response(503, body={"error": "unavailable"})
+        with pytest.raises(ExternalServiceError):
+            IdentityManagerClient._handle_response(resp, "/api/v1/users/usr-2")
+
+
+class TestChangePassword:
+    """change_password delegates to circuit breaker with POST and never logs password (admin action)."""
+
+    async def test_happy_path_calls_cb_with_post(self) -> None:
+        from unittest.mock import AsyncMock, MagicMock
+
+        cb = MagicMock()
+        cb.call = AsyncMock(return_value={})
+        client = IdentityManagerClient(circuit_breaker=cb, base_url="http://im")
+
+        await client.change_password("usr-2", "N3wP@ss!", token="admin-tok")
+
+        cb.call.assert_awaited_once()
+        args = cb.call.call_args
+        assert args[0][1] == "/api/v1/users/usr-2/change-password"
+        assert args[1]["json"] == {"new_password": "N3wP@ss!"}
+        assert args[1]["token"] == "admin-tok"
+
+    async def test_propagates_external_service_error(self) -> None:
+        from unittest.mock import AsyncMock, MagicMock
+
+        cb = MagicMock()
+        cb.call = AsyncMock(side_effect=ExternalServiceError("IM down"))
+        client = IdentityManagerClient(circuit_breaker=cb, base_url="http://im")
+
+        with pytest.raises(ExternalServiceError):
+            await client.change_password("usr-2", "N3wP@ss!", token="admin-tok")
+
+    async def test_password_not_in_positional_string_args(self) -> None:
+        """Password value must not appear in any positional string arg passed to cb.call."""
+        from unittest.mock import AsyncMock, MagicMock
+
+        cb = MagicMock()
+        cb.call = AsyncMock(return_value={})
+        client = IdentityManagerClient(circuit_breaker=cb, base_url="http://im")
+
+        secret = "AdminSecret42!"
+        await client.change_password("usr-2", secret, token="admin-tok")
+
+        for arg in cb.call.call_args[0]:
+            if isinstance(arg, str):
+                assert secret not in arg, "Password leaked into a positional string arg"

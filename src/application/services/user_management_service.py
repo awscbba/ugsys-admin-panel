@@ -8,6 +8,7 @@ Requirements: 9.1, 9.2, 9.4, 9.5, 9.6, 9.7
 
 from __future__ import annotations
 
+import time
 from typing import Any
 
 import structlog
@@ -176,4 +177,68 @@ class UserManagementService:
             logger.info("user_status_changed", user_id=user_id, new_status=status)
         except ExternalServiceError:
             logger.error("user_management_status_change_failed", user_id=user_id)
+            raise
+
+    async def update_profile(
+        self,
+        user_id: str,
+        display_name: str | None,
+        email: str | None,
+        password: str | None,
+        requesting_user_roles: list[str],
+        *,
+        token: str,
+    ) -> None:
+        """Update a user's profile fields and/or password (admin action).
+
+        Role enforcement (server-side, regardless of client input):
+        - ``display_name`` — editable by admin and super_admin
+        - ``email`` — editable by super_admin only; silently discarded for admin
+        - ``password`` — settable by super_admin only; silently discarded for admin
+
+        Requirements: 10.1, 10.2, 10.3, 10.4
+        """
+        is_super_admin = AdminRole.SUPER_ADMIN.value in requesting_user_roles
+
+        # Build profile fields dict — email stripped unless super_admin
+        profile_fields: dict[str, str] = {}
+        if display_name is not None:
+            profile_fields["display_name"] = display_name
+        if email is not None and is_super_admin:
+            profile_fields["email"] = email
+
+        # Password only for super_admin
+        effective_password = password if is_super_admin else None
+
+        fields_updated = list(profile_fields.keys())
+        if effective_password:
+            fields_updated.append("password")
+
+        logger.info(
+            "update_profile.started",
+            user_id=user_id,
+            fields_updated=fields_updated,
+        )
+        start = time.perf_counter()
+
+        try:
+            if profile_fields:
+                await self._identity.update_profile(user_id, profile_fields, token=token)
+
+            if effective_password:
+                # Password MUST NOT appear in any log entry
+                await self._identity.change_password(user_id, effective_password, token=token)
+
+            logger.info(
+                "update_profile.completed",
+                user_id=user_id,
+                fields_updated=fields_updated,
+                duration_ms=round((time.perf_counter() - start) * 1000, 2),
+            )
+        except ExternalServiceError:
+            logger.error(
+                "update_profile.failed",
+                user_id=user_id,
+                duration_ms=round((time.perf_counter() - start) * 1000, 2),
+            )
             raise

@@ -218,6 +218,46 @@ class IdentityManagerClient(IdentityClient):
             token=token,
         )
 
+    async def update_profile(self, user_id: str, fields: dict[str, str], *, token: str) -> None:
+        """Update another user's profile via ``PATCH /api/v1/users/{user_id}`` (admin action).
+
+        ``token`` is the admin's Bearer token — forwarded as-is.
+
+        Raises
+        ------
+        ExternalServiceError
+            When the circuit breaker is open or the request fails.
+        GatewayTimeoutError
+            When the request times out.
+        """
+        await self._cb.call(
+            self._patch,
+            f"/api/v1/users/{user_id}",
+            json=fields,
+            token=token,
+        )
+
+    async def change_password(self, user_id: str, new_password: str, *, token: str) -> None:
+        """Change another user's password via ``POST /api/v1/users/{user_id}/change-password`` (admin action).
+
+        ``new_password`` is passed directly to the HTTP body — it MUST NEVER
+        appear in any log entry at any level.
+        ``token`` is the admin's Bearer token — forwarded as-is.
+
+        Raises
+        ------
+        ExternalServiceError
+            When the circuit breaker is open or the request fails.
+        GatewayTimeoutError
+            When the request times out.
+        """
+        await self._cb.call(
+            self._post,
+            f"/api/v1/users/{user_id}/change-password",
+            json={"new_password": new_password},
+            token=token,
+        )
+
     # ------------------------------------------------------------------
     # Private HTTP helpers
     # ------------------------------------------------------------------
