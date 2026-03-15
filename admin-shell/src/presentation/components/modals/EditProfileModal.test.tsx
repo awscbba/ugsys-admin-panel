@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { EditProfileModal } from "./EditProfileModal";
 import type { AdminUser } from "../../../domain/entities/AdminUser";
 import type { ProfileUpdateFields } from "../../../domain/repositories/UserManagementRepository";
