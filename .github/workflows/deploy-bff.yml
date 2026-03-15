@@ -88,37 +88,6 @@ jobs:
             --function-name "${{ env.LAMBDA_FUNCTION }}-${{ env.DEPLOY_ENV }}" \
             --region "${{ env.AWS_REGION }}"
 
-      - name: Sync Lambda environment variables
-        env:
-          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
-          IDENTITY_MANAGER_BASE_URL: ${{ secrets.IDENTITY_MANAGER_BASE_URL }}
-          USER_PROFILE_SERVICE_BASE_URL: ${{ secrets.USER_PROFILE_SERVICE_BASE_URL }}
-          JWT_KEYS_SECRET_ARN: ${{ secrets.JWT_KEYS_SECRET_ARN }}
-          JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
-          JWT_KEY_ID: ${{ secrets.JWT_KEY_ID }}
-        run: |
-          aws lambda update-function-configuration \
-            --function-name "${{ env.LAMBDA_FUNCTION }}-${DEPLOY_ENV}" \
-            --environment "Variables={
-              APP_ENV=${DEPLOY_ENV},
-              SERVICE_REGISTRY_TABLE_NAME=ugsys-admin-service-registry-${DEPLOY_ENV},
-              AUDIT_LOG_TABLE_NAME=ugsys-admin-audit-log-${DEPLOY_ENV},
-              EVENT_BUS_NAME=ugsys-platform-bus,
-              LOG_LEVEL=INFO,
-              JWT_AUDIENCE=admin-panel,
-              JWT_ISSUER=ugsys-identity-manager,
-              IDENTITY_MANAGER_BASE_URL=${IDENTITY_MANAGER_BASE_URL},
-              USER_PROFILE_SERVICE_BASE_URL=${USER_PROFILE_SERVICE_BASE_URL},
-              JWT_KEYS_SECRET_ARN=${JWT_KEYS_SECRET_ARN},
-              JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY},
-              JWT_KEY_ID=${JWT_KEY_ID}
-            }" \
-            --region "${{ env.AWS_REGION }}"
-
-          aws lambda wait function-updated \
-            --function-name "${{ env.LAMBDA_FUNCTION }}-${DEPLOY_ENV}" \
-            --region "${{ env.AWS_REGION }}"
-
   # ──────────────────────────────────────────────────────────────────────────
   # Notify
   # ──────────────────────────────────────────────────────────────────────────
