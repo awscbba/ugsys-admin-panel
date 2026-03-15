@@ -40,6 +40,7 @@ from src.application.services.event_processing_service import EventProcessingSer
 from src.application.services.health_aggregator_service import HealthAggregatorService
 from src.application.services.proxy_service import ProxyService
 from src.application.services.registry_service import RegistryService
+from src.application.services.self_profile_service import SelfProfileService
 from src.application.services.user_management_service import UserManagementService
 from src.domain.exceptions import DomainError
 from src.infrastructure.adapters.identity_manager_client import IdentityManagerClient
@@ -132,6 +133,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
         identity_client=identity_client,
         profile_client=profile_client,
     )
+    self_profile_service = SelfProfileService(identity_client=identity_client)
     config_service = ConfigService(
         registry_repo=registry_repo,
         event_publisher=event_publisher,
@@ -155,6 +157,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     app.state.proxy_service = proxy_service
     app.state.health_aggregator_service = health_aggregator_service
     app.state.user_management_service = user_management_service
+    app.state.self_profile_service = self_profile_service
     app.state.config_service = config_service
     app.state.audit_service = audit_service
     app.state.event_processing_service = event_processing_service

@@ -71,3 +71,31 @@ class IdentityClient(ABC):
         token: str,
     ) -> None:
         """Activate or deactivate a user via the Identity Manager."""
+
+    @abstractmethod
+    async def update_own_profile(
+        self,
+        user_id: str,
+        fields: dict[str, str],
+        *,
+        token: str,
+    ) -> None:
+        """Update the authenticated user's own profile fields (e.g. display_name).
+
+        Distinct from update_roles/update_status (admin-on-other-user).
+        ``token`` is the caller's own Bearer token — forwarded as-is.
+        """
+
+    @abstractmethod
+    async def change_own_password(
+        self,
+        user_id: str,
+        new_password: str,
+        *,
+        token: str,
+    ) -> None:
+        """Change the authenticated user's own password.
+
+        ``new_password`` MUST NEVER appear in any log entry at any level.
+        ``token`` is the caller's own Bearer token — forwarded as-is.
+        """

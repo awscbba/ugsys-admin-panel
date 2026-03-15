@@ -19,6 +19,7 @@
 
 import { atom, computed } from "nanostores";
 import type { AdminUser } from "../domain/entities/AdminUser";
+import type { SelfProfileUpdateFields } from "../domain/repositories/AuthRepository";
 import { HttpAuthRepository } from "../infrastructure/repositories/HttpAuthRepository";
 import { getServiceLogger } from "../utils/logger";
 
@@ -113,6 +114,43 @@ export async function initializeAuth(): Promise<void> {
     // No active session — this is expected on first load.
     $user.set(null);
     logger.debug("No active session found");
+  } finally {
+    $isLoading.set(false);
+  }
+}
+
+/**
+ * Update the authenticated user's own display name and/or password.
+ *
+ * On success, merges ``displayName`` into the ``$user`` atom so the TopBar
+ * re-renders immediately without a full page reload (P4).
+ *
+ * On failure, sets ``$error`` and re-throws so the modal can show a banner.
+ * ``$isLoading`` is always reset in the finally block.
+ */
+export async function updateOwnProfile(
+  fields: SelfProfileUpdateFields,
+): Promise<void> {
+  $isLoading.set(true);
+  $error.set(null);
+
+  try {
+    await getRepo().updateOwnProfile(fields);
+
+    // P4 — merge displayName into $user atom on success
+    if (fields.displayName !== undefined) {
+      const current = $user.get();
+      if (current) {
+        $user.set({ ...current, displayName: fields.displayName });
+      }
+    }
+
+    logger.info("Profile updated", {});
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Profile update failed";
+    $error.set(message);
+    throw err; // re-throw so the modal can show the error banner
   } finally {
     $isLoading.set(false);
   }
