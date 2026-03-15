@@ -16,6 +16,7 @@ import structlog
 from src.domain.exceptions import AuthorizationError, ExternalServiceError
 from src.domain.repositories.identity_client import IdentityClient
 from src.domain.repositories.profile_client import ProfileClient
+from src.domain.repositories.user_profile_service_client import UserProfileServiceClient
 from src.domain.value_objects.role import AdminRole
 
 logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
@@ -36,9 +37,11 @@ class UserManagementService:
         self,
         identity_client: IdentityClient,
         profile_client: ProfileClient,
+        ups_client: UserProfileServiceClient | None = None,
     ) -> None:
         self._identity = identity_client
         self._profile = profile_client
+        self._ups = ups_client
 
     async def list_users(
         self,
@@ -239,6 +242,114 @@ class UserManagementService:
             logger.error(
                 "update_profile.failed",
                 user_id=user_id,
+                duration_ms=round((time.perf_counter() - start) * 1000, 2),
+            )
+            raise
+
+    # ------------------------------------------------------------------
+    # UPS profile methods
+    # ------------------------------------------------------------------
+
+    async def get_ups_profile(
+        self,
+        user_id: str,
+        *,
+        token: str,
+    ) -> dict[str, Any]:
+        """Fetch the full UPS profile for a user.
+
+        Requirements: 15.1, 15.2, 15.3
+        """
+        assert self._ups is not None, "ups_client not wired"
+        logger.info("ups_profile.fetch.started", user_id=user_id)
+        start = time.perf_counter()
+        try:
+            result = await self._ups.get_profile(user_id, token=token)
+            logger.info(
+                "ups_profile.fetch.completed",
+                user_id=user_id,
+                duration_ms=round((time.perf_counter() - start) * 1000, 2),
+            )
+            return result
+        except ExternalServiceError:
+            logger.error(
+                "ups_profile.fetch.failed",
+                user_id=user_id,
+                duration_ms=round((time.perf_counter() - start) * 1000, 2),
+            )
+            raise
+
+    async def update_ups_personal(
+        self,
+        user_id: str,
+        fields: dict[str, Any],
+        *,
+        token: str,
+    ) -> None:
+        """Update UPS personal fields. Requirements: 15.1, 15.2, 15.3"""
+        await self._ups_update(user_id, "personal", fields, token=token)
+
+    async def update_ups_contact(
+        self,
+        user_id: str,
+        fields: dict[str, Any],
+        *,
+        token: str,
+    ) -> None:
+        """Update UPS contact fields. Requirements: 15.1, 15.2, 15.3"""
+        await self._ups_update(user_id, "contact", fields, token=token)
+
+    async def update_ups_display(
+        self,
+        user_id: str,
+        fields: dict[str, Any],
+        *,
+        token: str,
+    ) -> None:
+        """Update UPS display fields. Requirements: 15.1, 15.2, 15.3"""
+        await self._ups_update(user_id, "display", fields, token=token)
+
+    async def update_ups_preferences(
+        self,
+        user_id: str,
+        fields: dict[str, Any],
+        *,
+        token: str,
+    ) -> None:
+        """Update UPS preference fields. Requirements: 15.1, 15.2, 15.3"""
+        await self._ups_update(user_id, "preferences", fields, token=token)
+
+    async def _ups_update(
+        self,
+        user_id: str,
+        section: str,
+        fields: dict[str, Any],
+        *,
+        token: str,
+    ) -> None:
+        assert self._ups is not None, "ups_client not wired"
+        # Log user_id and section only — never field values (Req 15.3)
+        logger.info("ups_profile.update.started", user_id=user_id, section=section)
+        start = time.perf_counter()
+        _update_fn = {
+            "personal": self._ups.update_personal,
+            "contact": self._ups.update_contact,
+            "display": self._ups.update_display,
+            "preferences": self._ups.update_preferences,
+        }[section]
+        try:
+            await _update_fn(user_id, fields, token=token)
+            logger.info(
+                "ups_profile.update.completed",
+                user_id=user_id,
+                section=section,
+                duration_ms=round((time.perf_counter() - start) * 1000, 2),
+            )
+        except ExternalServiceError:
+            logger.error(
+                "ups_profile.update.failed",
+                user_id=user_id,
+                section=section,
                 duration_ms=round((time.perf_counter() - start) * 1000, 2),
             )
             raise

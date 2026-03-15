@@ -46,6 +46,7 @@ from src.domain.exceptions import DomainError
 from src.infrastructure.adapters.identity_manager_client import IdentityManagerClient
 from src.infrastructure.adapters.in_memory_circuit_breaker import InMemoryCircuitBreaker
 from src.infrastructure.adapters.user_profile_client import UserProfileClient
+from src.infrastructure.adapters.user_profile_service_adapter import UserProfileServiceAdapter
 from src.infrastructure.messaging.eventbridge_publisher import EventBridgePublisher
 from src.infrastructure.messaging.eventbridge_subscriber import (
     SUBSCRIBED_EVENT_TYPES,
@@ -102,10 +103,19 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
         failure_threshold=5,
         cooldown_seconds=30.0,
     )
+    ups_cb = InMemoryCircuitBreaker(
+        name="user_profile_service_ups",
+        failure_threshold=5,
+        cooldown_seconds=30.0,
+    )
 
     # --- Infrastructure: HTTP adapters ---
     identity_client = IdentityManagerClient(circuit_breaker=identity_cb)
     profile_client = UserProfileClient(circuit_breaker=profile_cb)
+    ups_adapter = UserProfileServiceAdapter(
+        circuit_breaker=ups_cb,
+        base_url=os.environ.get("UPS_BASE_URL", ""),
+    )
 
     # --- Infrastructure: repositories ---
     registry_repo = DynamoDBServiceRegistryRepository()
@@ -132,6 +142,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     user_management_service = UserManagementService(
         identity_client=identity_client,
         profile_client=profile_client,
+        ups_client=ups_adapter,
     )
     self_profile_service = SelfProfileService(identity_client=identity_client)
     config_service = ConfigService(
