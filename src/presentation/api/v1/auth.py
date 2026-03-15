@@ -16,14 +16,16 @@ from __future__ import annotations
 
 import base64
 import datetime
+import html
 import json as _json
 from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Request, Response
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 
 from src.application.services.auth_service import AuthService
+from src.application.services.self_profile_service import SelfProfileService
 from src.domain.exceptions import AuthenticationError, AuthorizationError
 
 logger: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
@@ -76,6 +78,36 @@ class RefreshResponse(BaseModel):
     token_type: str = "Bearer"
 
 
+class SelfProfileUpdateRequest(BaseModel):
+    """Request body for PATCH /api/v1/auth/me.
+
+    Both fields are optional — at least one must be non-None (enforced by the
+    route handler).  Blank or whitespace-only display_name is rejected (P5).
+    """
+
+    display_name: str | None = None
+    password: str | None = None
+
+    @field_validator("display_name")
+    @classmethod
+    def validate_display_name(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        trimmed = v.strip()
+        if len(trimmed) == 0:
+            raise ValueError("display_name must not be blank")
+        if len(trimmed) > 100:
+            raise ValueError("display_name must be 100 characters or fewer")
+        return html.escape(trimmed)
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str | None) -> str | None:
+        if v is not None and len(v) < 8:
+            raise ValueError("password must be at least 8 characters")
+        return v
+
+
 # ---------------------------------------------------------------------------
 # Dependency: resolve AuthService from app.state
 # ---------------------------------------------------------------------------
@@ -83,6 +115,10 @@ class RefreshResponse(BaseModel):
 
 def _get_auth_service(request: Request) -> AuthService:
     return request.app.state.auth_service  # type: ignore[no-any-return]
+
+
+def _get_self_profile_service(request: Request) -> SelfProfileService:
+    return request.app.state.self_profile_service  # type: ignore[no-any-return]
 
 
 def _get_client_ip(request: Request) -> str:
@@ -292,3 +328,30 @@ async def me(
         "display_name": admin_user.display_name,
         "avatar_url": admin_user.avatar_url,
     }
+
+
+@router.patch("/me", status_code=204)
+async def update_own_profile(
+    body: SelfProfileUpdateRequest,
+    request: Request,
+    self_profile_service: SelfProfileService = Depends(_get_self_profile_service),
+) -> Response:
+    """Self-service profile update — display_name and/or password.
+
+    ``user_id`` is always derived from the validated JWT ``sub`` claim stored
+    in ``request.state`` by the JWT validation middleware.  It is NEVER taken
+    from the request body or query string (P1).
+
+    Requirements: topbar-user-profile-dropdown P1, P2, P5
+    """
+    # P1 — user_id from JWT sub only, never from client input
+    user_id: str = getattr(request.state, "user_id", "")
+    token: str = request.cookies.get(_ACCESS_TOKEN_COOKIE, "")
+
+    await self_profile_service.update_own_profile(
+        user_id=user_id,
+        display_name=body.display_name,
+        password=body.password,
+        token=token,
+    )
+    return Response(status_code=204)

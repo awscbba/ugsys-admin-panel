@@ -1,0 +1,5 @@
+version: 2
+# Allowlist test fixture files — these contain intentionally fake passwords
+# used as test data, not real credentials.
+ignore-paths:
+  - tests/

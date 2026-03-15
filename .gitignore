@@ -17,6 +17,11 @@ admin-shell/.vite/
 .env.local
 .env.*.local
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
 # Editor
 .DS_Store
 *.local
