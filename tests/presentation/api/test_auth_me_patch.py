@@ -17,11 +17,11 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from src.application.services.self_profile_service import SelfProfileService
 from src.domain.exceptions import ExternalServiceError
 from src.presentation.api.v1.auth import SelfProfileUpdateRequest, router
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -68,17 +68,17 @@ def _make_service(*, side_effect: Exception | None = None) -> SelfProfileService
 class TestSelfProfileUpdateRequestValidation:
     def test_blank_display_name_raises(self) -> None:
         """P5 — blank display_name must be rejected at the model level."""
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             SelfProfileUpdateRequest(display_name="   ", password=None)
 
     def test_display_name_over_100_chars_raises(self) -> None:
         """P5 — display_name > 100 chars must be rejected."""
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             SelfProfileUpdateRequest(display_name="x" * 101, password=None)
 
     def test_password_under_8_chars_raises(self) -> None:
         """Password < 8 chars must be rejected."""
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             SelfProfileUpdateRequest(display_name=None, password="short")
 
     def test_valid_display_name_accepted(self) -> None:
