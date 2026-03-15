@@ -188,9 +188,7 @@ export function EditProfileModal({
             }}
           />
           {errors.displayName && (
-            <p
-              style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}
-            >
+            <p style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}>
               {errors.displayName}
             </p>
           )}
@@ -204,13 +202,7 @@ export function EditProfileModal({
           >
             Email
             {!isSuperAdmin && (
-              <span
-                style={{
-                  color: "#9ca3af",
-                  marginLeft: "6px",
-                  fontSize: "12px",
-                }}
-              >
+              <span style={{ color: "#9ca3af", marginLeft: "6px", fontSize: "12px" }}>
                 (read-only)
               </span>
             )}
@@ -234,9 +226,7 @@ export function EditProfileModal({
             }}
           />
           {errors.email && (
-            <p
-              style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}
-            >
+            <p style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}>
               {errors.email}
             </p>
           )}
@@ -247,11 +237,7 @@ export function EditProfileModal({
           <div style={{ marginBottom: "24px" }}>
             <label
               htmlFor="edit-password"
-              style={{
-                display: "block",
-                fontSize: "13px",
-                marginBottom: "4px",
-              }}
+              style={{ display: "block", fontSize: "13px", marginBottom: "4px" }}
             >
               New Password
             </label>
@@ -274,13 +260,7 @@ export function EditProfileModal({
               }}
             />
             {errors.password && (
-              <p
-                style={{
-                  color: "#ef4444",
-                  fontSize: "12px",
-                  margin: "4px 0 0",
-                }}
-              >
+              <p style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}>
                 {errors.password}
               </p>
             )}
@@ -291,9 +271,7 @@ export function EditProfileModal({
         {!isSuperAdmin && <div style={{ marginBottom: "8px" }} />}
 
         {/* Actions */}
-        <div
-          style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}
-        >
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
           <button
             type="button"
             onClick={onClose}
