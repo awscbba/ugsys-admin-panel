@@ -33,7 +33,7 @@ def _table_name() -> str:
     explicit = os.getenv("SERVICE_REGISTRY_TABLE_NAME")
     if explicit:
         return explicit
-    env = os.getenv("ENVIRONMENT", "dev")
+    env = os.getenv("APP_ENV", "dev")
     return f"ugsys-admin-service-registry-{env}"
 
 
