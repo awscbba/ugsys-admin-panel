@@ -299,7 +299,10 @@ interface UpsCallbacks {
   onSavePersonal: (userId: string, fields: UpsPersonalFields) => Promise<void>;
   onSaveContact: (userId: string, fields: UpsContactFields) => Promise<void>;
   onSaveDisplay: (userId: string, fields: UpsDisplayFields) => Promise<void>;
-  onSavePreferences: (userId: string, fields: UpsPreferenceFields) => Promise<void>;
+  onSavePreferences: (
+    userId: string,
+    fields: UpsPreferenceFields,
+  ) => Promise<void>;
 }
 
 function renderModalWithUps(
@@ -419,7 +422,9 @@ describe("EditProfileModal — UPS field validation", () => {
     await userEvent.clear(screen.getByLabelText(/full name/i));
     await userEvent.type(screen.getByLabelText(/full name/i), "   ");
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
-    expect(await screen.findByText(/full name.*required|required.*full name/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/full name.*required|required.*full name/i),
+    ).toBeInTheDocument();
     expect(onSavePersonal).not.toHaveBeenCalled();
   });
 
@@ -429,7 +434,9 @@ describe("EditProfileModal — UPS field validation", () => {
     await userEvent.clear(screen.getByLabelText(/date of birth/i));
     await userEvent.type(screen.getByLabelText(/date of birth/i), "15/01/1990");
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
-    expect(await screen.findByText(/date.*format|YYYY-MM-DD/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/date.*format|YYYY-MM-DD/i),
+    ).toBeInTheDocument();
     expect(onSavePersonal).not.toHaveBeenCalled();
   });
 
@@ -440,7 +447,9 @@ describe("EditProfileModal — UPS field validation", () => {
     await userEvent.clear(screen.getByLabelText(/bio/i));
     await userEvent.type(screen.getByLabelText(/bio/i), longBio);
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
-    expect(await screen.findByText(/bio.*500|500.*characters/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/bio.*500|500.*characters/i),
+    ).toBeInTheDocument();
     expect(onSaveDisplay).not.toHaveBeenCalled();
   });
 
@@ -450,7 +459,9 @@ describe("EditProfileModal — UPS field validation", () => {
     await userEvent.clear(screen.getByLabelText(/language/i));
     await userEvent.type(screen.getByLabelText(/language/i), "english");
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
-    expect(await screen.findByText(/language.*2.*letter|2-letter.*language/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/language.*2.*letter|2-letter.*language/i),
+    ).toBeInTheDocument();
     expect(onSavePreferences).not.toHaveBeenCalled();
   });
 
@@ -478,8 +489,13 @@ describe("EditProfileModal — UPS field validation", () => {
 
 describe("EditProfileModal — diff-only submission (Property 2)", () => {
   it("does not call any UPS save when nothing changed (Req 7.2)", async () => {
-    const { onSavePersonal, onSaveContact, onSaveDisplay, onSavePreferences, onSave } =
-      renderModalWithUps(baseUpsProfile);
+    const {
+      onSavePersonal,
+      onSaveContact,
+      onSaveDisplay,
+      onSavePreferences,
+      onSave,
+    } = renderModalWithUps(baseUpsProfile);
     // Click save without changing anything
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
     await waitFor(() => expect(onSave).toHaveBeenCalled());
@@ -552,13 +568,17 @@ describe("EditProfileModal — diff-only submission (Property 2)", () => {
 describe("EditProfileModal — partial failure handling (Property 4)", () => {
   it("shows per-section error banner when one UPS save fails, modal stays open (Property 4)", async () => {
     const { onClose } = renderModalWithUps(baseUpsProfile, {
-      onSavePersonal: vi.fn().mockRejectedValue(new Error("Personal save failed")),
+      onSavePersonal: vi
+        .fn()
+        .mockRejectedValue(new Error("Personal save failed")),
     });
     await userEvent.click(screen.getByRole("tab", { name: /profile/i }));
     await userEvent.clear(screen.getByLabelText(/full name/i));
     await userEvent.type(screen.getByLabelText(/full name/i), "Bob Jones");
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
-    expect(await screen.findByText(/personal save failed/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/personal save failed/i),
+    ).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
   });
 

@@ -10,7 +10,7 @@ Endpoints:
     PATCH /api/v1/users/{user_id}/ups-profile/display      — update display fields (admin, super_admin)
     PATCH /api/v1/users/{user_id}/ups-profile/preferences  — update preference fields (admin, super_admin)
 
-Requirements: 9.1, 9.4, 9.5, 8.1–8.5
+Requirements: 9.1, 9.4, 9.5, 8.1-8.5
 """
 
 from __future__ import annotations
@@ -336,7 +336,7 @@ async def update_ups_personal(
 ) -> None:
     """Update UPS personal fields (admin, super_admin).
 
-    Requirements: 8.2, 9.1–9.6, 10.1–10.3
+    Requirements: 8.2, 9.1-9.6, 10.1-10.3
     """
     token = request.cookies.get("access_token", "")
     fields = {k: v for k, v in body.model_dump().items() if v is not None}
@@ -353,7 +353,7 @@ async def update_ups_contact(
 ) -> None:
     """Update UPS contact fields (admin, super_admin).
 
-    Requirements: 8.2, 9.1–9.6
+    Requirements: 8.2, 9.1-9.6
     """
     token = request.cookies.get("access_token", "")
     fields = {k: v for k, v in body.model_dump().items() if v is not None}
@@ -370,7 +370,7 @@ async def update_ups_display(
 ) -> None:
     """Update UPS display fields (admin, super_admin).
 
-    Requirements: 8.2, 9.1–9.6
+    Requirements: 8.2, 9.1-9.6
     """
     token = request.cookies.get("access_token", "")
     fields = {k: v for k, v in body.model_dump().items() if v is not None}
@@ -387,7 +387,7 @@ async def update_ups_preferences(
 ) -> None:
     """Update UPS preference fields (admin, super_admin).
 
-    Requirements: 8.2, 9.1–9.6
+    Requirements: 8.2, 9.1-9.6
     """
     token = request.cookies.get("access_token", "")
     fields = {k: v for k, v in body.model_dump().items() if v is not None}

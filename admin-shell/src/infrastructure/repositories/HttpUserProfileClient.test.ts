@@ -52,7 +52,10 @@ afterEach(() => {
 
 describe("getProfile", () => {
   it("maps all 15 snake_case fields to camelCase UpsProfile", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(makeResponse(200, SAMPLE_DTO)));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(makeResponse(200, SAMPLE_DTO)),
+    );
 
     const client = new HttpUserProfileClient();
     const profile = await client.getProfile("u1");
@@ -108,7 +111,12 @@ describe("getProfile", () => {
   });
 
   it("maps null fields correctly when server returns nulls", async () => {
-    const dto = { ...SAMPLE_DTO, full_name: null, date_of_birth: null, bio: null };
+    const dto = {
+      ...SAMPLE_DTO,
+      full_name: null,
+      date_of_birth: null,
+      bio: null,
+    };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(makeResponse(200, dto)));
 
     const client = new HttpUserProfileClient();
@@ -128,7 +136,10 @@ describe("updatePersonal", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const client = new HttpUserProfileClient();
-    await client.updatePersonal("u1", { fullName: "Bob", dateOfBirth: "1985-06-20" });
+    await client.updatePersonal("u1", {
+      fullName: "Bob",
+      dateOfBirth: "1985-06-20",
+    });
 
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("/api/v1/users/u1/ups-profile/personal");

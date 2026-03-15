@@ -14,7 +14,6 @@ import pytest
 from src.domain.exceptions import ExternalServiceError, NotFoundError
 from src.domain.repositories.circuit_breaker import CircuitBreaker
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -135,9 +134,7 @@ class TestGetProfile:
                 await adapter.get_profile("u1", token="tok")
 
     @pytest.mark.asyncio
-    async def test_circuit_breaker_open_raises_without_http_call(
-        self, open_adapter
-    ) -> None:
+    async def test_circuit_breaker_open_raises_without_http_call(self, open_adapter) -> None:
         """Property 8: open circuit raises ExternalServiceError without HTTP call."""
         with patch("httpx.AsyncClient") as mock_client_cls:
             mock_client = AsyncMock()
@@ -176,9 +173,7 @@ class TestUpdatePersonal:
             mock_client_cls.return_value.__aenter__.return_value = mock_client
             mock_client.patch.return_value = _make_response(204)
 
-            await adapter.update_personal(
-                "u1", {"full_name": "Alice"}, token="tok"
-            )
+            await adapter.update_personal("u1", {"full_name": "Alice"}, token="tok")
 
         mock_client.patch.assert_called_once()
         url = mock_client.patch.call_args[0][0]
@@ -246,9 +241,7 @@ class TestUpdatePreferences:
             mock_client_cls.return_value.__aenter__.return_value = mock_client
             mock_client.patch.return_value = _make_response(204)
 
-            await adapter.update_preferences(
-                "u1", {"language": "es"}, token="tok"
-            )
+            await adapter.update_preferences("u1", {"language": "es"}, token="tok")
 
         url = mock_client.patch.call_args[0][0]
         assert url == "http://ups.internal/api/v1/profiles/u1/preferences"

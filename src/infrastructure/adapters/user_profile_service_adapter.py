@@ -66,9 +66,7 @@ class UserProfileServiceAdapter(UserProfileServiceClient):
         token: str,
         correlation_id: str | None = None,
     ) -> dict[str, Any]:
-        return await self._cb.call(
-            self._get_profile, user_id, token=token, correlation_id=correlation_id
-        )
+        return await self._cb.call(self._get_profile, user_id, token=token, correlation_id=correlation_id)
 
     async def update_personal(
         self,
@@ -172,9 +170,7 @@ class UserProfileServiceAdapter(UserProfileServiceClient):
                     operation="get_profile",
                     duration_ms=round((time.perf_counter() - start) * 1000, 2),
                 )
-                raise GatewayTimeoutError(
-                    f"UPS did not respond in time (GET {path})."
-                ) from exc
+                raise GatewayTimeoutError(f"UPS did not respond in time (GET {path}).") from exc
             except httpx.RequestError as exc:
                 logger.error(
                     "ups_profile.fetch.failed",
@@ -182,9 +178,7 @@ class UserProfileServiceAdapter(UserProfileServiceClient):
                     operation="get_profile",
                     duration_ms=round((time.perf_counter() - start) * 1000, 2),
                 )
-                raise ExternalServiceError(
-                    f"UPS request failed (GET {path}): {exc}"
-                ) from exc
+                raise ExternalServiceError(f"UPS request failed (GET {path}): {exc}") from exc
         result = self._handle_response(response, path)
         logger.info(
             "ups_profile.fetch.completed",
@@ -223,9 +217,7 @@ class UserProfileServiceAdapter(UserProfileServiceClient):
                     section=section,
                     duration_ms=round((time.perf_counter() - start) * 1000, 2),
                 )
-                raise GatewayTimeoutError(
-                    f"UPS did not respond in time (PATCH {path})."
-                ) from exc
+                raise GatewayTimeoutError(f"UPS did not respond in time (PATCH {path}).") from exc
             except httpx.RequestError as exc:
                 logger.error(
                     "ups_profile.update.failed",
@@ -233,9 +225,7 @@ class UserProfileServiceAdapter(UserProfileServiceClient):
                     section=section,
                     duration_ms=round((time.perf_counter() - start) * 1000, 2),
                 )
-                raise ExternalServiceError(
-                    f"UPS request failed (PATCH {path}): {exc}"
-                ) from exc
+                raise ExternalServiceError(f"UPS request failed (PATCH {path}): {exc}") from exc
         self._handle_response(response, path)
         logger.info(
             "ups_profile.update.completed",
@@ -258,6 +248,4 @@ class UserProfileServiceAdapter(UserProfileServiceClient):
         if response.status_code == 404:
             raise NotFoundError(f"UPS profile not found: {path}.")
 
-        raise ExternalServiceError(
-            f"UPS returned HTTP {response.status_code} for {path}."
-        )
+        raise ExternalServiceError(f"UPS returned HTTP {response.status_code} for {path}.")

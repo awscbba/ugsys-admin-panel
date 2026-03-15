@@ -6,24 +6,21 @@
     PATCH /api/v1/users/{user_id}/ups-profile/display
     PATCH /api/v1/users/{user_id}/ups-profile/preferences
 
-Requirements: 8.1–8.5, 9.1–9.6, 10.1–10.3, 13.1–13.4
+Requirements: 8.1-8.5, 9.1-9.6, 10.1-10.3, 13.1-13.4
 """
 
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock
 
-import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from pydantic import ValidationError
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request as StarletteRequest
 
 from src.application.services.user_management_service import UserManagementService
 from src.domain.exceptions import DomainError, ExternalServiceError, NotFoundError
 from src.presentation.api.v1.users import router
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -156,11 +153,7 @@ class TestGetUpsProfile:
         assert resp.status_code == 404
 
     def test_502_when_service_unavailable(self) -> None:
-        svc = _make_svc(
-            get_side_effect=ExternalServiceError(
-                "UPS down", user_message="Service unavailable"
-            )
-        )
+        svc = _make_svc(get_side_effect=ExternalServiceError("UPS down", user_message="Service unavailable"))
         client = TestClient(_make_app(svc), raise_server_exceptions=False)
 
         resp = client.get(
@@ -398,9 +391,7 @@ class TestPatchUpsPreferences:
 
     def test_super_admin_also_allowed(self) -> None:
         svc = _make_svc()
-        client = TestClient(
-            _make_app(svc, roles=["super_admin"]), raise_server_exceptions=False
-        )
+        client = TestClient(_make_app(svc, roles=["super_admin"]), raise_server_exceptions=False)
 
         resp = client.patch(
             "/api/v1/users/u1/ups-profile/preferences",

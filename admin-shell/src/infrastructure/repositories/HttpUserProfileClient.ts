@@ -74,10 +74,14 @@ export class HttpUserProfileClient implements UserProfileClient {
     return mapDto(dto);
   }
 
-  async updatePersonal(userId: string, fields: UpsPersonalFields): Promise<void> {
+  async updatePersonal(
+    userId: string,
+    fields: UpsPersonalFields,
+  ): Promise<void> {
     const body: Record<string, unknown> = {};
     if (fields.fullName !== undefined) body.full_name = fields.fullName;
-    if (fields.dateOfBirth !== undefined) body.date_of_birth = fields.dateOfBirth;
+    if (fields.dateOfBirth !== undefined)
+      body.date_of_birth = fields.dateOfBirth;
     await this.http.request(
       `/api/v1/users/${encodeURIComponent(userId)}/ups-profile/personal`,
       { method: "PATCH", body: JSON.stringify(body) },
@@ -101,18 +105,25 @@ export class HttpUserProfileClient implements UserProfileClient {
   async updateDisplay(userId: string, fields: UpsDisplayFields): Promise<void> {
     const body: Record<string, unknown> = {};
     if (fields.bio !== undefined) body.bio = fields.bio;
-    if (fields.displayName !== undefined) body.display_name = fields.displayName;
+    if (fields.displayName !== undefined)
+      body.display_name = fields.displayName;
     await this.http.request(
       `/api/v1/users/${encodeURIComponent(userId)}/ups-profile/display`,
       { method: "PATCH", body: JSON.stringify(body) },
     );
   }
 
-  async updatePreferences(userId: string, fields: UpsPreferenceFields): Promise<void> {
+  async updatePreferences(
+    userId: string,
+    fields: UpsPreferenceFields,
+  ): Promise<void> {
     const body: Record<string, unknown> = {};
-    if (fields.notificationEmail !== undefined) body.notification_email = fields.notificationEmail;
-    if (fields.notificationSms !== undefined) body.notification_sms = fields.notificationSms;
-    if (fields.notificationWhatsapp !== undefined) body.notification_whatsapp = fields.notificationWhatsapp;
+    if (fields.notificationEmail !== undefined)
+      body.notification_email = fields.notificationEmail;
+    if (fields.notificationSms !== undefined)
+      body.notification_sms = fields.notificationSms;
+    if (fields.notificationWhatsapp !== undefined)
+      body.notification_whatsapp = fields.notificationWhatsapp;
     if (fields.language !== undefined) body.language = fields.language;
     if (fields.timezone !== undefined) body.timezone = fields.timezone;
     await this.http.request(

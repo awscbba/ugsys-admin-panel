@@ -7,14 +7,13 @@ Requirements: 15.1, 15.2, 15.3
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, call, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from src.application.services.user_management_service import UserManagementService
 from src.domain.exceptions import ExternalServiceError
 from src.domain.repositories.user_profile_service_client import UserProfileServiceClient
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -91,11 +90,13 @@ class TestGetUpsProfile:
         svc, _, _, ups = _make_service()
         ups.get_profile.side_effect = ExternalServiceError("UPS down")
 
-        with patch("src.application.services.user_management_service.logger") as mock_log:
-            with pytest.raises(ExternalServiceError):
-                await svc.get_ups_profile("u1", token="tok")
+        with (
+            patch("src.application.services.user_management_service.logger") as mock_log,
+            pytest.raises(ExternalServiceError),
+        ):
+            await svc.get_ups_profile("u1", token="tok")
 
-        error_calls = [c for c in mock_log.error.call_args_list]
+        error_calls = list(mock_log.error.call_args_list)
         assert len(error_calls) >= 1
         # duration_ms must be present in the error log
         error_kwargs = error_calls[0][1]
@@ -119,7 +120,7 @@ class TestUpdateUpsPersonal:
 
     @pytest.mark.asyncio
     async def test_logs_started_completed_with_section(self) -> None:
-        svc, _, _, ups = _make_service()
+        svc, _, _, _ups = _make_service()
 
         with patch("src.application.services.user_management_service.logger") as mock_log:
             await svc.update_ups_personal("u1", {}, token="tok")
@@ -135,7 +136,7 @@ class TestUpdateUpsPersonal:
 
     @pytest.mark.asyncio
     async def test_no_field_values_in_logs(self) -> None:
-        svc, _, _, ups = _make_service()
+        svc, _, _, _ups = _make_service()
         fields = {"full_name": "SENSITIVE_VALUE"}
 
         with patch("src.application.services.user_management_service.logger") as mock_log:
@@ -149,9 +150,11 @@ class TestUpdateUpsPersonal:
         svc, _, _, ups = _make_service()
         ups.update_personal.side_effect = ExternalServiceError("UPS down")
 
-        with patch("src.application.services.user_management_service.logger") as mock_log:
-            with pytest.raises(ExternalServiceError):
-                await svc.update_ups_personal("u1", {}, token="tok")
+        with (
+            patch("src.application.services.user_management_service.logger") as mock_log,
+            pytest.raises(ExternalServiceError),
+        ):
+            await svc.update_ups_personal("u1", {}, token="tok")
 
         error_calls = mock_log.error.call_args_list
         assert len(error_calls) >= 1
@@ -175,7 +178,7 @@ class TestUpdateUpsContact:
 
     @pytest.mark.asyncio
     async def test_logs_section_contact(self) -> None:
-        svc, _, _, ups = _make_service()
+        svc, _, _, _ups = _make_service()
 
         with patch("src.application.services.user_management_service.logger") as mock_log:
             await svc.update_ups_contact("u1", {}, token="tok")
@@ -203,7 +206,7 @@ class TestUpdateUpsDisplay:
 
     @pytest.mark.asyncio
     async def test_logs_section_display(self) -> None:
-        svc, _, _, ups = _make_service()
+        svc, _, _, _ups = _make_service()
 
         with patch("src.application.services.user_management_service.logger") as mock_log:
             await svc.update_ups_display("u1", {}, token="tok")
@@ -231,7 +234,7 @@ class TestUpdateUpsPreferences:
 
     @pytest.mark.asyncio
     async def test_logs_section_preferences(self) -> None:
-        svc, _, _, ups = _make_service()
+        svc, _, _, _ups = _make_service()
 
         with patch("src.application.services.user_management_service.logger") as mock_log:
             await svc.update_ups_preferences("u1", {}, token="tok")

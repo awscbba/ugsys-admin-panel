@@ -21,14 +21,17 @@ const mockChangeRoles = vi.fn();
 const mockChangeStatus = vi.fn();
 const mockUpdateProfile = vi.fn();
 
-vi.mock("../../../infrastructure/repositories/HttpUserManagementRepository", () => ({
-  HttpUserManagementRepository: vi.fn().mockImplementation(() => ({
-    listUsers: mockListUsers,
-    changeRoles: mockChangeRoles,
-    changeStatus: mockChangeStatus,
-    updateProfile: mockUpdateProfile,
-  })),
-}));
+vi.mock(
+  "../../../infrastructure/repositories/HttpUserManagementRepository",
+  () => ({
+    HttpUserManagementRepository: vi.fn().mockImplementation(() => ({
+      listUsers: mockListUsers,
+      changeRoles: mockChangeRoles,
+      changeStatus: mockChangeStatus,
+      updateProfile: mockUpdateProfile,
+    })),
+  }),
+);
 
 const mockGetProfile = vi.fn();
 const mockUpdatePersonal = vi.fn();
@@ -48,7 +51,6 @@ vi.mock("../../../infrastructure/repositories/HttpUserProfileClient", () => ({
 
 // ── Import component AFTER mocks ──────────────────────────────────────────────
 
-// eslint-disable-next-line import/first
 import { UserManagement } from "./UserManagement";
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -122,18 +124,26 @@ describe("UserManagement — UPS fetch on Edit click", () => {
     // Delay getProfile so we can observe the loading state
     let resolveProfile!: (v: UpsProfile) => void;
     mockGetProfile.mockReturnValue(
-      new Promise<UpsProfile>((res) => { resolveProfile = res; }),
+      new Promise<UpsProfile>((res) => {
+        resolveProfile = res;
+      }),
     );
 
     renderWithAdmin();
     // Wait for the user row to appear
-    expect(await screen.findByRole("button", { name: /edit profile for alice/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /edit profile for alice/i }),
+    ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /edit profile for alice/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /edit profile for alice/i }),
+    );
 
     // Button should be disabled / show loading indicator while fetch is pending
     await waitFor(() => {
-      const editBtn = screen.getByRole("button", { name: /edit profile for alice/i });
+      const editBtn = screen.getByRole("button", {
+        name: /edit profile for alice/i,
+      });
       expect(editBtn).toBeDisabled();
     });
 
@@ -145,9 +155,13 @@ describe("UserManagement — UPS fetch on Edit click", () => {
     mockGetProfile.mockResolvedValue(sampleUpsProfile);
 
     renderWithAdmin();
-    expect(await screen.findByRole("button", { name: /edit profile for alice/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /edit profile for alice/i }),
+    ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /edit profile for alice/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /edit profile for alice/i }),
+    );
 
     // Modal should open
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
@@ -155,26 +169,38 @@ describe("UserManagement — UPS fetch on Edit click", () => {
   });
 
   it("opens modal with upsProfile=null on 404 from getProfile (Req 1.4)", async () => {
-    const notFoundError = Object.assign(new Error("Not found"), { status: 404 });
+    const notFoundError = Object.assign(new Error("Not found"), {
+      status: 404,
+    });
     mockGetProfile.mockRejectedValue(notFoundError);
 
     renderWithAdmin();
-    expect(await screen.findByRole("button", { name: /edit profile for alice/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /edit profile for alice/i }),
+    ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /edit profile for alice/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /edit profile for alice/i }),
+    );
 
     // Modal should still open (with null upsProfile — no UPS fields pre-populated)
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
 
   it("shows dismissible row-level error banner on 5xx and does not open modal (Req 1.5)", async () => {
-    const serverError = Object.assign(new Error("Server error"), { status: 500 });
+    const serverError = Object.assign(new Error("Server error"), {
+      status: 500,
+    });
     mockGetProfile.mockRejectedValue(serverError);
 
     renderWithAdmin();
-    expect(await screen.findByRole("button", { name: /edit profile for alice/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /edit profile for alice/i }),
+    ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /edit profile for alice/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /edit profile for alice/i }),
+    );
 
     // Error banner should appear, modal should NOT open
     expect(await screen.findByRole("alert")).toBeInTheDocument();
@@ -185,13 +211,19 @@ describe("UserManagement — UPS fetch on Edit click", () => {
     mockGetProfile.mockResolvedValue(sampleUpsProfile);
 
     renderWithAdmin();
-    expect(await screen.findByRole("button", { name: /edit profile for alice/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /edit profile for alice/i }),
+    ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /edit profile for alice/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /edit profile for alice/i }),
+    );
 
     // After modal opens, the edit button should no longer be in loading state
     await screen.findByRole("dialog");
-    const editBtn = screen.getByRole("button", { name: /edit profile for alice/i });
+    const editBtn = screen.getByRole("button", {
+      name: /edit profile for alice/i,
+    });
     expect(editBtn).not.toBeDisabled();
   });
 });
