@@ -114,7 +114,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     profile_client = UserProfileClient(circuit_breaker=profile_cb)
     ups_adapter = UserProfileServiceAdapter(
         circuit_breaker=ups_cb,
-        base_url=os.environ.get("UPS_BASE_URL", ""),
+        base_url=os.environ.get("USER_PROFILE_SERVICE_BASE_URL", ""),
     )
 
     # --- Infrastructure: repositories ---
