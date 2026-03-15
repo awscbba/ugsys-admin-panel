@@ -99,3 +99,31 @@ class IdentityClient(ABC):
         ``new_password`` MUST NEVER appear in any log entry at any level.
         ``token`` is the caller's own Bearer token — forwarded as-is.
         """
+
+    @abstractmethod
+    async def update_profile(
+        self,
+        user_id: str,
+        fields: dict[str, str],
+        *,
+        token: str,
+    ) -> None:
+        """Update another user's profile fields (admin-on-other-user).
+
+        Distinct from ``update_own_profile`` — this is an admin action targeting
+        a different user.  ``token`` is the admin's Bearer token.
+        """
+
+    @abstractmethod
+    async def change_password(
+        self,
+        user_id: str,
+        new_password: str,
+        *,
+        token: str,
+    ) -> None:
+        """Change another user's password (admin-on-other-user).
+
+        ``new_password`` MUST NEVER appear in any log entry at any level.
+        ``token`` is the admin's Bearer token.
+        """

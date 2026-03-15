@@ -77,20 +77,21 @@ if [ -n "$STAGED_TS" ]; then
     echo "✓ ESLint passed"
     echo ""
 
-    echo "▶ Prettier --check ..."
-    # shellcheck disable=SC2086
-    if ! (cd admin-shell && npx --no-install prettier --check $STAGED_TS_REL); then
-        echo "✗ Prettier check failed. Run 'just format-frontend' to fix."
-        exit 1
-    fi
-    echo "✓ Prettier passed"
-    echo ""
-
-    fi  # end src/ files check
+    fi  # end src/ files check (ESLint only on staged)
 else
     echo "  (no staged TypeScript files)"
     echo ""
 fi
+
+# --- Prettier: always check full src/ tree (not just staged) ---
+# Staged-only Prettier misses files that were committed unformatted in earlier commits.
+echo "▶ Prettier --check src/ (full tree) ..."
+if ! (cd admin-shell && npx --no-install prettier --check src); then
+    echo "✗ Prettier check failed. Run 'just format-frontend' to fix."
+    exit 1
+fi
+echo "✓ Prettier passed"
+echo ""
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "✓ pre-commit checks passed"

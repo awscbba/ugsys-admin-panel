@@ -44,6 +44,15 @@ echo ""
 echo "── Admin Shell (TypeScript) ─────────────────────────"
 echo ""
 
+echo "▶ eslint src --max-warnings 0 ..."
+if ! just lint-frontend; then
+    echo "✗ ESLint failed. Run 'just lint-frontend' for details."
+    FAILED=1
+else
+    echo "✓ ESLint passed"
+fi
+echo ""
+
 echo "▶ tsc --noEmit ..."
 if ! just type-check-frontend; then
     echo "✗ TypeScript type check failed. Run 'just type-check-frontend' for details."

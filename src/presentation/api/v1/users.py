@@ -10,10 +10,11 @@ Requirements: 9.1, 9.4, 9.5
 
 from __future__ import annotations
 
+import html
 from typing import Any
 
 from fastapi import APIRouter, Depends, Query, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, field_validator
 
 from src.application.services.user_management_service import UserManagementService
 from src.domain.entities.admin_user import AdminUser
@@ -33,6 +34,37 @@ class ChangeRolesRequest(BaseModel):
 
 class ChangeStatusRequest(BaseModel):
     status: str  # "active" | "inactive"
+
+
+class ProfileUpdateRequest(BaseModel):
+    """Request body for PATCH /{user_id}/profile.
+
+    All fields are optional — only provided fields are updated.
+    Role enforcement (email, password) is applied server-side in the service.
+    """
+
+    display_name: str | None = None
+    email: EmailStr | None = None
+    password: str | None = None
+
+    @field_validator("display_name")
+    @classmethod
+    def validate_display_name(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError("display_name must not be blank.")
+        if len(stripped) > 100:
+            raise ValueError("display_name must be 100 characters or fewer.")
+        return html.escape(stripped)
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str | None) -> str | None:
+        if v is not None and len(v) < 8:
+            raise ValueError("password must be at least 8 characters.")
+        return v
 
 
 # ---------------------------------------------------------------------------
@@ -112,6 +144,35 @@ async def change_status(
     await user_management_service.change_status(
         user_id=user_id,
         status=body.status,
+        requesting_user_roles=requesting_roles,
+        token=token,
+    )
+
+
+@router.patch("/{user_id}/profile", status_code=204)
+async def update_profile(
+    user_id: str,
+    body: ProfileUpdateRequest,
+    request: Request,
+    user_management_service: UserManagementService = Depends(_get_user_management_service),
+    current_user: AdminUser = Depends(require_roles(AdminRole.ADMIN, AdminRole.SUPER_ADMIN)),
+) -> None:
+    """Update a user's profile fields and/or password (admin, super_admin).
+
+    Role enforcement is applied server-side in UserManagementService:
+    - display_name: editable by admin and super_admin
+    - email: editable by super_admin only (silently discarded for admin)
+    - password: settable by super_admin only (silently discarded for admin)
+
+    Requirements: 10.1, 10.2, 10.3, 10.4
+    """
+    token = request.cookies.get("access_token", "")
+    requesting_roles = [r.value for r in current_user.roles]
+    await user_management_service.update_profile(
+        user_id=user_id,
+        display_name=body.display_name,
+        email=str(body.email) if body.email is not None else None,
+        password=body.password,
         requesting_user_roles=requesting_roles,
         token=token,
     )
