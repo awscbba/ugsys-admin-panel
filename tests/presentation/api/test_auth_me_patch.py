@@ -47,7 +47,7 @@ def _make_app(self_profile_service: SelfProfileService, *, user_id: str = "usr-1
             return await call_next(request)
 
     app.add_middleware(_FakeJwt)
-    app.include_router(router, prefix="/api/v1/auth")
+    app.include_router(router, prefix="/api/v1")
     return app
 
 

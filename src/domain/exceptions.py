@@ -27,10 +27,12 @@ class DomainError(Exception):
         self,
         message: str = "An unexpected error occurred.",
         *,
+        user_message: str | None = None,
         error_code: str | None = None,
     ) -> None:
         super().__init__(message)
-        self.message = message
+        self.message = message  # internal — for logs only
+        self.user_message = user_message if user_message is not None else message
         if error_code is not None:
             self.error_code = error_code
 
