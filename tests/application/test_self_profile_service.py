@@ -43,9 +43,7 @@ class TestUpdateOwnProfileDisplayNameOnly:
         )
 
         # Assert
-        identity.update_own_profile.assert_awaited_once_with(
-            "usr-1", {"display_name": "Alice"}, token="tok"
-        )
+        identity.update_own_profile.assert_awaited_once_with("usr-1", {"display_name": "Alice"}, token="tok")
         identity.change_own_password.assert_not_awaited()
 
 
@@ -65,9 +63,7 @@ class TestUpdateOwnProfilePasswordOnly:
         )
 
         # Assert
-        identity.change_own_password.assert_awaited_once_with(
-            "usr-1", "S3cr3t!", token="tok"
-        )
+        identity.change_own_password.assert_awaited_once_with("usr-1", "S3cr3t!", token="tok")
         identity.update_own_profile.assert_not_awaited()
 
 
@@ -157,6 +153,4 @@ class TestPasswordNeverLogged:
 
         # Assert — password must not appear in any log message
         for record in captured_records:
-            assert secret not in record.getMessage(), (
-                f"Password leaked into log record: {record.getMessage()}"
-            )
+            assert secret not in record.getMessage(), f"Password leaked into log record: {record.getMessage()}"

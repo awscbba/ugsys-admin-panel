@@ -181,9 +181,7 @@ class IdentityManagerClient(IdentityClient):
             token=token,
         )
 
-    async def update_own_profile(
-        self, user_id: str, fields: dict[str, str], *, token: str
-    ) -> None:
+    async def update_own_profile(self, user_id: str, fields: dict[str, str], *, token: str) -> None:
         """Update the authenticated user's own profile via ``PATCH /api/v1/users/{user_id}``.
 
         Raises
@@ -200,9 +198,7 @@ class IdentityManagerClient(IdentityClient):
             token=token,
         )
 
-    async def change_own_password(
-        self, user_id: str, new_password: str, *, token: str
-    ) -> None:
+    async def change_own_password(self, user_id: str, new_password: str, *, token: str) -> None:
         """Change the authenticated user's own password via ``POST /api/v1/users/{user_id}/change-password``.
 
         ``new_password`` is passed directly to the HTTP body — it MUST NEVER

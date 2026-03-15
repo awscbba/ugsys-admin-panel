@@ -134,7 +134,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
         profile_client=profile_client,
     )
     self_profile_service = SelfProfileService(identity_client=identity_client)
-    config_service = ConfigService(        registry_repo=registry_repo,
+    config_service = ConfigService(
+        registry_repo=registry_repo,
         event_publisher=event_publisher,
     )
     audit_service = AuditService(audit_log_repo=audit_log_repo)

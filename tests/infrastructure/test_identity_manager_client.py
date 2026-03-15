@@ -87,9 +87,7 @@ class TestUpdateOwnProfile:
         cb.call = AsyncMock(return_value={})
         client = IdentityManagerClient(circuit_breaker=cb, base_url="http://im")
 
-        await client.update_own_profile(
-            "usr-1", {"display_name": "Alice"}, token="tok"
-        )
+        await client.update_own_profile("usr-1", {"display_name": "Alice"}, token="tok")
 
         cb.call.assert_awaited_once()
         args = cb.call.call_args
