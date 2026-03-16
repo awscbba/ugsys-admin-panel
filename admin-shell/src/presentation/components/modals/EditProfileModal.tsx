@@ -58,7 +58,7 @@ interface UpsDiff {
   preferences?: UpsPreferenceFields;
 }
 
-function computeUpsDiff(
+export function computeUpsDiff(
   initial: UpsProfile | null | undefined,
   state: {
     fullName: string;
