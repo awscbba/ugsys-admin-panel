@@ -83,7 +83,7 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--color-surface)",
           borderRadius: "10px",
           padding: "28px",
           width: "400px",
@@ -93,7 +93,12 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
       >
         <h3
           id="self-edit-title"
-          style={{ margin: "0 0 20px", fontSize: "16px", fontWeight: 700 }}
+          style={{
+            margin: "0 0 20px",
+            fontSize: "16px",
+            fontWeight: 700,
+            color: "var(--color-text-primary)",
+          }}
         >
           Edit Profile
         </h3>
@@ -104,11 +109,11 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
             style={{
               marginBottom: "16px",
               padding: "10px 14px",
-              background: "#fef2f2",
-              border: "1px solid #fca5a5",
+              background: "var(--color-error-bg)",
+              border: "1px solid var(--color-error-border)",
               borderRadius: "6px",
               fontSize: "13px",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -122,7 +127,7 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
                 background: "none",
                 border: "none",
                 cursor: "pointer",
-                color: "#b91c1c",
+                color: "var(--color-error)",
                 marginLeft: "8px",
               }}
             >
@@ -135,7 +140,12 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
         <div style={{ marginBottom: "16px" }}>
           <label
             htmlFor="self-edit-display-name"
-            style={{ display: "block", fontSize: "13px", marginBottom: "4px" }}
+            style={{
+              display: "block",
+              fontSize: "13px",
+              marginBottom: "4px",
+              color: "var(--color-text-secondary)",
+            }}
           >
             Display Name
           </label>
@@ -149,16 +159,22 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
               width: "100%",
               padding: "8px 10px",
               border: errors.displayName
-                ? "1px solid #ef4444"
-                : "1px solid #d1d5db",
+                ? "1px solid var(--color-error)"
+                : "1px solid var(--color-input-border)",
               borderRadius: "6px",
               fontSize: "14px",
               boxSizing: "border-box",
+              background: "var(--color-input-bg)",
+              color: "var(--color-text-primary)",
             }}
           />
           {errors.displayName && (
             <p
-              style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}
+              style={{
+                color: "var(--color-error)",
+                fontSize: "12px",
+                margin: "4px 0 0",
+              }}
             >
               {errors.displayName}
             </p>
@@ -169,7 +185,12 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
         <div style={{ marginBottom: "16px" }}>
           <label
             htmlFor="self-edit-new-password"
-            style={{ display: "block", fontSize: "13px", marginBottom: "4px" }}
+            style={{
+              display: "block",
+              fontSize: "13px",
+              marginBottom: "4px",
+              color: "var(--color-text-secondary)",
+            }}
           >
             New Password
           </label>
@@ -184,16 +205,22 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
               width: "100%",
               padding: "8px 10px",
               border: errors.newPassword
-                ? "1px solid #ef4444"
-                : "1px solid #d1d5db",
+                ? "1px solid var(--color-error)"
+                : "1px solid var(--color-input-border)",
               borderRadius: "6px",
               fontSize: "14px",
               boxSizing: "border-box",
+              background: "var(--color-input-bg)",
+              color: "var(--color-text-primary)",
             }}
           />
           {errors.newPassword && (
             <p
-              style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}
+              style={{
+                color: "var(--color-error)",
+                fontSize: "12px",
+                margin: "4px 0 0",
+              }}
             >
               {errors.newPassword}
             </p>
@@ -204,7 +231,12 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
         <div style={{ marginBottom: "24px" }}>
           <label
             htmlFor="self-edit-confirm-password"
-            style={{ display: "block", fontSize: "13px", marginBottom: "4px" }}
+            style={{
+              display: "block",
+              fontSize: "13px",
+              marginBottom: "4px",
+              color: "var(--color-text-secondary)",
+            }}
           >
             Confirm Password
           </label>
@@ -218,16 +250,22 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
               width: "100%",
               padding: "8px 10px",
               border: errors.confirmPassword
-                ? "1px solid #ef4444"
-                : "1px solid #d1d5db",
+                ? "1px solid var(--color-error)"
+                : "1px solid var(--color-input-border)",
               borderRadius: "6px",
               fontSize: "14px",
               boxSizing: "border-box",
+              background: "var(--color-input-bg)",
+              color: "var(--color-text-primary)",
             }}
           />
           {errors.confirmPassword && (
             <p
-              style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}
+              style={{
+                color: "var(--color-error)",
+                fontSize: "12px",
+                margin: "4px 0 0",
+              }}
             >
               {errors.confirmPassword}
             </p>
@@ -243,9 +281,10 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
             disabled={saving}
             style={{
               padding: "8px 18px",
-              border: "1px solid #d1d5db",
+              border: "1px solid var(--color-input-border)",
               borderRadius: "6px",
-              background: "#fff",
+              background: "var(--color-surface)",
+              color: "var(--color-text-secondary)",
               cursor: saving ? "not-allowed" : "pointer",
               fontSize: "14px",
             }}
@@ -260,7 +299,9 @@ export function SelfEditProfileModal({ user, onClose }: Props) {
               padding: "8px 18px",
               border: "none",
               borderRadius: "6px",
-              background: saving ? "#9ca3af" : "#161d2b",
+              background: saving
+                ? "var(--color-text-muted)"
+                : "var(--color-primary)",
               color: "#fff",
               cursor: saving ? "not-allowed" : "pointer",
               fontSize: "14px",

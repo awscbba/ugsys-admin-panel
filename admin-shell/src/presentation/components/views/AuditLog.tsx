@@ -80,7 +80,7 @@ function methodColor(method: string): string {
     case "DELETE":
       return "#b91c1c";
     default:
-      return "#374151";
+      return "var(--color-text-secondary)";
   }
 }
 
@@ -107,11 +107,11 @@ const thStyle: React.CSSProperties = {
   textAlign: "left",
   fontSize: "12px",
   fontWeight: 600,
-  color: "#6b7280",
+  color: "var(--color-text-muted)",
   textTransform: "uppercase",
   letterSpacing: "0.05em",
-  borderBottom: "2px solid #e5e7eb",
-  background: "#f9fafb",
+  borderBottom: "2px solid var(--color-border)",
+  background: "var(--color-surface-elevated)",
   whiteSpace: "nowrap",
   cursor: "pointer",
   userSelect: "none",
@@ -119,19 +119,19 @@ const thStyle: React.CSSProperties = {
 
 const tdStyle: React.CSSProperties = {
   padding: "10px 14px",
-  borderBottom: "1px solid #f3f4f6",
+  borderBottom: "1px solid var(--color-border)",
   verticalAlign: "middle",
   fontSize: "13px",
-  color: "#374151",
+  color: "var(--color-text-secondary)",
 };
 
 const inputStyle: React.CSSProperties = {
   padding: "7px 10px",
-  border: "1px solid #d1d5db",
+  border: "1px solid var(--color-input-border)",
   borderRadius: "6px",
   fontSize: "13px",
-  color: "#111827",
-  background: "#fff",
+  color: "var(--color-text-primary)",
+  background: "var(--color-input-bg)",
   outline: "none",
   width: "100%",
   boxSizing: "border-box",
@@ -141,7 +141,7 @@ const labelStyle: React.CSSProperties = {
   display: "block",
   fontSize: "12px",
   fontWeight: 600,
-  color: "#6b7280",
+  color: "var(--color-text-muted)",
   marginBottom: "4px",
   textTransform: "uppercase",
   letterSpacing: "0.04em",
@@ -151,7 +151,7 @@ const headingStyle: React.CSSProperties = {
   margin: "0 0 20px",
   fontSize: "20px",
   fontWeight: 700,
-  color: "#111827",
+  color: "var(--color-text-primary)",
 };
 
 const retryBtnStyle: React.CSSProperties = {
@@ -168,9 +168,11 @@ const retryBtnStyle: React.CSSProperties = {
 function paginationBtnStyle(disabled: boolean): React.CSSProperties {
   return {
     padding: "6px 14px",
-    background: disabled ? "#f9fafb" : "#fff",
-    color: disabled ? "#9ca3af" : "#374151",
-    border: "1px solid #d1d5db",
+    background: disabled
+      ? "var(--color-surface-elevated)"
+      : "var(--color-surface)",
+    color: disabled ? "var(--color-text-muted)" : "var(--color-text-secondary)",
+    border: "1px solid var(--color-input-border)",
     borderRadius: "6px",
     fontSize: "13px",
     fontWeight: 500,
@@ -200,7 +202,10 @@ function SortableHeader({
   return (
     <th
       scope="col"
-      style={{ ...thStyle, color: isActive ? "#4f46e5" : "#6b7280" }}
+      style={{
+        ...thStyle,
+        color: isActive ? "#4f46e5" : "var(--color-text-muted)",
+      }}
       onClick={() => onSort(field)}
       aria-sort={
         isActive ? (sortDir === "asc" ? "ascending" : "descending") : "none"
@@ -225,16 +230,28 @@ interface AuditRowProps {
 function AuditRow({ entry }: AuditRowProps) {
   return (
     <tr>
-      <td style={{ ...tdStyle, whiteSpace: "nowrap", color: "#6b7280" }}>
+      <td
+        style={{
+          ...tdStyle,
+          whiteSpace: "nowrap",
+          color: "var(--color-text-muted)",
+        }}
+      >
         {formatTimestamp(entry.timestamp)}
       </td>
 
       <td style={tdStyle}>
-        <div style={{ fontWeight: 500, color: "#111827" }}>
+        <div style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>
           {entry.actorDisplayName || entry.actorUserId}
         </div>
         {entry.actorDisplayName && (
-          <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>
+          <div
+            style={{
+              fontSize: "11px",
+              color: "var(--color-text-muted)",
+              marginTop: "2px",
+            }}
+          >
             {entry.actorUserId}
           </div>
         )}
@@ -260,8 +277,8 @@ function AuditRow({ entry }: AuditRowProps) {
             display: "inline-block",
             padding: "2px 8px",
             borderRadius: "4px",
-            background: "#f3f4f6",
-            color: "#374151",
+            background: "var(--color-surface-elevated)",
+            color: "var(--color-text-secondary)",
             fontSize: "12px",
             fontWeight: 500,
           }}
@@ -347,8 +364,8 @@ function FilterBar({
   return (
     <div
       style={{
-        background: "#f9fafb",
-        border: "1px solid #e5e7eb",
+        background: "var(--color-surface-elevated)",
+        border: "1px solid var(--color-border)",
         borderRadius: "10px",
         padding: "16px",
         marginBottom: "20px",
@@ -453,9 +470,9 @@ function FilterBar({
           disabled={isLoading}
           style={{
             padding: "7px 16px",
-            background: "#fff",
-            color: "#374151",
-            border: "1px solid #d1d5db",
+            background: "var(--color-surface)",
+            color: "var(--color-text-secondary)",
+            border: "1px solid var(--color-input-border)",
             borderRadius: "6px",
             fontSize: "13px",
             fontWeight: 500,
@@ -598,7 +615,7 @@ export function AuditLog() {
           alignItems: "center",
           justifyContent: "center",
           padding: "64px 24px",
-          color: "#6b7280",
+          color: "var(--color-text-muted)",
           textAlign: "center",
         }}
       >
@@ -633,7 +650,7 @@ export function AuditLog() {
               style={{
                 height: "44px",
                 borderRadius: "6px",
-                background: "#e5e7eb",
+                background: "var(--color-border)",
                 animation: "pulse 1.5s ease-in-out infinite",
               }}
             />
@@ -658,8 +675,8 @@ export function AuditLog() {
             alignItems: "center",
             gap: "12px",
             padding: "40px 24px",
-            background: "#fef2f2",
-            border: "1px solid #fca5a5",
+            background: "var(--color-error-bg)",
+            border: "1px solid var(--color-error-border)",
             borderRadius: "10px",
             textAlign: "center",
           }}
@@ -668,7 +685,7 @@ export function AuditLog() {
             style={{
               margin: 0,
               fontSize: "15px",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               fontWeight: 500,
             }}
           >
@@ -702,7 +719,7 @@ export function AuditLog() {
               marginLeft: "10px",
               fontSize: "13px",
               fontWeight: 400,
-              color: "#6b7280",
+              color: "var(--color-text-muted)",
             }}
           >
             {result.total} entr{result.total !== 1 ? "ies" : "y"}
@@ -726,11 +743,11 @@ export function AuditLog() {
           style={{
             marginBottom: "16px",
             padding: "10px 16px",
-            background: "#fef2f2",
-            border: "1px solid #fca5a5",
+            background: "var(--color-error-bg)",
+            border: "1px solid var(--color-error-border)",
             borderRadius: "6px",
             fontSize: "14px",
-            color: "#b91c1c",
+            color: "var(--color-error)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -746,7 +763,7 @@ export function AuditLog() {
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               fontSize: "16px",
               lineHeight: 1,
               padding: "0 4px",
@@ -760,8 +777,8 @@ export function AuditLog() {
       {/* Table */}
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #e5e7eb",
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
           borderRadius: "10px",
           overflow: "hidden",
         }}
@@ -844,7 +861,7 @@ export function AuditLog() {
                     style={{
                       padding: "40px 16px",
                       textAlign: "center",
-                      color: "#9ca3af",
+                      color: "var(--color-text-muted)",
                       fontSize: "14px",
                     }}
                   >
@@ -866,9 +883,9 @@ export function AuditLog() {
               alignItems: "center",
               justifyContent: "space-between",
               padding: "12px 16px",
-              borderTop: "1px solid #f3f4f6",
+              borderTop: "1px solid var(--color-border)",
               fontSize: "13px",
-              color: "#6b7280",
+              color: "var(--color-text-muted)",
             }}
           >
             <span>

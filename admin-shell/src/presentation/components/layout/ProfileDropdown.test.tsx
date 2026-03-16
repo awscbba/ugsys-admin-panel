@@ -1,13 +1,23 @@
 /**
  * Tests for ProfileDropdown component.
  * Requirements: 6.2 — ARIA menu, click-outside, Escape, arrow key navigation
+ * Requirements: 6.1, 6.2, 6.3, 6.4, 11.1, 11.4 — Theme toggle
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import * as fc from "fast-check";
 import { createRef } from "react";
 import { ProfileDropdown } from "./ProfileDropdown";
+
+// Mock @ugsys/ui-lib useTheme hook
+const mockToggleTheme = vi.fn();
+let mockTheme: "light" | "dark" = "light";
+
+vi.mock("@ugsys/ui-lib", () => ({
+  useTheme: () => ({ theme: mockTheme, toggleTheme: mockToggleTheme }),
+}));
 
 function renderDropdown(overrides?: {
   onClose?: () => void;
@@ -40,14 +50,16 @@ function renderDropdown(overrides?: {
 describe("ProfileDropdown", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTheme = "light";
   });
 
-  it("renders two menu items", () => {
+  it("renders three menu items: Edit Profile, theme toggle, Logout", () => {
     renderDropdown();
     const items = screen.getAllByRole("menuitem");
-    expect(items).toHaveLength(2);
+    expect(items).toHaveLength(3);
     expect(items[0]).toHaveTextContent("Edit Profile");
-    expect(items[1]).toHaveTextContent("Logout");
+    // items[1] is theme toggle
+    expect(items[2]).toHaveTextContent("Logout");
   });
 
   it("has role=menu on the container", () => {
@@ -97,7 +109,7 @@ describe("ProfileDropdown", () => {
   it("ArrowDown moves focus to next item (wraps)", () => {
     renderDropdown();
     const items = screen.getAllByRole("menuitem");
-    items[1]!.focus();
+    items[2]!.focus();
     fireEvent.keyDown(screen.getByRole("menu"), { key: "ArrowDown" });
     expect(document.activeElement).toBe(items[0]);
   });
@@ -107,6 +119,129 @@ describe("ProfileDropdown", () => {
     const items = screen.getAllByRole("menuitem");
     items[0]!.focus();
     fireEvent.keyDown(screen.getByRole("menu"), { key: "ArrowUp" });
-    expect(document.activeElement).toBe(items[1]);
+    expect(document.activeElement).toBe(items[2]);
+  });
+
+  // ── Theme toggle tests ──────────────────────────────────────────────────
+
+  it("theme toggle renders before Logout item", () => {
+    renderDropdown();
+    const items = screen.getAllByRole("menuitem");
+    // Edit Profile, Theme Toggle, Logout
+    expect(items[1]).toHaveTextContent(/Dark|Light/);
+    expect(items[2]).toHaveTextContent("Logout");
+  });
+
+  it("theme toggle shows moon icon and 'Dark' label when theme is light", () => {
+    mockTheme = "light";
+    renderDropdown();
+    const items = screen.getAllByRole("menuitem");
+    expect(items[1]).toHaveTextContent("Dark");
+    expect(items[1]).toHaveAttribute("aria-label", "Switch to dark theme");
+  });
+
+  it("theme toggle shows sun icon and 'Light' label when theme is dark", () => {
+    mockTheme = "dark";
+    renderDropdown();
+    const items = screen.getAllByRole("menuitem");
+    expect(items[1]).toHaveTextContent("Light");
+    expect(items[1]).toHaveAttribute("aria-label", "Switch to light theme");
+  });
+
+  it("theme toggle click calls toggleTheme", async () => {
+    renderDropdown();
+    const items = screen.getAllByRole("menuitem");
+    await userEvent.click(items[1]);
+    expect(mockToggleTheme).toHaveBeenCalledOnce();
+  });
+
+  it("theme toggle has role=menuitem", () => {
+    renderDropdown();
+    const items = screen.getAllByRole("menuitem");
+    expect(items[1]).toHaveAttribute("role", "menuitem");
+  });
+
+  it("theme toggle activates via Enter key", async () => {
+    renderDropdown();
+    const items = screen.getAllByRole("menuitem");
+    items[1]!.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(mockToggleTheme).toHaveBeenCalledOnce();
+  });
+
+  it("theme toggle activates via Space key", async () => {
+    renderDropdown();
+    const items = screen.getAllByRole("menuitem");
+    items[1]!.focus();
+    await userEvent.keyboard(" ");
+    expect(mockToggleTheme).toHaveBeenCalledOnce();
+  });
+
+  it("theme toggle participates in ArrowDown navigation", () => {
+    renderDropdown();
+    const items = screen.getAllByRole("menuitem");
+    items[0]!.focus(); // Edit Profile
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "ArrowDown" });
+    expect(document.activeElement).toBe(items[1]); // Theme toggle
+  });
+
+  it("theme toggle participates in ArrowUp navigation", () => {
+    renderDropdown();
+    const items = screen.getAllByRole("menuitem");
+    items[2]!.focus(); // Logout
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "ArrowUp" });
+    expect(document.activeElement).toBe(items[1]); // Theme toggle
+  });
+
+  // ── Property 6: Toggle label and aria-label reflect current theme ───────
+
+  it("Property 6: toggle label and aria-label reflect current theme", () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom("light" as const, "dark" as const),
+        (theme) => {
+          mockTheme = theme;
+          const { unmount } = render(
+            <>
+              <button
+                ref={
+                  createRef<HTMLButtonElement>() as React.RefObject<HTMLButtonElement>
+                }
+              >
+                Trigger
+              </button>
+              <ProfileDropdown
+                triggerRef={
+                  createRef<HTMLButtonElement>() as React.RefObject<HTMLButtonElement | null>
+                }
+                onClose={() => {}}
+                onEditProfile={() => {}}
+                onLogout={() => {}}
+              />
+            </>,
+          );
+
+          const items = screen.getAllByRole("menuitem");
+          const toggleItem = items[1];
+
+          if (theme === "light") {
+            expect(toggleItem).toHaveTextContent("Dark");
+            expect(toggleItem).toHaveAttribute(
+              "aria-label",
+              "Switch to dark theme",
+            );
+          } else {
+            expect(toggleItem).toHaveTextContent("Light");
+            expect(toggleItem).toHaveAttribute(
+              "aria-label",
+              "Switch to light theme",
+            );
+          }
+
+          unmount();
+        },
+      ),
+      { numRuns: 100 },
+    );
   });
 });

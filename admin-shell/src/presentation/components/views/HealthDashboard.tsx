@@ -120,7 +120,7 @@ function ServiceCard({ entry }: ServiceCardProps) {
             margin: 0,
             fontSize: "15px",
             fontWeight: 600,
-            color: "#111827",
+            color: "var(--color-text-primary)",
             wordBreak: "break-word",
           }}
         >
@@ -138,7 +138,7 @@ function ServiceCard({ entry }: ServiceCardProps) {
             fontSize: "12px",
             fontWeight: 600,
             color: colors.text,
-            background: "#fff",
+            background: "var(--color-surface)",
             border: `1px solid ${colors.border}`,
             whiteSpace: "nowrap",
             flexShrink: 0,
@@ -170,34 +170,64 @@ function ServiceCard({ entry }: ServiceCardProps) {
         }}
       >
         <div>
-          <dt style={{ color: "#6b7280", marginBottom: "2px" }}>Last check</dt>
-          <dd style={{ margin: 0, color: "#374151", fontWeight: 500 }}>
+          <dt style={{ color: "var(--color-text-muted)", marginBottom: "2px" }}>
+            Last check
+          </dt>
+          <dd
+            style={{
+              margin: 0,
+              color: "var(--color-text-secondary)",
+              fontWeight: 500,
+            }}
+          >
             {formatTimestamp(entry.lastCheck)}
           </dd>
         </div>
 
         <div>
-          <dt style={{ color: "#6b7280", marginBottom: "2px" }}>
+          <dt style={{ color: "var(--color-text-muted)", marginBottom: "2px" }}>
             Response time
           </dt>
-          <dd style={{ margin: 0, color: "#374151", fontWeight: 500 }}>
+          <dd
+            style={{
+              margin: 0,
+              color: "var(--color-text-secondary)",
+              fontWeight: 500,
+            }}
+          >
             {entry.responseTimeMs} ms
           </dd>
         </div>
 
         <div>
-          <dt style={{ color: "#6b7280", marginBottom: "2px" }}>Version</dt>
-          <dd style={{ margin: 0, color: "#374151", fontWeight: 500 }}>
+          <dt style={{ color: "var(--color-text-muted)", marginBottom: "2px" }}>
+            Version
+          </dt>
+          <dd
+            style={{
+              margin: 0,
+              color: "var(--color-text-secondary)",
+              fontWeight: 500,
+            }}
+          >
             {entry.version || "—"}
           </dd>
         </div>
 
         {entry.statusCode !== undefined && (
           <div>
-            <dt style={{ color: "#6b7280", marginBottom: "2px" }}>
+            <dt
+              style={{ color: "var(--color-text-muted)", marginBottom: "2px" }}
+            >
               Status code
             </dt>
-            <dd style={{ margin: 0, color: "#374151", fontWeight: 500 }}>
+            <dd
+              style={{
+                margin: 0,
+                color: "var(--color-text-secondary)",
+                fontWeight: 500,
+              }}
+            >
               {entry.statusCode}
             </dd>
           </div>
@@ -262,7 +292,7 @@ export function HealthDashboard() {
           alignItems: "center",
           justifyContent: "center",
           padding: "64px 24px",
-          color: "#6b7280",
+          color: "var(--color-text-muted)",
           textAlign: "center",
         }}
       >
@@ -293,7 +323,7 @@ export function HealthDashboard() {
             margin: "0 0 24px",
             fontSize: "20px",
             fontWeight: 700,
-            color: "#111827",
+            color: "var(--color-text-primary)",
           }}
         >
           Service Health
@@ -312,7 +342,7 @@ export function HealthDashboard() {
               style={{
                 height: "140px",
                 borderRadius: "10px",
-                background: "#e5e7eb",
+                background: "var(--color-border)",
                 animation: "pulse 1.5s ease-in-out infinite",
               }}
             />
@@ -333,7 +363,7 @@ export function HealthDashboard() {
             margin: "0 0 24px",
             fontSize: "20px",
             fontWeight: 700,
-            color: "#111827",
+            color: "var(--color-text-primary)",
           }}
         >
           Service Health
@@ -346,8 +376,8 @@ export function HealthDashboard() {
             alignItems: "center",
             gap: "12px",
             padding: "40px 24px",
-            background: "#fef2f2",
-            border: "1px solid #fca5a5",
+            background: "var(--color-error-bg)",
+            border: "1px solid var(--color-error-border)",
             borderRadius: "10px",
             textAlign: "center",
           }}
@@ -356,7 +386,7 @@ export function HealthDashboard() {
             style={{
               margin: 0,
               fontSize: "15px",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               fontWeight: 500,
             }}
           >
@@ -394,7 +424,7 @@ export function HealthDashboard() {
           margin: "0 0 24px",
           fontSize: "20px",
           fontWeight: 700,
-          color: "#111827",
+          color: "var(--color-text-primary)",
         }}
       >
         Service Health
@@ -403,7 +433,7 @@ export function HealthDashboard() {
             marginLeft: "10px",
             fontSize: "13px",
             fontWeight: 400,
-            color: "#6b7280",
+            color: "var(--color-text-muted)",
           }}
         >
           {entries.length} service{entries.length !== 1 ? "s" : ""}
@@ -411,7 +441,7 @@ export function HealthDashboard() {
       </h2>
 
       {entries.length === 0 ? (
-        <p style={{ color: "#6b7280", fontSize: "14px" }}>
+        <p style={{ color: "var(--color-text-muted)", fontSize: "14px" }}>
           No services registered yet.
         </p>
       ) : (

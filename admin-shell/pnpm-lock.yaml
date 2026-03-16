@@ -13,7 +13,7 @@ importers:
         version: 0.8.4(nanostores@0.11.4)(react@18.3.1)
       '@ugsys/ui-lib':
         specifier: github:awscbba/ugsys-ui-lib#v0.1.6
-        version: https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/f763fbba20895ed72b55ab4cf5467ecb36c2b1a5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@4.2.1)
+        version: https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/cc72f835527cddea65628107c5dcc6c693ec175f(@nanostores/react@0.8.4(nanostores@0.11.4)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@4.2.1)
       nanostores:
         specifier: ^0.11.0
         version: 0.11.4
@@ -1017,10 +1017,11 @@ packages:
     resolution: {integrity: sha512-KiROIzYdEV85YygXw6BI/Dx4fnBlFQu6Mq4QE4MOH9fFnhohw6wX/OAvDY2/C+ut0I3RSPKenvZJIVYqJNkhEw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@ugsys/ui-lib@https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/f763fbba20895ed72b55ab4cf5467ecb36c2b1a5':
-    resolution: {tarball: https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/f763fbba20895ed72b55ab4cf5467ecb36c2b1a5}
+  '@ugsys/ui-lib@https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/cc72f835527cddea65628107c5dcc6c693ec175f':
+    resolution: {tarball: https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/cc72f835527cddea65628107c5dcc6c693ec175f}
     version: 0.1.6
     peerDependencies:
+      '@nanostores/react': ^0.8.0 || ^1.0.0
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
       tailwindcss: ^4.0.0
@@ -1787,6 +1788,10 @@ packages:
   nanostores@0.11.4:
     resolution: {integrity: sha512-k1oiVNN4hDK8NcNERSZLQiMfRzEGtfnvZvdBvey3SQbgn8Dcrk0h1I6vpxApjb10PFUflZrgJ2WEZyJQ+5v7YQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
+
+  nanostores@1.2.0:
+    resolution: {integrity: sha512-F0wCzbsH80G7XXo0Jd9/AVQC7ouWY6idUCTnMwW5t/Rv9W8qmO6endavDwg7TNp5GbugwSukFMVZqzPSrSMndg==}
+    engines: {node: ^20.0.0 || >=22.0.0}
 
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
@@ -3043,8 +3048,10 @@ snapshots:
       '@typescript-eslint/types': 8.56.1
       eslint-visitor-keys: 5.0.1
 
-  '@ugsys/ui-lib@https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/f763fbba20895ed72b55ab4cf5467ecb36c2b1a5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@4.2.1)':
+  '@ugsys/ui-lib@https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/cc72f835527cddea65628107c5dcc6c693ec175f(@nanostores/react@0.8.4(nanostores@0.11.4)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@4.2.1)':
     dependencies:
+      '@nanostores/react': 0.8.4(nanostores@0.11.4)(react@18.3.1)
+      nanostores: 1.2.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       tailwindcss: 4.2.1
@@ -3834,6 +3841,8 @@ snapshots:
   nanoid@3.3.11: {}
 
   nanostores@0.11.4: {}
+
+  nanostores@1.2.0: {}
 
   natural-compare@1.4.0: {}
 

@@ -4,6 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ugsys Admin Panel</title>
+    <script>
+      // Early theme application — prevents flash of wrong theme before React hydrates.
+      (function() {
+        var STORAGE_KEY = "ugsys-theme";
+        var theme;
+        try {
+          var stored = localStorage.getItem(STORAGE_KEY);
+          if (stored === "light" || stored === "dark") {
+            theme = stored;
+          } else {
+            if (stored !== null) localStorage.removeItem(STORAGE_KEY);
+            theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          }
+        } catch (e) {
+          theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
