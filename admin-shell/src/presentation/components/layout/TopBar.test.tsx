@@ -1,6 +1,7 @@
 /**
  * Tests for TopBar component.
  * Requirements: 8.1, 8.2 — avatar trigger, dropdown, modal, initials, avatar img
+ * Requirements: 2.1–2.7 — section title display
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -34,6 +35,11 @@ vi.mock("../modals/SelfEditProfileModal", () => ({
       <button onClick={onClose}>Close Modal</button>
     </div>
   ),
+}));
+
+// Mock useSectionTitle hook
+vi.mock("../../hooks/useSectionTitle", () => ({
+  useSectionTitle: vi.fn(() => "Dashboard"),
 }));
 
 const mockUser: AdminUser = {
@@ -150,5 +156,13 @@ describe("TopBar", () => {
     await userEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
     await userEvent.click(screen.getByRole("button", { name: "Close Modal" }));
     expect(screen.queryByTestId("self-edit-modal")).not.toBeInTheDocument();
+  });
+
+  // ── Section title ────────────────────────────────────────────────────────
+
+  it("renders section title with aria-live polite", () => {
+    render(<TopBar user={mockUser} onLogout={vi.fn()} />);
+    const title = screen.getByText("Dashboard");
+    expect(title).toHaveAttribute("aria-live", "polite");
   });
 });

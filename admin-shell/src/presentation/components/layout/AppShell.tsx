@@ -10,8 +10,10 @@ import {
 } from "../../../stores/authStore";
 import { $services, loadServices } from "../../../stores/registryStore";
 import type { NavigationEntry } from "../../../domain/entities/ServiceRegistration";
+import { Breadcrumb } from "./Breadcrumb";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+import { useSectionTitle } from "../../hooks/useSectionTitle";
 
 /**
  * AppShell — main layout component.
@@ -28,6 +30,10 @@ export function AppShell() {
   const isLoading = useStore($isLoading);
   const services = useStore($services);
   const location = useLocation();
+  const sectionTitle = useSectionTitle();
+  const showBreadcrumb =
+    location.pathname.startsWith("/config/") ||
+    location.pathname.startsWith("/app/");
 
   // Restore session on mount
   useEffect(() => {
@@ -105,6 +111,7 @@ export function AppShell() {
             background: "#f9fafb",
           }}
         >
+          {showBreadcrumb && <Breadcrumb currentTitle={sectionTitle} />}
           <Outlet />
         </main>
       </div>

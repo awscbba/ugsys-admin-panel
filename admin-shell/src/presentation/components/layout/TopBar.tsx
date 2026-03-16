@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import type { AdminUser } from "../../../domain/entities/AdminUser";
 import { ProfileDropdown } from "./ProfileDropdown";
 import { SelfEditProfileModal } from "../modals/SelfEditProfileModal";
+import { useSectionTitle } from "../../hooks/useSectionTitle";
 
 interface TopBarProps {
   user: AdminUser;
@@ -17,6 +18,7 @@ export function TopBar({ user, onLogout }: TopBarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const sectionTitle = useSectionTitle();
 
   const initials = (user.displayName || user.email || "?")
     .split(" ")
@@ -26,7 +28,12 @@ export function TopBar({ user, onLogout }: TopBarProps) {
     .slice(0, 2);
 
   return (
-    <header className="flex items-center justify-end gap-3 px-6 h-14 border-b border-white/10 bg-primary text-white shrink-0">
+    <header className="flex items-center justify-between gap-3 px-6 h-14 border-b border-white/10 bg-primary text-white shrink-0">
+      {/* Section title — left-aligned, announces route changes to screen readers */}
+      <span aria-live="polite" className="text-sm font-medium text-gray-200">
+        {sectionTitle}
+      </span>
+
       {/* Profile trigger */}
       <button
         ref={triggerRef}
