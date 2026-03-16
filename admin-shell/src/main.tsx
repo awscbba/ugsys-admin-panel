@@ -10,6 +10,7 @@
 
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { ThemeProvider } from "@ugsys/ui-lib";
 import { enableSecureLogging } from "./utils/secureLogging";
 import { App } from "./App";
 import "./index.css";
@@ -27,6 +28,8 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
   </React.StrictMode>,
 );
