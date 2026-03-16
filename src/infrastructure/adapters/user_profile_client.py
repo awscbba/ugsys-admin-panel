@@ -157,7 +157,12 @@ class UserProfileClient(ProfileClient):
         if response.is_success:
             if response.status_code == 204 or not response.content:
                 return {}
-            return dict(response.json())
+            try:
+                return dict(response.json())
+            except (ValueError, TypeError) as exc:
+                raise ExternalServiceError(
+                    f"UPS returned malformed JSON for {path}: {exc}",
+                ) from exc
 
         if response.status_code == 404:
             raise NotFoundError(
