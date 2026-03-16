@@ -244,7 +244,7 @@ class UserProfileServiceAdapter(UserProfileServiceClient):
             if response.status_code == 204 or not response.content:
                 return {}
             try:
-                return dict(response.json())
+                body = dict(response.json())
             except (ValueError, TypeError) as exc:
                 logger.error(
                     "ups_profile.malformed_json",
@@ -254,8 +254,37 @@ class UserProfileServiceAdapter(UserProfileServiceClient):
                 raise ExternalServiceError(
                     f"UPS returned malformed JSON for {path}: {exc}",
                 ) from exc
+            # UPS wraps responses in {"data": {...}, "meta": {...}} envelope.
+            # Unwrap so callers receive the profile dict directly.
+            if "data" in body and isinstance(body["data"], dict):
+                return UserProfileServiceAdapter._flatten_ups_profile(body["data"])
+            return body
 
         if response.status_code == 404:
             raise NotFoundError(f"UPS profile not found: {path}.")
 
         raise ExternalServiceError(f"UPS returned HTTP {response.status_code} for {path}.")
+
+    @staticmethod
+    def _flatten_ups_profile(profile: dict[str, Any]) -> dict[str, Any]:
+        """Flatten nested UPS profile into the flat shape the BFF expects.
+
+        UPS returns nested ``address`` and ``notification_preferences``
+        objects.  The BFF ``UpsProfileResponse`` expects flat fields like
+        ``street``, ``city``, ``notification_email``, etc.
+        """
+        flat: dict[str, Any] = {}
+        for key, value in profile.items():
+            if key == "address" and isinstance(value, dict):
+                flat["street"] = value.get("street")
+                flat["city"] = value.get("city")
+                flat["state"] = value.get("state")
+                flat["postal_code"] = value.get("postal_code")
+                flat["country"] = value.get("country")
+            elif key == "notification_preferences" and isinstance(value, dict):
+                flat["notification_email"] = value.get("email")
+                flat["notification_sms"] = value.get("sms")
+                flat["notification_whatsapp"] = value.get("whatsapp")
+            else:
+                flat[key] = value
+        return flat

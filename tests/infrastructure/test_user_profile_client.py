@@ -26,6 +26,22 @@ class TestHandleResponse:
         result = UserProfileClient._handle_response(resp, "/api/v1/profiles/u1")
         assert result == body
 
+    def test_unwraps_ups_envelope(self) -> None:
+        """UPS returns {"data": {...}, "meta": {...}} — unwrap to inner data."""
+        inner = {"user_id": "u1", "display_name": "Alice"}
+        envelope = {"data": inner, "meta": {"request_id": "r1"}}
+        resp = _make_response(200, envelope)
+        result = UserProfileClient._handle_response(resp, "/api/v1/profiles/u1")
+        assert result == inner
+        assert "meta" not in result
+
+    def test_returns_body_as_is_when_no_data_key(self) -> None:
+        """If response has no ``data`` key, return as-is (backward compat)."""
+        body = {"user_id": "u1", "display_name": "Alice"}
+        resp = _make_response(200, body)
+        result = UserProfileClient._handle_response(resp, "/api/v1/profiles/u1")
+        assert result == body
+
     def test_returns_empty_dict_on_204(self) -> None:
         resp = _make_response(204)
         result = UserProfileClient._handle_response(resp, "/api/v1/profiles/u1")
