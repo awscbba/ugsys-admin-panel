@@ -90,10 +90,11 @@ class TestGetProfile:
     @pytest.mark.asyncio
     async def test_calls_correct_url_with_bearer_token(self, adapter) -> None:  # type: ignore[no-untyped-def]
         profile_data = {"user_id": "u1", "full_name": "Alice"}
+        envelope = {"data": profile_data, "meta": {"request_id": "r1"}}
         with patch("httpx.AsyncClient") as mock_client_cls:
             mock_client = AsyncMock()
             mock_client_cls.return_value.__aenter__.return_value = mock_client
-            mock_client.get.return_value = _make_response(200, profile_data)
+            mock_client.get.return_value = _make_response(200, envelope)
 
             result = await adapter.get_profile("u1", token="tok-abc")
 
@@ -148,7 +149,7 @@ class TestGetProfile:
     @pytest.mark.asyncio
     async def test_forwards_x_request_id_header(self, adapter) -> None:
         """Property 11: X-Request-ID forwarded to UPS."""
-        profile_data = {"user_id": "u1"}
+        profile_data = {"data": {"user_id": "u1"}, "meta": {"request_id": "r1"}}
         with patch("httpx.AsyncClient") as mock_client_cls:
             mock_client = AsyncMock()
             mock_client_cls.return_value.__aenter__.return_value = mock_client
@@ -262,3 +263,90 @@ class TestUpdatePreferences:
 
         url = mock_client.patch.call_args[0][0]
         assert url == "http://ups.internal/api/v1/profiles/u1/preferences"
+
+
+# ---------------------------------------------------------------------------
+# Envelope unwrapping & flattening
+# ---------------------------------------------------------------------------
+
+
+class TestEnvelopeUnwrap:
+    @pytest.mark.asyncio
+    async def test_unwraps_ups_envelope(self, adapter) -> None:
+        """UPS returns {"data": {...}, "meta": {...}} — adapter must unwrap."""
+        inner = {"user_id": "u1", "full_name": "Alice", "email": "a@b.com"}
+        envelope = {"data": inner, "meta": {"request_id": "r1"}}
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client_cls.return_value.__aenter__.return_value = mock_client
+            mock_client.get.return_value = _make_response(200, envelope)
+
+            result = await adapter.get_profile("u1", token="tok")
+
+        assert result["user_id"] == "u1"
+        assert result["full_name"] == "Alice"
+        assert "data" not in result
+        assert "meta" not in result
+
+    @pytest.mark.asyncio
+    async def test_flattens_nested_address(self, adapter) -> None:
+        """Nested ``address`` object is flattened to top-level fields."""
+        inner = {
+            "user_id": "u1",
+            "address": {
+                "street": "123 Main",
+                "city": "Springfield",
+                "state": "IL",
+                "postal_code": "62704",
+                "country": "US",
+            },
+        }
+        envelope = {"data": inner, "meta": {"request_id": "r1"}}
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client_cls.return_value.__aenter__.return_value = mock_client
+            mock_client.get.return_value = _make_response(200, envelope)
+
+            result = await adapter.get_profile("u1", token="tok")
+
+        assert result["street"] == "123 Main"
+        assert result["city"] == "Springfield"
+        assert result["country"] == "US"
+        assert "address" not in result
+
+    @pytest.mark.asyncio
+    async def test_flattens_notification_preferences(self, adapter) -> None:
+        """Nested ``notification_preferences`` is flattened to ``notification_*`` fields."""
+        inner = {
+            "user_id": "u1",
+            "notification_preferences": {
+                "email": True,
+                "sms": False,
+                "whatsapp": True,
+            },
+        }
+        envelope = {"data": inner, "meta": {"request_id": "r1"}}
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client_cls.return_value.__aenter__.return_value = mock_client
+            mock_client.get.return_value = _make_response(200, envelope)
+
+            result = await adapter.get_profile("u1", token="tok")
+
+        assert result["notification_email"] is True
+        assert result["notification_sms"] is False
+        assert result["notification_whatsapp"] is True
+        assert "notification_preferences" not in result
+
+    @pytest.mark.asyncio
+    async def test_returns_body_as_is_when_no_data_key(self, adapter) -> None:
+        """If UPS response has no ``data`` key, return as-is (backward compat)."""
+        body = {"user_id": "u1", "full_name": "Alice"}
+        with patch("httpx.AsyncClient") as mock_client_cls:
+            mock_client = AsyncMock()
+            mock_client_cls.return_value.__aenter__.return_value = mock_client
+            mock_client.get.return_value = _make_response(200, body)
+
+            result = await adapter.get_profile("u1", token="tok")
+
+        assert result == body

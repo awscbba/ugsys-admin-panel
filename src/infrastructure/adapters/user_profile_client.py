@@ -145,7 +145,10 @@ class UserProfileClient(ProfileClient):
     def _handle_response(response: httpx.Response, path: str) -> dict[str, Any]:
         """Translate HTTP status codes into domain exceptions.
 
-        Returns the parsed JSON body on success (2xx).
+        Returns the parsed JSON body on success (2xx).  If the response
+        uses the UPS envelope format ``{"data": {...}, "meta": {...}}``,
+        the inner ``data`` dict is returned directly so callers can
+        access profile fields without knowing about the envelope.
 
         Raises
         ------
@@ -158,11 +161,15 @@ class UserProfileClient(ProfileClient):
             if response.status_code == 204 or not response.content:
                 return {}
             try:
-                return dict(response.json())
+                body = dict(response.json())
             except (ValueError, TypeError) as exc:
                 raise ExternalServiceError(
                     f"UPS returned malformed JSON for {path}: {exc}",
                 ) from exc
+            # UPS wraps responses in {"data": {...}, "meta": {...}} envelope.
+            if "data" in body and isinstance(body["data"], dict):
+                return dict(body["data"])
+            return body
 
         if response.status_code == 404:
             raise NotFoundError(
