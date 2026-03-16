@@ -472,7 +472,7 @@ export function EditProfileModal({
         >
           Edit Profile
         </h3>
-        <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#6b7280" }}>
+        <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#4b5563" }}>
           {user.displayName || user.email}
         </p>
 
@@ -792,7 +792,7 @@ export function EditProfileModal({
               <p
                 style={{
                   fontSize: "12px",
-                  color: bio.length > BIO_MAX ? "#ef4444" : "#6b7280",
+                  color: bio.length > BIO_MAX ? "#ef4444" : "#4b5563",
                   margin: "2px 0 0",
                 }}
               >
@@ -844,6 +844,7 @@ export function EditProfileModal({
                   alignItems: "center",
                   gap: "8px",
                   fontSize: "14px",
+                  color: "#374151",
                   cursor: "pointer",
                 }}
               >
@@ -861,6 +862,7 @@ export function EditProfileModal({
                   alignItems: "center",
                   gap: "8px",
                   fontSize: "14px",
+                  color: "#374151",
                   cursor: "pointer",
                 }}
               >
@@ -878,6 +880,7 @@ export function EditProfileModal({
                   alignItems: "center",
                   gap: "8px",
                   fontSize: "14px",
+                  color: "#374151",
                   cursor: "pointer",
                 }}
               >
