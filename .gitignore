@@ -21,6 +21,8 @@ admin-shell/.vite/
 __pycache__/
 *.pyc
 *.pyo
+.coverage
+.hypothesis/
 
 # Editor
 .DS_Store

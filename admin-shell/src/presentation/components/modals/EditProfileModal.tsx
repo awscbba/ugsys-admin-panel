@@ -221,7 +221,13 @@ function Field({
     <div style={{ marginBottom: "14px" }}>
       <label
         htmlFor={htmlFor}
-        style={{ display: "block", fontSize: "13px", marginBottom: "4px" }}
+        style={{
+          display: "block",
+          fontSize: "13px",
+          marginBottom: "4px",
+          color: "#374151",
+          fontWeight: 500,
+        }}
       >
         {label}
       </label>
@@ -624,7 +630,7 @@ export function EditProfileModal({
               style={{
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#6b7280",
+                color: "#374151",
                 textTransform: "uppercase",
                 margin: "0 0 10px",
               }}
@@ -674,7 +680,7 @@ export function EditProfileModal({
               style={{
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#6b7280",
+                color: "#374151",
                 textTransform: "uppercase",
                 margin: "16px 0 10px",
               }}
@@ -755,7 +761,7 @@ export function EditProfileModal({
               style={{
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#6b7280",
+                color: "#374151",
                 textTransform: "uppercase",
                 margin: "16px 0 10px",
               }}
@@ -809,7 +815,7 @@ export function EditProfileModal({
               style={{
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#6b7280",
+                color: "#374151",
                 textTransform: "uppercase",
                 margin: "16px 0 10px",
               }}
