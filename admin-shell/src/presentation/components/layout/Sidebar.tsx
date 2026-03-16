@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import type { NavigationEntry } from "../../../domain/entities/ServiceRegistration";
 
 interface SidebarProps {
@@ -39,6 +39,32 @@ export function Sidebar({ navigationEntries, userRoles }: SidebarProps) {
       aria-label="Sidebar navigation"
       className="w-60 min-h-full bg-primary text-gray-200 flex flex-col py-4 shrink-0"
     >
+      {/* Hardcoded Dashboard link — always first, independent of service registry */}
+      <div className="mb-4">
+        <ul className="list-none m-0 p-0">
+          <li>
+            <NavLink
+              to="/dashboard"
+              aria-current={
+                location.pathname === "/dashboard" ? "page" : undefined
+              }
+              className={({ isActive }) =>
+                [
+                  "flex items-center gap-2.5 px-4 py-2 text-sm no-underline transition-colors",
+                  "border-l-[3px]",
+                  isActive
+                    ? "text-brand border-brand bg-white/10"
+                    : "text-gray-200 border-transparent hover:bg-white/5 hover:text-white",
+                ].join(" ")
+              }
+            >
+              <span aria-hidden="true">🏠</span>
+              Dashboard
+            </NavLink>
+          </li>
+        </ul>
+      </div>
+
       {Array.from(groups.entries()).map(([group, entries]) => (
         <div key={group} className="mb-4">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500 px-4 mb-1.5">
