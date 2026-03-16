@@ -89,7 +89,7 @@ function RoleChangeModal({
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--color-surface)",
           borderRadius: "10px",
           padding: "28px",
           width: "360px",
@@ -103,12 +103,18 @@ function RoleChangeModal({
             margin: "0 0 6px",
             fontSize: "16px",
             fontWeight: 700,
-            color: "#111827",
+            color: "var(--color-text-primary)",
           }}
         >
           Change roles
         </h3>
-        <p style={{ margin: "0 0 20px", fontSize: "13px", color: "#6b7280" }}>
+        <p
+          style={{
+            margin: "0 0 20px",
+            fontSize: "13px",
+            color: "var(--color-text-muted)",
+          }}
+        >
           {user.displayName || user.email}
         </p>
 
@@ -117,7 +123,7 @@ function RoleChangeModal({
             style={{
               fontSize: "13px",
               fontWeight: 600,
-              color: "#374151",
+              color: "var(--color-text-secondary)",
               marginBottom: "10px",
             }}
           >
@@ -132,7 +138,7 @@ function RoleChangeModal({
                   alignItems: "center",
                   gap: "8px",
                   fontSize: "14px",
-                  color: "#374151",
+                  color: "var(--color-text-secondary)",
                   cursor: "pointer",
                 }}
               >
@@ -157,9 +163,9 @@ function RoleChangeModal({
             disabled={isSaving}
             style={{
               padding: "8px 18px",
-              background: "#f3f4f6",
-              color: "#374151",
-              border: "1px solid #d1d5db",
+              background: "var(--color-surface-elevated)",
+              color: "var(--color-text-secondary)",
+              border: "1px solid var(--color-input-border)",
               borderRadius: "6px",
               fontSize: "14px",
               fontWeight: 500,
@@ -262,18 +268,24 @@ function UserRow({
               {(user.displayName || user.email).charAt(0).toUpperCase()}
             </span>
           )}
-          <span style={{ fontWeight: 500, color: "#111827" }}>
+          <span style={{ fontWeight: 500, color: "var(--color-text-primary)" }}>
             {user.displayName || "—"}
           </span>
         </div>
       </td>
 
       <td style={tdStyle}>
-        <span style={{ color: "#374151", fontSize: "13px" }}>{user.email}</span>
+        <span
+          style={{ color: "var(--color-text-secondary)", fontSize: "13px" }}
+        >
+          {user.email}
+        </span>
       </td>
 
       <td style={tdStyle}>
-        <span style={{ color: "#374151", fontSize: "13px" }}>
+        <span
+          style={{ color: "var(--color-text-secondary)", fontSize: "13px" }}
+        >
           {formatRoles(user.roles)}
         </span>
       </td>
@@ -296,7 +308,15 @@ function UserRow({
       </td>
 
       {/* Last login — not available in AdminUser entity; show placeholder */}
-      <td style={{ ...tdStyle, color: "#9ca3af", fontSize: "13px" }}>—</td>
+      <td
+        style={{
+          ...tdStyle,
+          color: "var(--color-text-muted)",
+          fontSize: "13px",
+        }}
+      >
+        —
+      </td>
 
       <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
         <div style={{ display: "flex", gap: "8px" }}>
@@ -343,7 +363,7 @@ function UserRow({
 
 const tdStyle: React.CSSProperties = {
   padding: "12px 16px",
-  borderBottom: "1px solid #f3f4f6",
+  borderBottom: "1px solid var(--color-border)",
   verticalAlign: "middle",
 };
 
@@ -352,19 +372,19 @@ const thStyle: React.CSSProperties = {
   textAlign: "left",
   fontSize: "12px",
   fontWeight: 600,
-  color: "#6b7280",
+  color: "var(--color-text-muted)",
   textTransform: "uppercase",
   letterSpacing: "0.05em",
-  borderBottom: "2px solid #e5e7eb",
-  background: "#f9fafb",
+  borderBottom: "2px solid var(--color-border)",
+  background: "var(--color-surface-elevated)",
 };
 
 function actionBtnStyle(disabled: boolean, color: string): React.CSSProperties {
   return {
     padding: "5px 12px",
     background: "transparent",
-    color: disabled ? "#9ca3af" : color,
-    border: `1px solid ${disabled ? "#d1d5db" : color}`,
+    color: disabled ? "var(--color-text-muted)" : color,
+    border: `1px solid ${disabled ? "var(--color-input-border)" : color}`,
     borderRadius: "5px",
     fontSize: "12px",
     fontWeight: 600,
@@ -564,7 +584,7 @@ export function UserManagement() {
           alignItems: "center",
           justifyContent: "center",
           padding: "64px 24px",
-          color: "#6b7280",
+          color: "var(--color-text-muted)",
           textAlign: "center",
         }}
       >
@@ -599,7 +619,7 @@ export function UserManagement() {
               style={{
                 height: "48px",
                 borderRadius: "6px",
-                background: "#e5e7eb",
+                background: "var(--color-border)",
                 animation: "pulse 1.5s ease-in-out infinite",
               }}
             />
@@ -624,8 +644,8 @@ export function UserManagement() {
             alignItems: "center",
             gap: "12px",
             padding: "40px 24px",
-            background: "#fef2f2",
-            border: "1px solid #fca5a5",
+            background: "var(--color-error-bg)",
+            border: "1px solid var(--color-error-border)",
             borderRadius: "10px",
             textAlign: "center",
           }}
@@ -634,7 +654,7 @@ export function UserManagement() {
             style={{
               margin: 0,
               fontSize: "15px",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               fontWeight: 500,
             }}
           >
@@ -726,7 +746,7 @@ export function UserManagement() {
                 marginLeft: "10px",
                 fontSize: "13px",
                 fontWeight: 400,
-                color: "#6b7280",
+                color: "var(--color-text-muted)",
               }}
             >
               {result.total} user{result.total !== 1 ? "s" : ""}
@@ -743,7 +763,7 @@ export function UserManagement() {
               left: "10px",
               top: "50%",
               transform: "translateY(-50%)",
-              color: "#9ca3af",
+              color: "var(--color-text-muted)",
               fontSize: "14px",
               pointerEvents: "none",
             }}
@@ -761,11 +781,11 @@ export function UserManagement() {
               paddingRight: "12px",
               paddingTop: "8px",
               paddingBottom: "8px",
-              border: "1px solid #d1d5db",
+              border: "1px solid var(--color-input-border)",
               borderRadius: "6px",
               fontSize: "14px",
-              color: "#111827",
-              background: "#fff",
+              color: "var(--color-text-primary)",
+              background: "var(--color-input-bg)",
               width: "260px",
               outline: "none",
             }}
@@ -780,11 +800,11 @@ export function UserManagement() {
           style={{
             marginBottom: "16px",
             padding: "10px 16px",
-            background: "#fef2f2",
-            border: "1px solid #fca5a5",
+            background: "var(--color-error-bg)",
+            border: "1px solid var(--color-error-border)",
             borderRadius: "6px",
             fontSize: "14px",
-            color: "#b91c1c",
+            color: "var(--color-error)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -800,7 +820,7 @@ export function UserManagement() {
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               fontSize: "16px",
               lineHeight: 1,
               padding: "0 4px",
@@ -819,11 +839,11 @@ export function UserManagement() {
           style={{
             marginBottom: "8px",
             padding: "10px 16px",
-            background: "#fef2f2",
-            border: "1px solid #fca5a5",
+            background: "var(--color-error-bg)",
+            border: "1px solid var(--color-error-border)",
             borderRadius: "6px",
             fontSize: "14px",
-            color: "#b91c1c",
+            color: "var(--color-error)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -845,7 +865,7 @@ export function UserManagement() {
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               fontSize: "16px",
               lineHeight: 1,
               padding: "0 4px",
@@ -859,8 +879,8 @@ export function UserManagement() {
       {/* Table */}
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #e5e7eb",
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
           borderRadius: "10px",
           overflow: "hidden",
         }}
@@ -919,7 +939,7 @@ export function UserManagement() {
                     style={{
                       padding: "40px 16px",
                       textAlign: "center",
-                      color: "#9ca3af",
+                      color: "var(--color-text-muted)",
                       fontSize: "14px",
                     }}
                   >
@@ -955,9 +975,9 @@ export function UserManagement() {
               alignItems: "center",
               justifyContent: "space-between",
               padding: "12px 16px",
-              borderTop: "1px solid #f3f4f6",
+              borderTop: "1px solid var(--color-border)",
               fontSize: "13px",
-              color: "#6b7280",
+              color: "var(--color-text-muted)",
             }}
           >
             <span>
@@ -997,7 +1017,7 @@ const headingStyle: React.CSSProperties = {
   margin: "0 0 20px",
   fontSize: "20px",
   fontWeight: 700,
-  color: "#111827",
+  color: "var(--color-text-primary)",
 };
 
 const retryBtnStyle: React.CSSProperties = {
@@ -1014,9 +1034,11 @@ const retryBtnStyle: React.CSSProperties = {
 function paginationBtnStyle(disabled: boolean): React.CSSProperties {
   return {
     padding: "6px 14px",
-    background: disabled ? "#f9fafb" : "#fff",
-    color: disabled ? "#9ca3af" : "#374151",
-    border: "1px solid #d1d5db",
+    background: disabled
+      ? "var(--color-surface-elevated)"
+      : "var(--color-surface)",
+    color: disabled ? "var(--color-text-muted)" : "var(--color-text-secondary)",
+    border: "1px solid var(--color-input-border)",
     borderRadius: "6px",
     fontSize: "13px",
     fontWeight: 500,

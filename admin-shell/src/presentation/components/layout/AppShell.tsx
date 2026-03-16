@@ -108,7 +108,7 @@ export function AppShell() {
             flex: 1,
             overflow: "auto",
             padding: "24px",
-            background: "#f9fafb",
+            background: "var(--color-surface-elevated)",
           }}
         >
           {showBreadcrumb && <Breadcrumb currentTitle={sectionTitle} />}

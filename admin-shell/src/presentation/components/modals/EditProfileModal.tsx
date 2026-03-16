@@ -152,7 +152,11 @@ function TabButton({
         cursor: "pointer",
         fontSize: "14px",
         fontWeight: active ? 700 : 500,
-        color: hasError ? "#dc2626" : active ? "#6366f1" : "#374151",
+        color: hasError
+          ? "var(--color-error)"
+          : active
+            ? "#6366f1"
+            : "var(--color-text-secondary)",
       }}
     >
       {label}
@@ -176,11 +180,11 @@ function SectionBanner({
       style={{
         marginBottom: "12px",
         padding: "8px 12px",
-        background: "#fef2f2",
-        border: "1px solid #fca5a5",
+        background: "var(--color-error-bg)",
+        border: "1px solid var(--color-error-border)",
         borderRadius: "6px",
         fontSize: "13px",
-        color: "#b91c1c",
+        color: "var(--color-error)",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -195,7 +199,7 @@ function SectionBanner({
           background: "none",
           border: "none",
           cursor: "pointer",
-          color: "#b91c1c",
+          color: "var(--color-error)",
         }}
       >
         ✕
@@ -225,7 +229,7 @@ function Field({
           display: "block",
           fontSize: "13px",
           marginBottom: "4px",
-          color: "#374151",
+          color: "var(--color-text-secondary)",
           fontWeight: 500,
         }}
       >
@@ -233,7 +237,13 @@ function Field({
       </label>
       {children}
       {error && (
-        <p style={{ color: "#ef4444", fontSize: "12px", margin: "4px 0 0" }}>
+        <p
+          style={{
+            color: "var(--color-error)",
+            fontSize: "12px",
+            margin: "4px 0 0",
+          }}
+        >
           {error}
         </p>
       )}
@@ -245,9 +255,11 @@ const inputStyle = (hasError: boolean): React.CSSProperties => ({
   width: "100%",
   padding: "8px 10px",
   boxSizing: "border-box",
-  border: `1px solid ${hasError ? "#ef4444" : "#d1d5db"}`,
+  border: `1px solid ${hasError ? "var(--color-error)" : "var(--color-input-border)"}`,
   borderRadius: "6px",
   fontSize: "14px",
+  background: "var(--color-input-bg)",
+  color: "var(--color-text-primary)",
 });
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -456,7 +468,7 @@ export function EditProfileModal({
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--color-surface)",
           borderRadius: "10px",
           padding: "28px",
           width: hasUps ? "520px" : "400px",
@@ -468,11 +480,22 @@ export function EditProfileModal({
       >
         <h3
           id="edit-profile-title"
-          style={{ margin: "0 0 4px", fontSize: "16px", fontWeight: 700 }}
+          style={{
+            margin: "0 0 4px",
+            fontSize: "16px",
+            fontWeight: 700,
+            color: "var(--color-text-primary)",
+          }}
         >
           Edit Profile
         </h3>
-        <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#4b5563" }}>
+        <p
+          style={{
+            margin: "0 0 16px",
+            fontSize: "13px",
+            color: "var(--color-text-secondary)",
+          }}
+        >
           {user.displayName || user.email}
         </p>
 
@@ -483,11 +506,11 @@ export function EditProfileModal({
             style={{
               marginBottom: "16px",
               padding: "10px 14px",
-              background: "#fef2f2",
-              border: "1px solid #fca5a5",
+              background: "var(--color-error-bg)",
+              border: "1px solid var(--color-error-border)",
               borderRadius: "6px",
               fontSize: "13px",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -501,7 +524,7 @@ export function EditProfileModal({
                 background: "none",
                 border: "none",
                 cursor: "pointer",
-                color: "#b91c1c",
+                color: "var(--color-error)",
                 marginLeft: "8px",
               }}
             >
@@ -516,7 +539,7 @@ export function EditProfileModal({
             role="tablist"
             style={{
               display: "flex",
-              borderBottom: "1px solid #e5e7eb",
+              borderBottom: "1px solid var(--color-border)",
               marginBottom: "20px",
             }}
           >
@@ -560,13 +583,14 @@ export function EditProfileModal({
                   display: "block",
                   fontSize: "13px",
                   marginBottom: "4px",
+                  color: "var(--color-text-secondary)",
                 }}
               >
                 Email
                 {!isSuperAdmin && (
                   <span
                     style={{
-                      color: "#9ca3af",
+                      color: "var(--color-text-muted)",
                       marginLeft: "6px",
                       fontSize: "12px",
                     }}
@@ -584,14 +608,18 @@ export function EditProfileModal({
                 disabled={saving}
                 style={{
                   ...inputStyle(!!errors.email),
-                  background: !isSuperAdmin ? "#f9fafb" : "#fff",
-                  color: !isSuperAdmin ? "#6b7280" : "#111827",
+                  background: !isSuperAdmin
+                    ? "var(--color-surface-elevated)"
+                    : "var(--color-input-bg)",
+                  color: !isSuperAdmin
+                    ? "var(--color-text-muted)"
+                    : "var(--color-text-primary)",
                 }}
               />
               {errors.email && (
                 <p
                   style={{
-                    color: "#ef4444",
+                    color: "var(--color-error)",
                     fontSize: "12px",
                     margin: "4px 0 0",
                   }}
@@ -630,7 +658,7 @@ export function EditProfileModal({
               style={{
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#374151",
+                color: "var(--color-text-secondary)",
                 textTransform: "uppercase",
                 margin: "0 0 10px",
               }}
@@ -680,7 +708,7 @@ export function EditProfileModal({
               style={{
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#374151",
+                color: "var(--color-text-secondary)",
                 textTransform: "uppercase",
                 margin: "16px 0 10px",
               }}
@@ -761,7 +789,7 @@ export function EditProfileModal({
               style={{
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#374151",
+                color: "var(--color-text-secondary)",
                 textTransform: "uppercase",
                 margin: "16px 0 10px",
               }}
@@ -792,7 +820,10 @@ export function EditProfileModal({
               <p
                 style={{
                   fontSize: "12px",
-                  color: bio.length > BIO_MAX ? "#ef4444" : "#4b5563",
+                  color:
+                    bio.length > BIO_MAX
+                      ? "var(--color-error)"
+                      : "var(--color-text-secondary)",
                   margin: "2px 0 0",
                 }}
               >
@@ -815,7 +846,7 @@ export function EditProfileModal({
               style={{
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#374151",
+                color: "var(--color-text-secondary)",
                 textTransform: "uppercase",
                 margin: "16px 0 10px",
               }}
@@ -844,7 +875,7 @@ export function EditProfileModal({
                   alignItems: "center",
                   gap: "8px",
                   fontSize: "14px",
-                  color: "#374151",
+                  color: "var(--color-text-secondary)",
                   cursor: "pointer",
                 }}
               >
@@ -862,7 +893,7 @@ export function EditProfileModal({
                   alignItems: "center",
                   gap: "8px",
                   fontSize: "14px",
-                  color: "#374151",
+                  color: "var(--color-text-secondary)",
                   cursor: "pointer",
                 }}
               >
@@ -880,7 +911,7 @@ export function EditProfileModal({
                   alignItems: "center",
                   gap: "8px",
                   fontSize: "14px",
-                  color: "#374151",
+                  color: "var(--color-text-secondary)",
                   cursor: "pointer",
                 }}
               >
@@ -937,9 +968,10 @@ export function EditProfileModal({
             disabled={saving}
             style={{
               padding: "8px 18px",
-              border: "1px solid #d1d5db",
+              border: "1px solid var(--color-input-border)",
               borderRadius: "6px",
-              background: "#fff",
+              background: "var(--color-surface)",
+              color: "var(--color-text-secondary)",
               cursor: saving ? "not-allowed" : "pointer",
               fontSize: "14px",
             }}
@@ -955,7 +987,9 @@ export function EditProfileModal({
               padding: "8px 18px",
               border: "none",
               borderRadius: "6px",
-              background: saving ? "#9ca3af" : "#161d2b",
+              background: saving
+                ? "var(--color-text-muted)"
+                : "var(--color-primary)",
               color: "#fff",
               cursor: saving ? "not-allowed" : "pointer",
               fontSize: "14px",

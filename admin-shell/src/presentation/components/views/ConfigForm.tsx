@@ -136,36 +136,36 @@ const labelStyle: React.CSSProperties = {
   display: "block",
   fontSize: "13px",
   fontWeight: 600,
-  color: "#374151",
+  color: "var(--color-text-secondary)",
   marginBottom: "4px",
 };
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "8px 10px",
-  border: "1px solid #d1d5db",
+  border: "1px solid var(--color-input-border)",
   borderRadius: "6px",
   fontSize: "14px",
-  color: "#111827",
-  background: "#fff",
+  color: "var(--color-text-primary)",
+  background: "var(--color-input-bg)",
   outline: "none",
   boxSizing: "border-box",
 };
 
 const inputErrorStyle: React.CSSProperties = {
   ...inputStyle,
-  border: "1px solid #f87171",
+  border: "1px solid var(--color-error)",
 };
 
 const fieldErrorStyle: React.CSSProperties = {
   fontSize: "12px",
-  color: "#b91c1c",
+  color: "var(--color-error)",
   marginTop: "4px",
 };
 
 const descriptionStyle: React.CSSProperties = {
   fontSize: "12px",
-  color: "#6b7280",
+  color: "var(--color-text-muted)",
   marginTop: "3px",
 };
 
@@ -208,7 +208,7 @@ function SchemaField({
     return (
       <fieldset
         style={{
-          border: "1px solid #e5e7eb",
+          border: "1px solid var(--color-border)",
           borderRadius: "8px",
           padding: "16px",
           margin: "0 0 16px",
@@ -218,7 +218,7 @@ function SchemaField({
           style={{
             fontSize: "13px",
             fontWeight: 700,
-            color: "#374151",
+            color: "var(--color-text-secondary)",
             padding: "0 6px",
           }}
         >
@@ -316,7 +316,7 @@ function SchemaField({
             alignItems: "center",
             gap: "8px",
             fontSize: "14px",
-            color: "#374151",
+            color: "var(--color-text-secondary)",
             cursor: "pointer",
           }}
         >
@@ -526,7 +526,7 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
           alignItems: "center",
           justifyContent: "center",
           padding: "64px 24px",
-          color: "#6b7280",
+          color: "var(--color-text-muted)",
           textAlign: "center",
         }}
       >
@@ -554,7 +554,7 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
       <div aria-busy="true" aria-label="Loading configuration schema">
         <h2 style={headingStyle}>
           Configuration —{" "}
-          <span style={{ fontWeight: 400, color: "#6b7280" }}>
+          <span style={{ fontWeight: 400, color: "var(--color-text-muted)" }}>
             {serviceName}
           </span>
         </h2>
@@ -566,7 +566,7 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
               style={{
                 height: "56px",
                 borderRadius: "6px",
-                background: "#e5e7eb",
+                background: "var(--color-border)",
                 animation: "pulse 1.5s ease-in-out infinite",
               }}
             />
@@ -584,7 +584,7 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
       <div>
         <h2 style={headingStyle}>
           Configuration —{" "}
-          <span style={{ fontWeight: 400, color: "#6b7280" }}>
+          <span style={{ fontWeight: 400, color: "var(--color-text-muted)" }}>
             {serviceName}
           </span>
         </h2>
@@ -596,8 +596,8 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
             alignItems: "center",
             gap: "12px",
             padding: "40px 24px",
-            background: "#fef2f2",
-            border: "1px solid #fca5a5",
+            background: "var(--color-error-bg)",
+            border: "1px solid var(--color-error-border)",
             borderRadius: "10px",
             textAlign: "center",
           }}
@@ -606,7 +606,7 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
             style={{
               margin: 0,
               fontSize: "15px",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               fontWeight: 500,
             }}
           >
@@ -631,11 +631,11 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
       <div>
         <h2 style={headingStyle}>
           Configuration —{" "}
-          <span style={{ fontWeight: 400, color: "#6b7280" }}>
+          <span style={{ fontWeight: 400, color: "var(--color-text-muted)" }}>
             {serviceName}
           </span>
         </h2>
-        <p style={{ color: "#6b7280", fontSize: "14px" }}>
+        <p style={{ color: "var(--color-text-muted)", fontSize: "14px" }}>
           No configuration schema is available for this service.
         </p>
       </div>
@@ -650,11 +650,19 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
     <div>
       <h2 style={headingStyle}>
         Configuration —{" "}
-        <span style={{ fontWeight: 400, color: "#6b7280" }}>{serviceName}</span>
+        <span style={{ fontWeight: 400, color: "var(--color-text-muted)" }}>
+          {serviceName}
+        </span>
       </h2>
 
       {schema.description && (
-        <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#6b7280" }}>
+        <p
+          style={{
+            margin: "0 0 20px",
+            fontSize: "14px",
+            color: "var(--color-text-muted)",
+          }}
+        >
           {schema.description}
         </p>
       )}
@@ -706,11 +714,11 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
           style={{
             marginBottom: "20px",
             padding: "12px 16px",
-            background: "#fef2f2",
-            border: "1px solid #fca5a5",
+            background: "var(--color-error-bg)",
+            border: "1px solid var(--color-error-border)",
             borderRadius: "8px",
             fontSize: "14px",
-            color: "#b91c1c",
+            color: "var(--color-error)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -726,7 +734,7 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "#b91c1c",
+              color: "var(--color-error)",
               fontSize: "16px",
               lineHeight: 1,
               padding: "0 4px",
@@ -742,8 +750,8 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
         noValidate
         aria-label={`Configuration form for ${serviceName}`}
         style={{
-          background: "#fff",
-          border: "1px solid #e5e7eb",
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
           borderRadius: "10px",
           padding: "24px",
         }}
@@ -768,7 +776,7 @@ export function ConfigForm({ serviceName }: ConfigFormProps) {
             justifyContent: "flex-end",
             marginTop: "8px",
             paddingTop: "16px",
-            borderTop: "1px solid #f3f4f6",
+            borderTop: "1px solid var(--color-border)",
           }}
         >
           <button
@@ -804,7 +812,7 @@ const headingStyle: React.CSSProperties = {
   margin: "0 0 20px",
   fontSize: "20px",
   fontWeight: 700,
-  color: "#111827",
+  color: "var(--color-text-primary)",
 };
 
 const primaryBtnStyle: React.CSSProperties = {
@@ -821,9 +829,9 @@ const primaryBtnStyle: React.CSSProperties = {
 function secondaryBtnStyle(disabled: boolean): React.CSSProperties {
   return {
     padding: "9px 22px",
-    background: "#fff",
-    color: "#374151",
-    border: "1px solid #d1d5db",
+    background: "var(--color-surface)",
+    color: "var(--color-text-secondary)",
+    border: "1px solid var(--color-input-border)",
     borderRadius: "6px",
     fontSize: "14px",
     fontWeight: 500,
