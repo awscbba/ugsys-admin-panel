@@ -337,6 +337,27 @@ describe("force logout on refresh failure", () => {
       "Session expired",
     );
   });
+
+  it("does NOT trigger force logout on 401 from /auth/login — surfaces real error instead", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      makeResponse(401, {
+        message: "Authentication failed or token is invalid.",
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const forceLogout = vi.fn();
+    const client = HttpClient.getInstance();
+    client.setForceLogoutCallback(forceLogout);
+
+    await expect(
+      client.request("/api/v1/auth/login", { method: "POST" }),
+    ).rejects.toThrow("Authentication failed or token is invalid.");
+
+    // force logout must NOT be called for login 401s
+    expect(forceLogout).not.toHaveBeenCalled();
+  });
 });
 
 describe("non-2xx error handling", () => {
