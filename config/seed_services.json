@@ -20,7 +20,7 @@
       "base_url": "https://api.apps.cloud.org.bo",
       "health_endpoint": "/health",
       "manifest_url": "https://api.apps.cloud.org.bo/plugin-manifest.json",
-      "min_role": "moderator"
+      "min_role": "admin"
     },
     {
       "service_name": "mass-messaging",
