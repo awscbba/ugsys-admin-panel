@@ -169,7 +169,7 @@ ci-all:
 update-csp-origins origins env="prod":
     aws lambda update-function-configuration \
         --function-name "ugsys-admin-panel-{{env}}" \
-        --environment "Variables={CSP_SCRIPT_ORIGINS={{origins}}}" \
+        --environment "{\"Variables\":{\"CSP_SCRIPT_ORIGINS\":\"{{origins}}\"}}" \
         --region us-east-1
     aws lambda wait function-updated \
         --function-name "ugsys-admin-panel-{{env}}" \
