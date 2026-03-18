@@ -101,21 +101,26 @@ export class HttpClient {
     const response = await this.fetchWithHeaders(url, init);
 
     if (response.status === 401) {
-      // --- 401 handling: attempt silent refresh then retry once ---
-      const newToken = await this.silentRefresh();
+      // The login endpoint itself can return 401 (bad credentials) — there is
+      // no session to refresh in that case, so skip the retry logic entirely
+      // and fall through to the normal error extraction path below.
+      if (!url.includes("/auth/login")) {
+        // --- 401 handling: attempt silent refresh then retry once ---
+        const newToken = await this.silentRefresh();
 
-      if (!newToken) {
-        // Refresh failed — force logout and surface the 401 to the caller
-        this.triggerForceLogout();
-        throw new Error("Session expired. Please log in again.");
-      }
+        if (!newToken) {
+          // Refresh failed — force logout and surface the 401 to the caller
+          this.triggerForceLogout();
+          throw new Error("Session expired. Please log in again.");
+        }
 
-      // Retry the original request with the refreshed token
-      const retried = await this.fetchWithHeaders(url, init);
-      if (!retried.ok) {
-        throw new Error(`Request failed with status ${retried.status}`);
+        // Retry the original request with the refreshed token
+        const retried = await this.fetchWithHeaders(url, init);
+        if (!retried.ok) {
+          throw new Error(`Request failed with status ${retried.status}`);
+        }
+        return retried;
       }
-      return retried;
     }
 
     if (!response.ok) {
