@@ -88,28 +88,15 @@ jobs:
             --function-name "${{ env.LAMBDA_FUNCTION }}-${{ env.DEPLOY_ENV }}" \
             --region "${{ env.AWS_REGION }}"
 
-      - name: Set Lambda environment variables
+      - name: Sync CSP origins to SSM Parameter Store
         env:
           CSP_SCRIPT_ORIGINS: ${{ secrets.CSP_SCRIPT_ORIGINS }}
         run: |
-          # Read current Variables map, merge CSP_SCRIPT_ORIGINS in, write back.
-          # Using jq merge prevents wiping other env vars (e.g. IDENTITY_MANAGER_BASE_URL).
-          CURRENT=$(aws lambda get-function-configuration \
-            --function-name "${{ env.LAMBDA_FUNCTION }}-${{ env.DEPLOY_ENV }}" \
-            --region "${{ env.AWS_REGION }}" \
-            --query 'Environment.Variables' \
-            --output json)
-
-          MERGED=$(echo "$CURRENT" | jq --arg v "$CSP_SCRIPT_ORIGINS" \
-            '. + {"CSP_SCRIPT_ORIGINS": $v}')
-
-          aws lambda update-function-configuration \
-            --function-name "${{ env.LAMBDA_FUNCTION }}-${{ env.DEPLOY_ENV }}" \
-            --environment "{\"Variables\":$MERGED}" \
-            --region "${{ env.AWS_REGION }}"
-
-          aws lambda wait function-updated \
-            --function-name "${{ env.LAMBDA_FUNCTION }}-${{ env.DEPLOY_ENV }}" \
+          aws ssm put-parameter \
+            --name "/ugsys/admin-panel/${{ env.DEPLOY_ENV }}/csp-script-origins" \
+            --value "$CSP_SCRIPT_ORIGINS" \
+            --type String \
+            --overwrite \
             --region "${{ env.AWS_REGION }}"
 
   # ──────────────────────────────────────────────────────────────────────────

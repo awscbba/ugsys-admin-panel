@@ -9,6 +9,8 @@ from httpx import ASGITransport, AsyncClient
 from src.presentation.middleware.security_headers import (
     SecurityHeadersMiddleware,
     _build_csp,
+    _parse_origins,
+    _SsmOriginsCache,
 )
 
 # ---------------------------------------------------------------------------
@@ -93,13 +95,21 @@ async def test_server_header_removed() -> None:
 
 @pytest.mark.anyio
 async def test_csp_from_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("CSP_SCRIPT_ORIGINS", "https://registry.apps.cloud.org.bo,https://profiles.apps.cloud.org.bo")
+    """When CSP_SCRIPT_ORIGINS_PARAM is absent, _SsmOriginsCache falls back to CSP_SCRIPT_ORIGINS."""
+    monkeypatch.delenv("CSP_SCRIPT_ORIGINS_PARAM", raising=False)
+    monkeypatch.setenv(
+        "CSP_SCRIPT_ORIGINS",
+        "https://registry.apps.cloud.org.bo,https://profiles.apps.cloud.org.bo",
+    )
 
-    # Re-import to pick up env var at construction time
-    from src.presentation.middleware.security_headers import SecurityHeadersMiddleware as MW
+    cache = _SsmOriginsCache()
+    origins = cache.get()
+    assert "https://registry.apps.cloud.org.bo" in origins
+    assert "https://profiles.apps.cloud.org.bo" in origins
 
+    # Verify the middleware uses those origins when no override is passed
     app = FastAPI()
-    app.add_middleware(MW)
+    app.add_middleware(SecurityHeadersMiddleware, extra_script_origins=origins)
 
     @app.get("/ping")
     async def ping() -> dict[str, str]:
@@ -111,3 +121,12 @@ async def test_csp_from_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
     csp = response.headers["content-security-policy"]
     assert "https://registry.apps.cloud.org.bo" in csp
     assert "https://profiles.apps.cloud.org.bo" in csp
+
+
+def test_parse_origins_deduplicates_and_strips() -> None:
+    result = _parse_origins("  https://a.example.com , https://b.example.com , ")
+    assert result == ["https://a.example.com", "https://b.example.com"]
+
+
+def test_parse_origins_empty_string() -> None:
+    assert _parse_origins("") == []
