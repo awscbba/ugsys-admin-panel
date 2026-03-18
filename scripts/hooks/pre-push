@@ -3,6 +3,13 @@
 
 set -euo pipefail
 
+# Ensure devbox-managed tools (just, uv, node, pnpm, etc.) are on PATH
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+DEVBOX_BIN="$REPO_ROOT/.devbox/nix/profile/default/bin"
+if [ -d "$DEVBOX_BIN" ]; then
+  export PATH="$DEVBOX_BIN:$PATH"
+fi
+
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
