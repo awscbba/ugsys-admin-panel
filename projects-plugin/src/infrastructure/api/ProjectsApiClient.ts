@@ -141,27 +141,27 @@ export class ProjectsApiClient implements ProjectsRepository {
     if (query.search) params.set('search', query.search);
     params.set('sort_by', query.sort_by);
     params.set('sort_order', query.sort_order);
-    return this.request<PaginatedResponse<Project>>('GET', `api/v1/projects/?${params.toString()}`);
+    return this.request<PaginatedResponse<Project>>('GET', `projects/?${params.toString()}`);
   }
 
   async createProject(data: CreateProjectData): Promise<Project> {
-    return this.request<Project>('POST', 'api/v1/projects/', data);
+    return this.request<Project>('POST', 'projects/', data);
   }
 
   async getProject(id: string): Promise<Project> {
-    return this.request<Project>('GET', `api/v1/projects/${id}`);
+    return this.request<Project>('GET', `projects/${id}`);
   }
 
   async getEnhancedProject(id: string): Promise<Project> {
-    return this.request<Project>('GET', `api/v1/projects/${id}/enhanced`);
+    return this.request<Project>('GET', `projects/${id}/enhanced`);
   }
 
   async updateProject(id: string, data: Partial<ProjectUpdateData>): Promise<Project> {
-    return this.request<Project>('PUT', `api/v1/projects/${id}`, data);
+    return this.request<Project>('PUT', `projects/${id}`, data);
   }
 
   async deleteProject(id: string): Promise<void> {
-    return this.request<void>('DELETE', `api/v1/projects/${id}`);
+    return this.request<void>('DELETE', `projects/${id}`);
   }
 
   async listSubscriptions(
@@ -174,7 +174,7 @@ export class ProjectsApiClient implements ProjectsRepository {
     params.set('page_size', String(pageSize));
     return this.request<PaginatedResponse<Subscription>>(
       'GET',
-      `api/v1/projects/${projectId}/subscriptions?${params.toString()}`,
+      `projects/${projectId}/subscriptions?${params.toString()}`,
     );
   }
 
@@ -184,7 +184,7 @@ export class ProjectsApiClient implements ProjectsRepository {
   ): Promise<Subscription> {
     return this.request<Subscription>(
       'PUT',
-      `api/v1/projects/${projectId}/subscribers/${subscriptionId}`,
+      `projects/${projectId}/subscribers/${subscriptionId}`,
       { action: 'approve' },
     );
   }
@@ -196,7 +196,7 @@ export class ProjectsApiClient implements ProjectsRepository {
   ): Promise<Subscription> {
     return this.request<Subscription>(
       'PUT',
-      `api/v1/projects/${projectId}/subscribers/${subscriptionId}`,
+      `projects/${projectId}/subscribers/${subscriptionId}`,
       { action: 'reject', reason },
     );
   }
@@ -207,7 +207,7 @@ export class ProjectsApiClient implements ProjectsRepository {
   ): Promise<void> {
     return this.request<void>(
       'DELETE',
-      `api/v1/projects/${projectId}/subscribers/${subscriptionId}`,
+      `projects/${projectId}/subscribers/${subscriptionId}`,
     );
   }
 
@@ -217,16 +217,16 @@ export class ProjectsApiClient implements ProjectsRepository {
   ): Promise<FormSchema> {
     return this.request<FormSchema>(
       'PUT',
-      `api/v1/projects/${projectId}/form-schema`,
+      `projects/${projectId}/form-schema`,
       { fields },
     );
   }
 
   async getDashboard(): Promise<EnhancedDashboardData> {
-    return this.request<EnhancedDashboardData>('GET', 'api/v1/admin/dashboard/enhanced');
+    return this.request<EnhancedDashboardData>('GET', 'admin/dashboard/enhanced');
   }
 
   async getAnalytics(): Promise<AnalyticsData> {
-    return this.request<AnalyticsData>('GET', 'api/v1/admin/analytics');
+    return this.request<AnalyticsData>('GET', 'admin/analytics');
   }
 }

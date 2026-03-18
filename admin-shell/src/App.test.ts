@@ -59,4 +59,26 @@ describe("buildCsp", () => {
     const csp = buildCsp([]);
     expect(csp).toContain("connect-src 'self' https://api.apps.cloud.org.bo");
   });
+
+  it("includes known plugin origins in script-src without needing entryPointOrigins arg", () => {
+    const csp = buildCsp([]);
+    // These must be present from the start so the first script load isn't blocked
+    // before the manifest is fetched and CspInjector runs.
+    expect(csp).toContain("https://api.apps.cloud.org.bo");
+    expect(csp).toContain("https://auth.apps.cloud.org.bo");
+    expect(csp).toContain("https://profiles.apps.cloud.org.bo");
+    const scriptSrcMatch = csp.match(/script-src ([^;]+)/);
+    expect(scriptSrcMatch?.[1]).toContain("https://api.apps.cloud.org.bo");
+  });
+
+  it("deduplicates known plugin origins when also passed as entryPointOrigins", () => {
+    const csp = buildCsp(["https://api.apps.cloud.org.bo"]);
+    const scriptSrcMatch = csp.match(/script-src ([^;]+)/);
+    const scriptSrc = scriptSrcMatch?.[1] ?? "";
+    const origins = scriptSrc.trim().split(/\s+/);
+    const apiCount = origins.filter(
+      (o) => o === "https://api.apps.cloud.org.bo",
+    ).length;
+    expect(apiCount).toBe(1);
+  });
 });
