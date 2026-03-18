@@ -88,6 +88,17 @@ jobs:
             --function-name "${{ env.LAMBDA_FUNCTION }}-${{ env.DEPLOY_ENV }}" \
             --region "${{ env.AWS_REGION }}"
 
+      - name: Set Lambda environment variables
+        run: |
+          aws lambda update-function-configuration \
+            --function-name "${{ env.LAMBDA_FUNCTION }}-${{ env.DEPLOY_ENV }}" \
+            --environment "Variables={CSP_SCRIPT_ORIGINS=${{ secrets.CSP_SCRIPT_ORIGINS }}}" \
+            --region "${{ env.AWS_REGION }}"
+
+          aws lambda wait function-updated \
+            --function-name "${{ env.LAMBDA_FUNCTION }}-${{ env.DEPLOY_ENV }}" \
+            --region "${{ env.AWS_REGION }}"
+
   # ──────────────────────────────────────────────────────────────────────────
   # Notify
   # ──────────────────────────────────────────────────────────────────────────
