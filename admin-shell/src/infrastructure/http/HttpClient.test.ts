@@ -244,6 +244,7 @@ describe("401 retry with token refresh", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const client = HttpClient.getInstance();
+    client.setAccessToken("current-token"); // session exists — refresh path should fire
     const response = await client.request("/api/protected");
 
     expect(fetchMock).toHaveBeenCalledTimes(3);
@@ -264,6 +265,7 @@ describe("401 retry with token refresh", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const client = HttpClient.getInstance();
+    client.setAccessToken("current-token"); // session exists — refresh path should fire
     await client.request("/api/protected");
 
     expect(client.getAccessToken()).toBe("refreshed-token");
@@ -281,6 +283,7 @@ describe("force logout on refresh failure", () => {
 
     const forceLogout = vi.fn();
     const client = HttpClient.getInstance();
+    client.setAccessToken("active-token"); // session exists — refresh path should fire
     client.setForceLogoutCallback(forceLogout);
 
     await expect(client.request("/api/protected")).rejects.toThrow();
@@ -315,6 +318,7 @@ describe("force logout on refresh failure", () => {
 
     const forceLogout = vi.fn();
     const client = HttpClient.getInstance();
+    client.setAccessToken("active-token"); // session exists — refresh path should fire
     client.setForceLogoutCallback(forceLogout);
 
     await expect(client.request("/api/protected")).rejects.toThrow();
@@ -331,6 +335,7 @@ describe("force logout on refresh failure", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const client = HttpClient.getInstance();
+    client.setAccessToken("active-token"); // session exists — refresh path should fire
     client.setForceLogoutCallback(vi.fn());
 
     await expect(client.request("/api/protected")).rejects.toThrow(
@@ -356,6 +361,33 @@ describe("force logout on refresh failure", () => {
     ).rejects.toThrow("Authentication failed or token is invalid.");
 
     // force logout must NOT be called for login 401s
+    expect(forceLogout).not.toHaveBeenCalled();
+  });
+
+  it("does NOT trigger force logout on 401 from /auth/me when no access token is set — surfaces real error instead", async () => {
+    // Reproduces the production bug: POST /auth/login succeeds (200), then
+    // GET /auth/me returns 401 (e.g. BFF cookie race). With no access token
+    // set, there is no established session to refresh — the client must surface
+    // the real server error, not "Session expired. Please log in again."
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      makeResponse(401, {
+        message: "Authentication failed or token is invalid.",
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const forceLogout = vi.fn();
+    const client = HttpClient.getInstance();
+    // No setAccessToken call — simulates the unauthenticated state during login
+    client.setForceLogoutCallback(forceLogout);
+
+    await expect(client.request("/api/v1/auth/me")).rejects.toThrow(
+      "Authentication failed or token is invalid.",
+    );
+
+    // Only one fetch call — no refresh attempt made
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(forceLogout).not.toHaveBeenCalled();
   });
 });
