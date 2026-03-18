@@ -177,7 +177,7 @@ export class HttpClient {
       }
     }
 
-    return fetch(url, { ...init, method, headers });
+    return fetch(url, { ...init, method, headers, credentials: "include" });
   }
 
   /**

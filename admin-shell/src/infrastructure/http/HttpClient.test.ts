@@ -428,6 +428,30 @@ describe("non-2xx error handling", () => {
   });
 });
 
+describe("credentials: include", () => {
+  it("passes credentials: include on every request", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(makeResponse(200));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = HttpClient.getInstance();
+    await client.request("/api/test");
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.credentials).toBe("include");
+  });
+
+  it("passes credentials: include on POST requests", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(makeResponse(200));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = HttpClient.getInstance();
+    await client.request("/api/test", { method: "POST", body: "{}" });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.credentials).toBe("include");
+  });
+});
+
 describe("convenience methods", () => {
   it("getJson() calls GET and returns parsed JSON", async () => {
     const fetchMock = vi.fn().mockResolvedValue(makeResponse(200, { id: 1 }));
