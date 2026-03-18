@@ -159,6 +159,33 @@ ci-all:
 # AWS / Remote info
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Update CSP_SCRIPT_ORIGINS on the Lambda without a full redeploy.
+# Usage: just update-csp-origins "https://registry.apps.cloud.org.bo,https://profiles.apps.cloud.org.bo"
+# After running this, invalidate CloudFront so browsers get the new CSP header:
+#   just invalidate-cf
+# Note: also update the CSP_SCRIPT_ORIGINS GitHub Actions secret so the next
+#       deploy doesn't overwrite your change:
+#   gh secret set CSP_SCRIPT_ORIGINS --body "<new-value>" --repo awscbba/ugsys-admin-panel
+update-csp-origins origins env="prod":
+    aws lambda update-function-configuration \
+        --function-name "ugsys-admin-panel-{{env}}" \
+        --environment "Variables={CSP_SCRIPT_ORIGINS={{origins}}}" \
+        --region us-east-1
+    aws lambda wait function-updated \
+        --function-name "ugsys-admin-panel-{{env}}" \
+        --region us-east-1
+    @echo "✓ CSP_SCRIPT_ORIGINS updated on ugsys-admin-panel-{{env}}"
+    @echo "  Run 'just invalidate-cf' to flush CloudFront cache."
+
+# Invalidate the admin panel CloudFront distribution (E2EQQVL4CED1EK).
+# Run this after any Lambda env var change so browsers get fresh response headers.
+invalidate-cf env="prod":
+    aws cloudfront create-invalidation \
+        --distribution-id E2EQQVL4CED1EK \
+        --paths "/*" \
+        --region us-east-1
+    @echo "✓ CloudFront invalidation submitted for E2EQQVL4CED1EK ({{env}})"
+
 # Show EventBridge event bus details
 aws-event-bus:
     aws events describe-event-bus --name ugsys-event-bus
