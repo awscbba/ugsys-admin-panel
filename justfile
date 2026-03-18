@@ -167,15 +167,24 @@ ci-all:
 #       deploy doesn't overwrite your change:
 #   gh secret set CSP_SCRIPT_ORIGINS --body "<new-value>" --repo awscbba/ugsys-admin-panel
 update-csp-origins origins env="prod":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    CURRENT=$(aws lambda get-function-configuration \
+        --function-name "ugsys-admin-panel-{{env}}" \
+        --region us-east-1 \
+        --query 'Environment.Variables' \
+        --output json)
+    MERGED=$(echo "$CURRENT" | jq --arg v "{{origins}}" '. + {"CSP_SCRIPT_ORIGINS": $v}')
     aws lambda update-function-configuration \
         --function-name "ugsys-admin-panel-{{env}}" \
-        --environment "{\"Variables\":{\"CSP_SCRIPT_ORIGINS\":\"{{origins}}\"}}" \
+        --environment "{\"Variables\":$MERGED}" \
         --region us-east-1
     aws lambda wait function-updated \
         --function-name "ugsys-admin-panel-{{env}}" \
         --region us-east-1
-    @echo "✓ CSP_SCRIPT_ORIGINS updated on ugsys-admin-panel-{{env}}"
-    @echo "  Run 'just invalidate-cf' to flush CloudFront cache."
+    echo "✓ CSP_SCRIPT_ORIGINS updated on ugsys-admin-panel-{{env}}"
+    echo "  Run 'just invalidate-cf' to flush CloudFront cache."
+    echo "  Also update the GitHub secret: gh secret set CSP_SCRIPT_ORIGINS --body '{{origins}}' --repo awscbba/ugsys-admin-panel"
 
 # Invalidate the admin panel CloudFront distribution (E2EQQVL4CED1EK).
 # Run this after any Lambda env var change so browsers get fresh response headers.
