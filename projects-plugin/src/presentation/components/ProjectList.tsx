@@ -33,7 +33,9 @@ export function ProjectList({ client, navigate }: ProjectListProps) {
 
   useEffect(() => {
     loadProjects(client);
-  }, [client, state.page, state.pageSize, state.filters, state.sort]);
+    // Serialize objects to primitives so the effect only re-runs when values actually change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client, state.page, state.pageSize, JSON.stringify(state.filters), JSON.stringify(state.sort)]);
 
   const handleSearchChange = useCallback(
     (value: string) => {

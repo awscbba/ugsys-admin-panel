@@ -48,6 +48,19 @@ import { HttpAuthRepository } from "./infrastructure/repositories/HttpAuthReposi
 
 const SHELL_ORIGIN = "https://admin.apps.cloud.org.bo";
 
+/**
+ * Known plugin host origins that must be in script-src from the start.
+ * These are the origins from which micro-frontend bundles are served.
+ * The CspInjector also adds entryPoint origins dynamically, but the initial
+ * CSP is applied before manifests are fetched — so known hosts must be
+ * listed here to avoid blocking the first script load.
+ */
+const KNOWN_PLUGIN_ORIGINS = [
+  "https://api.apps.cloud.org.bo", // projects-registry plugin
+  "https://auth.apps.cloud.org.bo", // identity-manager plugin
+  "https://profiles.apps.cloud.org.bo", // user-profile-service plugin
+];
+
 /** Extracts the scheme+host origin from a URL string. Returns null on parse failure. */
 function extractOrigin(url: string): string | null {
   try {
@@ -67,7 +80,7 @@ function extractOrigin(url: string): string | null {
  */
 export function buildCsp(entryPointOrigins: string[]): string {
   const uniqueOrigins = Array.from(
-    new Set([SHELL_ORIGIN, ...entryPointOrigins]),
+    new Set([SHELL_ORIGIN, ...KNOWN_PLUGIN_ORIGINS, ...entryPointOrigins]),
   );
   const scriptSrc = ["'self'", ...uniqueOrigins].join(" ");
 
@@ -81,8 +94,8 @@ export function buildCsp(entryPointOrigins: string[]): string {
     // data: required: @ugsys/ui-lib CSS bundle embeds base64-encoded fonts.
     `font-src 'self' data:`,
     // Allow XHR/fetch to the BFF and to micro-frontend service APIs.
-    // api.apps.cloud.org.bo is the projects-registry API domain.
-    `connect-src 'self' https://api.apps.cloud.org.bo`,
+    // api.apps.cloud.org.bo is the projects-registry API domain (plugin host + API).
+    `connect-src 'self' https://api.apps.cloud.org.bo https://auth.apps.cloud.org.bo https://profiles.apps.cloud.org.bo`,
     `frame-ancestors 'none'`,
     `object-src 'none'`,
     `base-uri 'self'`,
