@@ -54,4 +54,9 @@ describe("buildCsp", () => {
     const csp = buildCsp([]);
     expect(csp).toContain("frame-ancestors 'none'");
   });
+
+  it("includes api.apps.cloud.org.bo in connect-src for projects-registry API calls", () => {
+    const csp = buildCsp([]);
+    expect(csp).toContain("connect-src 'self' https://api.apps.cloud.org.bo");
+  });
 });

@@ -80,7 +80,9 @@ export function buildCsp(entryPointOrigins: string[]): string {
     `img-src 'self' data: https:`,
     // data: required: @ugsys/ui-lib CSS bundle embeds base64-encoded fonts.
     `font-src 'self' data:`,
-    `connect-src 'self'`,
+    // Allow XHR/fetch to the BFF and to micro-frontend service APIs.
+    // api.apps.cloud.org.bo is the projects-registry API domain.
+    `connect-src 'self' https://api.apps.cloud.org.bo`,
     `frame-ancestors 'none'`,
     `object-src 'none'`,
     `base-uri 'self'`,
