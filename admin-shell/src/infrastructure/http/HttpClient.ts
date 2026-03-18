@@ -6,7 +6,11 @@
  * - Reads CSRF token from the `csrf_token` cookie and injects
  *   `X-CSRF-Token` header on state-changing operations (POST, PUT, PATCH, DELETE)
  * - On 401: attempts a silent token refresh via POST /api/v1/auth/refresh,
- *   then retries the original request once with the new token
+ *   then retries the original request once with the new token.
+ *   Refresh is only attempted when an access token is already set (i.e. an
+ *   authenticated session exists). 401s received while unauthenticated (e.g.
+ *   the /me call immediately after login) fall through to normal error
+ *   extraction so the real server message reaches the caller.
  * - On refresh failure: triggers force logout (no redirect — the component
  *   that receives the rejection handles navigation)
  *
@@ -101,10 +105,13 @@ export class HttpClient {
     const response = await this.fetchWithHeaders(url, init);
 
     if (response.status === 401) {
-      // The login endpoint itself can return 401 (bad credentials) — there is
-      // no session to refresh in that case, so skip the retry logic entirely
-      // and fall through to the normal error extraction path below.
-      if (!url.includes("/auth/login")) {
+      // Skip the refresh-retry path in two cases:
+      // 1. The login endpoint itself returned 401 (bad credentials) — no session to refresh.
+      // 2. No access token is set — we are in an unauthenticated state (e.g. the /me call
+      //    that follows a successful login POST). Attempting a silent refresh here would
+      //    always fail and surface a misleading "Session expired" error instead of the
+      //    real login failure reason.
+      if (!url.includes("/auth/login") && this.accessToken !== null) {
         // --- 401 handling: attempt silent refresh then retry once ---
         const newToken = await this.silentRefresh();
 
