@@ -5,6 +5,8 @@ admin-shell/node_modules/
 # Build outputs
 admin-shell/dist/
 admin-shell/coverage/
+projects-plugin/dist/
+projects-plugin/coverage/
 
 # pnpm
 admin-shell/pnpm-lock.yaml.bak
