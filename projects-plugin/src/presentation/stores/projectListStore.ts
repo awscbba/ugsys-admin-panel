@@ -1,6 +1,6 @@
 import { atom } from 'nanostores';
 import type { Project } from '@domain/entities/Project';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 
 export interface ProjectListState {
   items: Project[];
@@ -38,7 +38,7 @@ export const projectListStore = atom<ProjectListState>({ ...INITIAL_PROJECT_LIST
 
 let currentController: AbortController | null = null;
 
-export async function loadProjects(client: ProjectsApiClient, signal?: AbortSignal): Promise<void> {
+export async function loadProjects(client: ProjectsRepository, signal?: AbortSignal): Promise<void> {
   // Abort any in-flight request
   if (currentController) {
     currentController.abort();

@@ -1,6 +1,6 @@
 import { atom } from 'nanostores';
 import type { EnhancedDashboardData, AnalyticsData } from '@domain/entities/Dashboard';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 
 export interface DashboardState {
   metrics: EnhancedDashboardData | null;
@@ -18,7 +18,7 @@ export const INITIAL_DASHBOARD_STATE: DashboardState = {
 
 export const dashboardStore = atom<DashboardState>({ ...INITIAL_DASHBOARD_STATE });
 
-export async function loadDashboard(client: ProjectsApiClient): Promise<void> {
+export async function loadDashboard(client: ProjectsRepository): Promise<void> {
   dashboardStore.set({ ...dashboardStore.get(), loading: true, error: null });
 
   try {

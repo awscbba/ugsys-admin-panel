@@ -1,7 +1,7 @@
 import { atom } from 'nanostores';
 import type { CustomField } from '@domain/entities/FormSchema';
 import { generateFieldId } from '@domain/entities/FormSchema';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 
 export interface FormSchemaState {
   fields: CustomField[];
@@ -20,7 +20,7 @@ export const INITIAL_FORM_SCHEMA_STATE: FormSchemaState = {
 export const formSchemaStore = atom<FormSchemaState>({ ...INITIAL_FORM_SCHEMA_STATE });
 
 export async function loadFormSchema(
-  client: ProjectsApiClient,
+  client: ProjectsRepository,
   projectId: string,
 ): Promise<void> {
   formSchemaStore.set({ ...formSchemaStore.get(), loading: true, error: null });
@@ -36,7 +36,7 @@ export async function loadFormSchema(
 }
 
 export async function saveFormSchema(
-  client: ProjectsApiClient,
+  client: ProjectsRepository,
   projectId: string,
 ): Promise<void> {
   const state = formSchemaStore.get();
