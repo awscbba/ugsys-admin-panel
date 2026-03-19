@@ -156,11 +156,24 @@ export class ProjectsApiClient implements ProjectsRepository {
   }
 
   async getProject(id: string): Promise<Project> {
-    return this.request<Project>('GET', `projects/${id}`);
+    const project = await this.request<Project>('GET', `projects/${id}`);
+    return this.normalizeProject(project);
   }
 
   async getEnhancedProject(id: string): Promise<Project> {
-    return this.request<Project>('GET', `projects/${id}/enhanced`);
+    const project = await this.request<Project>('GET', `projects/${id}/enhanced`);
+    return this.normalizeProject(project);
+  }
+
+  private normalizeProject(project: Project): Project {
+    return {
+      ...project,
+      notification_emails: project.notification_emails ?? [],
+      images: project.images ?? [],
+      form_schema: project.form_schema
+        ? { ...project.form_schema, fields: project.form_schema.fields ?? [] }
+        : null,
+    };
   }
 
   async updateProject(id: string, data: Partial<ProjectUpdateData>): Promise<Project> {
