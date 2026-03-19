@@ -18,43 +18,63 @@
 }
 
 /* ── Dark-theme form controls ────────────────────────────────────────────────
- * Native inputs, selects and textareas inherit the browser default white
- * background. Override globally so every form element in the plugin respects
- * the dark shell theme without needing per-element Tailwind classes.
+ * Scoped to [data-theme="dark"] so light theme uses browser defaults.
  * ──────────────────────────────────────────────────────────────────────────── */
-@layer base {
-  input,
-  textarea,
-  select {
-    background-color: #1e2736;
-    color: #f0f4ff;
-    border-color: #374151; /* gray-700 */
-  }
+[data-theme='dark'] input,
+[data-theme='dark'] textarea,
+[data-theme='dark'] select {
+  background-color: #1e2736;
+  color: #f0f4ff;
+  border-color: #374151; /* gray-700 */
+}
 
-  input::placeholder,
-  textarea::placeholder {
-    color: #6b7280; /* gray-500 */
-  }
+[data-theme='dark'] input::placeholder,
+[data-theme='dark'] textarea::placeholder {
+  color: #6b7280; /* gray-500 */
+}
 
-  /* Keep date/time picker icons readable */
-  input[type='date']::-webkit-calendar-picker-indicator,
-  input[type='time']::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-  }
+/* Keep date/time picker icons readable in dark mode */
+[data-theme='dark'] input[type='date']::-webkit-calendar-picker-indicator,
+[data-theme='dark'] input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
 
-  /* Select option list — browsers that honour this (Chromium) */
-  option {
-    background-color: #1e2736;
-    color: #f0f4ff;
-  }
+/* Select option list — browsers that honour this (Chromium) */
+[data-theme='dark'] option {
+  background-color: #1e2736;
+  color: #f0f4ff;
+}
 
-  /* Focus ring — keep accessible but dark-friendly */
-  input:focus,
-  textarea:focus,
-  select:focus {
-    outline: 2px solid #3b82f6; /* blue-500 */
-    outline-offset: 1px;
-  }
+/* Focus ring */
+[data-theme='dark'] input:focus,
+[data-theme='dark'] textarea:focus,
+[data-theme='dark'] select:focus {
+  outline: 2px solid #3b82f6; /* blue-500 */
+  outline-offset: 1px;
+}
+
+/* ── Light-theme form controls ───────────────────────────────────────────────
+ * Explicit light values so the plugin looks consistent regardless of
+ * browser default styles.
+ * ──────────────────────────────────────────────────────────────────────────── */
+[data-theme='light'] input,
+[data-theme='light'] textarea,
+[data-theme='light'] select {
+  background-color: #ffffff;
+  color: #111827; /* gray-900 */
+  border-color: #d1d5db; /* gray-300 */
+}
+
+[data-theme='light'] input::placeholder,
+[data-theme='light'] textarea::placeholder {
+  color: #9ca3af; /* gray-400 */
+}
+
+[data-theme='light'] input:focus,
+[data-theme='light'] textarea:focus,
+[data-theme='light'] select:focus {
+  outline: 2px solid #3b82f6; /* blue-500 */
+  outline-offset: 1px;
 }
 
 /* Ensure text remains readable when rows are selected/highlighted */
