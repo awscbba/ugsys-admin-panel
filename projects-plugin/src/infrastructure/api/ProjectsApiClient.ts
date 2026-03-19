@@ -89,7 +89,14 @@ export class ProjectsApiClient implements ProjectsRepository {
       throw await this.classifyError(response);
     }
 
+    // Treat any no-content or empty response as void
     if (response.status === 204) {
+      return undefined as T;
+    }
+
+    const contentType = response.headers.get('content-type') ?? '';
+    if (!contentType.includes('application/json')) {
+      // Non-JSON success (e.g. proxy returning 200 with HTML) — treat as void
       return undefined as T;
     }
 

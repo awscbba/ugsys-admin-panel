@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { matchRoute } from '@presentation/hooks/usePluginRouter';
 import { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
 import { Dashboard } from '@presentation/components/Dashboard';
@@ -21,26 +21,47 @@ export function App({ context }: AppProps) {
     [context.getAccessToken],
   );
 
-  const route = matchRoute(window.location.pathname);
+  // Track pathname reactively so navigation triggers a re-render
+  const [pathname, setPathname] = useState(() => window.location.pathname);
+
+  // Listen for shell-driven popstate events (back/forward)
+  useEffect(() => {
+    const onPopState = () => setPathname(window.location.pathname);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  // Wrap context.navigate so every programmatic navigation also updates our state
+  const navigate = useCallback(
+    (path: string) => {
+      context.navigate(path);
+      // React Router's navigate() updates history synchronously, so
+      // window.location.pathname is already updated when we read it here.
+      setPathname(window.location.pathname);
+    },
+    [context],
+  );
+
+  const route = matchRoute(pathname);
 
   const renderView = () => {
     switch (route.view) {
       case 'dashboard':
-        return <Dashboard client={client} navigate={context.navigate} />;
+        return <Dashboard client={client} navigate={navigate} />;
       case 'project-list':
-        return <ProjectList client={client} navigate={context.navigate} />;
+        return <ProjectList client={client} navigate={navigate} />;
       case 'project-create':
-        return <ProjectForm client={client} navigate={context.navigate} />;
+        return <ProjectForm client={client} navigate={navigate} />;
       case 'project-edit':
-        return <ProjectForm client={client} navigate={context.navigate} projectId={route.params?.id} />;
+        return <ProjectForm client={client} navigate={navigate} projectId={route.params?.id} />;
       case 'project-detail':
-        return <ProjectDetail client={client} navigate={context.navigate} projectId={route.params!.id} />;
+        return <ProjectDetail client={client} navigate={navigate} projectId={route.params!.id} />;
       case 'subscription-manager':
-        return <SubscriptionManager client={client} navigate={context.navigate} projectId={route.params!.id} />;
+        return <SubscriptionManager client={client} navigate={navigate} projectId={route.params!.id} />;
       case 'form-schema-editor':
-        return <FormSchemaEditor client={client} navigate={context.navigate} projectId={route.params!.id} />;
+        return <FormSchemaEditor client={client} navigate={navigate} projectId={route.params!.id} />;
       case 'not-found':
-        return <NotFound navigate={context.navigate} />;
+        return <NotFound navigate={navigate} />;
     }
   };
 
