@@ -56,7 +56,8 @@ const SHELL_ORIGIN = "https://admin.apps.cloud.org.bo";
  * listed here to avoid blocking the first script load.
  */
 const KNOWN_PLUGIN_ORIGINS = [
-  "https://api.apps.cloud.org.bo", // projects-registry plugin
+  "https://api.apps.cloud.org.bo", // projects-registry API
+  "https://registry.apps.cloud.org.bo", // projects-registry plugin bundle
   "https://auth.apps.cloud.org.bo", // identity-manager plugin
   "https://profiles.apps.cloud.org.bo", // user-profile-service plugin
 ];
@@ -94,8 +95,7 @@ export function buildCsp(entryPointOrigins: string[]): string {
     // data: required: @ugsys/ui-lib CSS bundle embeds base64-encoded fonts.
     `font-src 'self' data:`,
     // Allow XHR/fetch to the BFF and to micro-frontend service APIs.
-    // api.apps.cloud.org.bo is the projects-registry API domain (plugin host + API).
-    `connect-src 'self' https://api.apps.cloud.org.bo https://auth.apps.cloud.org.bo https://profiles.apps.cloud.org.bo`,
+    `connect-src 'self' https://api.apps.cloud.org.bo https://registry.apps.cloud.org.bo https://auth.apps.cloud.org.bo https://profiles.apps.cloud.org.bo`,
     `frame-ancestors 'none'`,
     `object-src 'none'`,
     `base-uri 'self'`,
