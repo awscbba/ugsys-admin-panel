@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "services": [
     {
       "service_name": "identity-manager",
@@ -20,20 +20,6 @@
       "base_url": "https://api.apps.cloud.org.bo/api/v1",
       "health_endpoint": "/health",
       "manifest_url": "https://api.apps.cloud.org.bo/plugin-manifest.json",
-      "min_role": "admin"
-    },
-    {
-      "service_name": "mass-messaging",
-      "base_url": "https://messaging.apps.cloud.org.bo",
-      "health_endpoint": "/health",
-      "manifest_url": "https://messaging.apps.cloud.org.bo/plugin-manifest.json",
-      "min_role": "admin"
-    },
-    {
-      "service_name": "omnichannel-service",
-      "base_url": "https://omnichannel.apps.cloud.org.bo",
-      "health_endpoint": "/health",
-      "manifest_url": "https://omnichannel.apps.cloud.org.bo/plugin-manifest.json",
       "min_role": "admin"
     }
   ]
