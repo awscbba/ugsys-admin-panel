@@ -19,10 +19,10 @@ interface ProjectListProps {
 }
 
 const STATUS_COLORS: Record<ProjectStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  active: 'bg-green-100 text-green-800',
-  completed: 'bg-blue-100 text-blue-800',
-  cancelled: 'bg-gray-100 text-gray-800',
+  pending: 'bg-yellow-900/40 text-yellow-400',
+  active: 'bg-green-900/40 text-green-400',
+  completed: 'bg-blue-900/40 text-blue-400',
+  cancelled: 'bg-slate-700/60 text-slate-400',
 };
 
 export function ProjectList({ client, navigate }: ProjectListProps) {
@@ -159,25 +159,25 @@ export function ProjectList({ client, navigate }: ProjectListProps) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-lg border border-[#2a3548]">
+        <table className="w-full text-sm bg-[#1e2738] text-[#e2e8f0]">
           <thead>
-            <tr className="border-b text-left text-gray-500">
-              <th className="py-2 px-3">Name</th>
-              <th className="py-2 px-3">Category</th>
-              <th className="py-2 px-3">Status</th>
-              <th className="py-2 px-3">Enabled</th>
-              <th className="py-2 px-3">Participants</th>
-              <th className="py-2 px-3">Dates</th>
-              <th className="py-2 px-3">Actions</th>
+            <tr className="border-b border-[#2a3548] text-left text-[#94a3b8]">
+              <th className="py-2.5 px-3 font-medium">Name</th>
+              <th className="py-2.5 px-3 font-medium">Category</th>
+              <th className="py-2.5 px-3 font-medium">Status</th>
+              <th className="py-2.5 px-3 font-medium">Enabled</th>
+              <th className="py-2.5 px-3 font-medium">Participants</th>
+              <th className="py-2.5 px-3 font-medium">Dates</th>
+              <th className="py-2.5 px-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {state.items.map((project) => (
-              <tr key={project.id} className="border-b hover:bg-gray-50">
-                <td className="py-2 px-3 font-medium">{project.name}</td>
-                <td className="py-2 px-3">{project.category}</td>
-                <td className="py-2 px-3">
+              <tr key={project.id} className="border-b border-[#2a3548] hover:bg-[#252f3f] transition-colors text-[#e2e8f0]">
+                <td className="py-2.5 px-3 font-medium">{project.name}</td>
+                <td className="py-2.5 px-3 text-[#94a3b8]">{project.category}</td>
+                <td className="py-2.5 px-3">
                   <span
                     className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[project.status]}`}
                     aria-label={`Status: ${project.status}`}
@@ -185,40 +185,40 @@ export function ProjectList({ client, navigate }: ProjectListProps) {
                     {project.status}
                   </span>
                 </td>
-                <td className="py-2 px-3">
+                <td className="py-2.5 px-3">
                   <span
-                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${project.is_enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${project.is_enabled ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}
                     aria-label={project.is_enabled ? 'Enabled' : 'Disabled'}
                   >
                     {project.is_enabled ? 'Yes' : 'No'}
                   </span>
                 </td>
-                <td className="py-2 px-3">
+                <td className="py-2.5 px-3 text-[#94a3b8]">
                   {project.current_participants}/{project.max_participants}
                 </td>
-                <td className="py-2 px-3 text-xs text-gray-500">
+                <td className="py-2.5 px-3 text-xs text-[#64748b]">
                   {project.start_date} — {project.end_date}
                 </td>
-                <td className="py-2 px-3">
+                <td className="py-2.5 px-3">
                   <div className="flex gap-1.5">
                     <button
                       type="button"
                       onClick={() => navigate(`/app/projects-registry/projects/${project.id}`)}
-                      className="px-3 py-1.5 text-xs font-medium rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      className="px-3 py-1.5 text-xs font-medium rounded border border-cyan-400 text-cyan-400 bg-transparent hover:bg-cyan-400/10 hover:shadow-[0_0_8px_rgba(34,211,238,0.4)] transition-all"
                     >
                       View
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate(`/app/projects-registry/projects/${project.id}/edit`)}
-                      className="px-3 py-1.5 text-xs font-medium rounded bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+                      className="px-3 py-1.5 text-xs font-medium rounded border border-amber-400 text-amber-400 bg-transparent hover:bg-amber-400/10 hover:shadow-[0_0_8px_rgba(251,191,36,0.4)] transition-all"
                     >
                       Edit
                     </button>
                     <button
                       type="button"
                       onClick={() => setDeleteTarget({ id: project.id, name: project.name })}
-                      className="px-3 py-1.5 text-xs font-medium rounded bg-red-600 text-white hover:bg-red-700 transition-colors"
+                      className="px-3 py-1.5 text-xs font-medium rounded border border-red-400 text-red-400 bg-transparent hover:bg-red-400/10 hover:shadow-[0_0_8px_rgba(248,113,113,0.4)] transition-all"
                     >
                       Delete
                     </button>
@@ -228,7 +228,7 @@ export function ProjectList({ client, navigate }: ProjectListProps) {
             ))}
             {state.items.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-gray-500">
+                <td colSpan={7} className="py-8 text-center text-[#64748b]">
                   No projects found
                 </td>
               </tr>
