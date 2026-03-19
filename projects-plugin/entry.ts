@@ -1,3 +1,4 @@
+import './src/presentation/index.css';
 import { createRoot } from 'react-dom/client';
 import type { Root } from 'react-dom/client';
 import { createElement } from 'react';

@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@import "@ugsys/ui-lib/tokens.css";
+
+/* Scan ui-lib src for Tailwind class usage */
+@source "../../../node_modules/@ugsys/ui-lib/src";
+
+/*
+ * @theme inline — emit utilities that reference CSS vars at runtime
+ * so they resolve against the shell's tokens.css at mount time.
+ */
+@theme inline {
+  --color-primary: var(--color-primary);
+  --color-brand: var(--color-brand);
+  --color-accent: var(--color-accent);
+  --color-footer: var(--color-footer);
+  --color-background: var(--color-background);
+  --font-family-sans: var(--font-sans);
+}
