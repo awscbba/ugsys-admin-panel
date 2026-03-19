@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { resolve } from 'path';
 
-export default defineConfig({
+export default defineConfig(({ command, mode }) => ({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -17,12 +17,14 @@ export default defineConfig({
     },
     conditions: ['style', 'import', 'module', 'default'],
   },
-  // Replace process.env.NODE_ENV at build time — IIFE bundles run in the
+  // Replace process.env.NODE_ENV at build time only — IIFE bundles run in the
   // browser where `process` is undefined, causing a ReferenceError that
   // prevents the window.__mfe_projects_registry assignment from executing.
-  define: {
-    'process.env.NODE_ENV': JSON.stringify('production'),
-  },
+  // During tests (command === 'serve', mode === 'test') we skip this so React
+  // loads its development build, which supports act().
+  ...(command === 'build'
+    ? { define: { 'process.env.NODE_ENV': JSON.stringify('production') } }
+    : {}),
   build: {
     lib: {
       entry: resolve(__dirname, 'entry.ts'),
@@ -37,4 +39,4 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest-setup.ts'],
   },
-});
+}));

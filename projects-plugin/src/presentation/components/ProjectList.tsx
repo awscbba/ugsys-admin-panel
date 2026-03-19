@@ -200,25 +200,25 @@ export function ProjectList({ client, navigate }: ProjectListProps) {
                   {project.start_date} — {project.end_date}
                 </td>
                 <td className="py-2 px-3">
-                  <div className="flex gap-1">
+                  <div className="flex gap-1.5">
                     <button
                       type="button"
                       onClick={() => navigate(`/app/projects-registry/projects/${project.id}`)}
-                      className="px-2 py-1 text-xs rounded border hover:bg-gray-100"
+                      className="px-3 py-1.5 text-xs font-medium rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                     >
                       View
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate(`/app/projects-registry/projects/${project.id}/edit`)}
-                      className="px-2 py-1 text-xs rounded border hover:bg-gray-100"
+                      className="px-3 py-1.5 text-xs font-medium rounded bg-amber-500 text-white hover:bg-amber-600 transition-colors"
                     >
                       Edit
                     </button>
                     <button
                       type="button"
                       onClick={() => setDeleteTarget({ id: project.id, name: project.name })}
-                      className="px-2 py-1 text-xs rounded border text-red-600 hover:bg-red-50"
+                      className="px-3 py-1.5 text-xs font-medium rounded bg-red-600 text-white hover:bg-red-700 transition-colors"
                     >
                       Delete
                     </button>
