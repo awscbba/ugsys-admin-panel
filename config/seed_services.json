@@ -17,7 +17,7 @@
     },
     {
       "service_name": "projects-registry",
-      "base_url": "https://api.apps.cloud.org.bo",
+      "base_url": "https://api.apps.cloud.org.bo/api/v1",
       "health_endpoint": "/health",
       "manifest_url": "https://api.apps.cloud.org.bo/plugin-manifest.json",
       "min_role": "admin"
