@@ -10,11 +10,11 @@ import {
 import { showToast } from '@presentation/stores/toastStore';
 import { getAvailableActions } from '@domain/entities/Subscription';
 import { ConfirmDialog } from './ConfirmDialog';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 import type { SubscriptionStatus } from '@domain/entities/Subscription';
 
 interface SubscriptionManagerProps {
-  client: ProjectsApiClient;
+  client: ProjectsRepository;
   navigate: (path: string) => void;
   projectId: string;
 }

@@ -8,11 +8,11 @@ import {
 import { showToast } from '@presentation/stores/toastStore';
 import { validateProjectForm } from '@domain/validation';
 import { computeModifiedFields } from '@domain/diffUtils';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 import type { ProjectStatus, CreateProjectData } from '@domain/entities/Project';
 
 interface ProjectFormProps {
-  client: ProjectsApiClient;
+  client: ProjectsRepository;
   navigate: (path: string) => void;
   projectId?: string;
 }

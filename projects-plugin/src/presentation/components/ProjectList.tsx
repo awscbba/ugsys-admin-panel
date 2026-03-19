@@ -10,11 +10,11 @@ import {
 } from '@presentation/stores/projectListStore';
 import { showToast } from '@presentation/stores/toastStore';
 import { ConfirmDialog } from './ConfirmDialog';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 import type { ProjectStatus } from '@domain/entities/Project';
 
 interface ProjectListProps {
-  client: ProjectsApiClient;
+  client: ProjectsRepository;
   navigate: (path: string) => void;
 }
 
