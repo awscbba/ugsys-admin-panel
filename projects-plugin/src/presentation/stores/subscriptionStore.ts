@@ -1,6 +1,6 @@
 import { atom } from 'nanostores';
 import type { Subscription } from '@domain/entities/Subscription';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 
 export interface SubscriptionState {
   items: Subscription[];
@@ -25,7 +25,7 @@ export const INITIAL_SUBSCRIPTION_STATE: SubscriptionState = {
 export const subscriptionStore = atom<SubscriptionState>({ ...INITIAL_SUBSCRIPTION_STATE });
 
 export async function loadSubscriptions(
-  client: ProjectsApiClient,
+  client: ProjectsRepository,
   projectId: string,
 ): Promise<void> {
   const state = subscriptionStore.get();
@@ -51,7 +51,7 @@ export async function loadSubscriptions(
 }
 
 export async function approveSubscription(
-  client: ProjectsApiClient,
+  client: ProjectsRepository,
   projectId: string,
   subscriptionId: string,
 ): Promise<void> {
@@ -72,7 +72,7 @@ export async function approveSubscription(
 }
 
 export async function rejectSubscription(
-  client: ProjectsApiClient,
+  client: ProjectsRepository,
   projectId: string,
   subscriptionId: string,
   reason?: string,
@@ -94,7 +94,7 @@ export async function rejectSubscription(
 }
 
 export async function cancelSubscription(
-  client: ProjectsApiClient,
+  client: ProjectsRepository,
   projectId: string,
   subscriptionId: string,
 ): Promise<void> {

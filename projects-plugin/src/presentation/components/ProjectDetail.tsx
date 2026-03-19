@@ -3,11 +3,11 @@ import { useStore } from '@nanostores/react';
 import { projectDetailStore, loadEnhancedProject, clearProject } from '@presentation/stores/projectDetailStore';
 import { showToast } from '@presentation/stores/toastStore';
 import { ConfirmDialog } from './ConfirmDialog';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 import type { ProjectStatus } from '@domain/entities/Project';
 
 interface ProjectDetailProps {
-  client: ProjectsApiClient;
+  client: ProjectsRepository;
   navigate: (path: string) => void;
   projectId: string;
 }

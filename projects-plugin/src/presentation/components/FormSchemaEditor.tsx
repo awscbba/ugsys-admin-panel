@@ -12,11 +12,11 @@ import {
 import { showToast } from '@presentation/stores/toastStore';
 import { shouldShowOptionsEditor } from '@domain/entities/FormSchema';
 import { validateFormSchema } from '@domain/validation';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 import type { FieldType } from '@domain/entities/FormSchema';
 
 interface FormSchemaEditorProps {
-  client: ProjectsApiClient;
+  client: ProjectsRepository;
   navigate: (path: string) => void;
   projectId: string;
 }

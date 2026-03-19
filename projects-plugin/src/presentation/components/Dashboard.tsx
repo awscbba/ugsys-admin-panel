@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useStore } from '@nanostores/react';
 import { dashboardStore, loadDashboard } from '@presentation/stores/dashboardStore';
-import type { ProjectsApiClient } from '@infrastructure/api/ProjectsApiClient';
+import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 
 interface DashboardProps {
-  client: ProjectsApiClient;
+  client: ProjectsRepository;
   navigate: (path: string) => void;
 }
 
