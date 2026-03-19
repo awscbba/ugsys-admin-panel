@@ -16,3 +16,9 @@
   --color-background: var(--color-background);
   --font-family-sans: var(--font-sans);
 }
+
+/* Ensure text remains readable when rows are selected/highlighted */
+::selection {
+  background-color: #bfdbfe; /* blue-200 */
+  color: #1e3a5f;            /* dark blue — always readable */
+}
