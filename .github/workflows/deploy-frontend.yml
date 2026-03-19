@@ -113,8 +113,11 @@ jobs:
     needs: deploy
     # Only fire when projects-plugin files actually changed
     if: |
-      needs.deploy.result == 'success' &&
-      contains(toJSON(github.event.commits.*.modified + github.event.commits.*.added + github.event.commits.*.removed), 'projects-plugin/')
+      needs.deploy.result == 'success' && (
+        contains(toJSON(github.event.commits.*.modified), 'projects-plugin/') ||
+        contains(toJSON(github.event.commits.*.added), 'projects-plugin/') ||
+        contains(toJSON(github.event.commits.*.removed), 'projects-plugin/')
+      )
     steps:
       - name: Dispatch deploy-frontend on ugsys-projects-registry
         run: |
