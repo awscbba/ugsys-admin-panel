@@ -49,6 +49,9 @@
   },
   "packageManager": "pnpm@10.29.2",
   "pnpm": {
-    "onlyBuiltDependencies": ["@ugsys/ui-lib"]
+    "onlyBuiltDependencies": ["@ugsys/ui-lib"],
+    "overrides": {
+      "flatted": ">=3.4.2"
+    }
   }
 }
