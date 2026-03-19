@@ -17,6 +17,12 @@ export default defineConfig({
     },
     conditions: ['style', 'import', 'module', 'default'],
   },
+  // Replace process.env.NODE_ENV at build time — IIFE bundles run in the
+  // browser where `process` is undefined, causing a ReferenceError that
+  // prevents the window.__mfe_projects_registry assignment from executing.
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  },
   build: {
     lib: {
       entry: resolve(__dirname, 'entry.ts'),
