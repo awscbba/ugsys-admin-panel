@@ -96,7 +96,7 @@ export function FormSchemaEditor({ client, navigate, projectId }: FormSchemaEdit
       <div aria-live="polite" aria-busy="true" className="space-y-4">
         <h1 className="text-2xl font-semibold">Form Schema Editor</h1>
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 bg-gray-100 rounded animate-pulse" />
+          <div key={i} className="h-16 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
         ))}
       </div>
     );
@@ -156,11 +156,11 @@ export function FormSchemaEditor({ client, navigate, projectId }: FormSchemaEdit
           return (
             <fieldset
               key={field.id}
-              className="border rounded-lg p-4 space-y-3"
+              className="border border-gray-200 dark:border-[#2a3548] rounded-lg p-4 space-y-3"
             >
               <legend className="sr-only">Field {index + 1}</legend>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">
+                <span className="text-sm font-medium text-gray-500 dark:text-[#94a3b8]">
                   Field {index + 1}
                 </span>
                 <div className="flex gap-1">
@@ -185,7 +185,7 @@ export function FormSchemaEditor({ client, navigate, projectId }: FormSchemaEdit
                   <button
                     type="button"
                     onClick={() => removeField(index)}
-                    className="px-2 py-1 text-xs border rounded text-red-600 hover:bg-red-50"
+                    className="px-2 py-1 text-xs border rounded text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     aria-label={`Remove field ${index + 1}`}
                   >
                     ✕
@@ -294,7 +294,7 @@ export function FormSchemaEditor({ client, navigate, projectId }: FormSchemaEdit
                         <button
                           type="button"
                           onClick={() => handleRemoveOption(index, optIdx)}
-                          className="px-2 py-1 text-xs border rounded text-red-600 hover:bg-red-50"
+                          className="px-2 py-1 text-xs border rounded text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                           aria-label={`Remove option ${optIdx + 1}`}
                         >
                           ✕
@@ -305,7 +305,7 @@ export function FormSchemaEditor({ client, navigate, projectId }: FormSchemaEdit
                   <button
                     type="button"
                     onClick={() => handleAddOption(index)}
-                    className="mt-2 px-3 py-1 text-xs border rounded hover:bg-gray-50"
+                    className="mt-2 px-3 py-1 text-xs border rounded hover:bg-gray-50 dark:hover:bg-[#252f3f]"
                   >
                     + Add Option
                   </button>
@@ -324,7 +324,7 @@ export function FormSchemaEditor({ client, navigate, projectId }: FormSchemaEdit
         })}
 
         {fields.length === 0 && (
-          <p className="text-center text-gray-500 py-8">
+          <p className="text-center text-gray-500 dark:text-[#64748b] py-8">
             No fields yet. Click "Add Field" to get started.
           </p>
         )}
@@ -334,7 +334,7 @@ export function FormSchemaEditor({ client, navigate, projectId }: FormSchemaEdit
         <button
           type="button"
           onClick={addField}
-          className="px-4 py-2 text-sm rounded-md border hover:bg-gray-50"
+          className="px-4 py-2 text-sm rounded-md border hover:bg-gray-50 dark:hover:bg-[#252f3f]"
         >
           + Add Field
         </button>
@@ -349,7 +349,7 @@ export function FormSchemaEditor({ client, navigate, projectId }: FormSchemaEdit
         <button
           type="button"
           onClick={() => navigate(backPath)}
-          className="px-4 py-2 text-sm rounded-md border hover:bg-gray-50"
+          className="px-4 py-2 text-sm rounded-md border hover:bg-gray-50 dark:hover:bg-[#252f3f]"
         >
           Cancel
         </button>
