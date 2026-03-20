@@ -121,13 +121,13 @@ describe('ProjectForm — create mode', () => {
     });
   });
 
-  it('error text for name field uses text-red-400 class', async () => {
+  it('error text for name field uses text-red-600 dark:text-red-400 class', async () => {
     render(<ProjectForm client={makeClient()} navigate={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: /create project/i }));
 
     await waitFor(() => {
       const errorEl = screen.getByText(/name is required/i);
-      expect(errorEl).toHaveClass('text-red-400');
+      expect(errorEl).toHaveClass('text-red-600');
     });
   });
 
