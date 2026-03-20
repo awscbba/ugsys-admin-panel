@@ -19,10 +19,10 @@ interface ProjectListProps {
 }
 
 const STATUS_COLORS: Record<ProjectStatus, string> = {
-  pending: 'bg-yellow-900/40 text-yellow-400',
-  active: 'bg-green-900/40 text-green-400',
-  completed: 'bg-blue-900/40 text-blue-400',
-  cancelled: 'bg-slate-700/60 text-slate-400',
+  pending: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400',
+  active: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400',
+  completed: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400',
+  cancelled: 'bg-gray-100 dark:bg-slate-700/60 text-gray-500 dark:text-slate-400',
 };
 
 export function ProjectList({ client, navigate }: ProjectListProps) {
@@ -69,7 +69,7 @@ export function ProjectList({ client, navigate }: ProjectListProps) {
         <h1 className="text-2xl font-semibold">Projects</h1>
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-12 bg-gray-100 rounded animate-pulse" />
+            <div key={i} className="h-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
           ))}
         </div>
       </div>
@@ -159,10 +159,10 @@ export function ProjectList({ client, navigate }: ProjectListProps) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-[#2a3548]">
-        <table className="w-full text-sm bg-[#1e2738] text-[#e2e8f0]">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-[#2a3548]">
+        <table className="w-full text-sm bg-white dark:bg-[#1e2738] text-gray-900 dark:text-[#e2e8f0]">
           <thead>
-            <tr className="border-b border-[#2a3548] text-left text-[#94a3b8]">
+            <tr className="border-b border-gray-200 dark:border-[#2a3548] text-left text-gray-500 dark:text-[#94a3b8]">
               <th className="py-2.5 px-3 font-medium">Name</th>
               <th className="py-2.5 px-3 font-medium">Category</th>
               <th className="py-2.5 px-3 font-medium">Status</th>
@@ -174,9 +174,9 @@ export function ProjectList({ client, navigate }: ProjectListProps) {
           </thead>
           <tbody>
             {state.items.map((project) => (
-              <tr key={project.id} className="border-b border-[#2a3548] hover:bg-[#252f3f] transition-colors text-[#e2e8f0]">
+              <tr key={project.id} className="border-b border-gray-200 dark:border-[#2a3548] hover:bg-gray-50 dark:hover:bg-[#252f3f] transition-colors text-gray-900 dark:text-[#e2e8f0]">
                 <td className="py-2.5 px-3 font-medium">{project.name}</td>
-                <td className="py-2.5 px-3 text-[#94a3b8]">{project.category}</td>
+                <td className="py-2.5 px-3 text-gray-500 dark:text-[#94a3b8]">{project.category}</td>
                 <td className="py-2.5 px-3">
                   <span
                     className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[project.status]}`}
@@ -187,16 +187,16 @@ export function ProjectList({ client, navigate }: ProjectListProps) {
                 </td>
                 <td className="py-2.5 px-3">
                   <span
-                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${project.is_enabled ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}
+                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${project.is_enabled ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400'}`}
                     aria-label={project.is_enabled ? 'Enabled' : 'Disabled'}
                   >
                     {project.is_enabled ? 'Yes' : 'No'}
                   </span>
                 </td>
-                <td className="py-2.5 px-3 text-[#94a3b8]">
+                <td className="py-2.5 px-3 text-gray-500 dark:text-[#94a3b8]">
                   {project.current_participants}/{project.max_participants}
                 </td>
-                <td className="py-2.5 px-3 text-xs text-[#64748b]">
+                <td className="py-2.5 px-3 text-xs text-gray-400 dark:text-[#64748b]">
                   {project.start_date} — {project.end_date}
                 </td>
                 <td className="py-2.5 px-3">

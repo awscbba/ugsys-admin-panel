@@ -211,7 +211,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
         <h1 className="text-2xl font-semibold">Edit Project</h1>
         <div className="space-y-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-10 bg-gray-700 rounded animate-pulse" />
+            <div key={i} className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
           ))}
         </div>
       </div>
@@ -222,11 +222,11 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
   if (isEdit && detailState.error) {
     return (
       <div role="alert" className="text-center py-12">
-        <p className="text-red-400 mb-4">{detailState.error}</p>
+        <p className="text-red-600 dark:text-red-400 mb-4">{detailState.error}</p>
         <button
           type="button"
           onClick={handleCancel}
-          className="px-4 py-2 text-sm rounded-md border border-gray-600 hover:bg-gray-700"
+          className="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
         >
           Back to Projects
         </button>
@@ -238,11 +238,11 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
   if (isEdit && !detailState.loading && !detailState.project) {
     return (
       <div role="alert" className="text-center py-12">
-        <p className="text-gray-400 mb-4">Project not found</p>
+        <p className="text-gray-500 dark:text-gray-400 mb-4">Project not found</p>
         <button
           type="button"
           onClick={handleCancel}
-          className="px-4 py-2 text-sm rounded-md border border-gray-600 hover:bg-gray-700"
+          className="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
         >
           Back to Projects
         </button>
@@ -257,7 +257,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
       </h1>
 
       {submitError && (
-        <div role="alert" className="p-3 bg-red-950 border border-red-700 rounded-md text-sm text-red-300">
+        <div role="alert" className="p-3 bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-700 rounded-md text-sm text-red-700 dark:text-red-300">
           {submitError}
         </div>
       )}
@@ -276,7 +276,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
             className="w-full px-3 py-2 border rounded-md text-sm"
           />
           {errors.name && (
-            <p className="text-red-400 text-xs mt-1">{errors.name}</p>
+            <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.name}</p>
           )}
         </div>
 
@@ -293,7 +293,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
             className="w-full px-3 py-2 border rounded-md text-sm"
           />
           {errors.description && (
-            <p className="text-red-400 text-xs mt-1">{errors.description}</p>
+            <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.description}</p>
           )}
         </div>
 
@@ -325,7 +325,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
               className="w-full px-3 py-2 border rounded-md text-sm"
             />
             {errors.category && (
-              <p className="text-red-400 text-xs mt-1">{errors.category}</p>
+              <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.category}</p>
             )}
           </div>
           <div>
@@ -341,7 +341,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
               className="w-full px-3 py-2 border rounded-md text-sm"
             />
             {errors.max_participants && (
-              <p className="text-red-400 text-xs mt-1">
+              <p className="text-red-600 dark:text-red-400 text-xs mt-1">
                 {errors.max_participants}
               </p>
             )}
@@ -362,7 +362,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
               className="w-full px-3 py-2 border rounded-md text-sm"
             />
             {errors.start_date && (
-              <p className="text-red-400 text-xs mt-1">{errors.start_date}</p>
+              <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.start_date}</p>
             )}
           </div>
           <div>
@@ -377,7 +377,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
               className="w-full px-3 py-2 border rounded-md text-sm"
             />
             {errors.end_date && (
-              <p className="text-red-400 text-xs mt-1">{errors.end_date}</p>
+              <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.end_date}</p>
             )}
           </div>
         </div>
@@ -467,7 +467,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
             <button
               type="button"
               onClick={addEmail}
-              className="px-3 py-2 text-sm border border-gray-600 rounded-md hover:bg-gray-700"
+              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               Add
             </button>
@@ -477,14 +477,14 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
               {form.notification_emails.map((email) => (
                 <span
                   key={email}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-gray-700 rounded text-xs"
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs"
                 >
                   {email}
                   <button
                     type="button"
                     onClick={() => removeEmail(email)}
                     aria-label={`Remove ${email}`}
-                    className="text-gray-400 hover:text-red-400"
+                    className="text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
                   >
                     ✕
                   </button>
@@ -510,7 +510,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
           <button
             type="button"
             onClick={handleCancel}
-            className="px-4 py-2 text-sm rounded-md border border-gray-600 hover:bg-gray-700"
+            className="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             Cancel
           </button>
