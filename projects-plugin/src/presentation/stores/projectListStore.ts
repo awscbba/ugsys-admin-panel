@@ -111,3 +111,11 @@ export function setPageSize(pageSize: number): void {
   const state = projectListStore.get();
   projectListStore.set({ ...state, pageSize, page: 1 });
 }
+
+/**
+ * Mark the project list as stale so the next mount triggers a fresh fetch.
+ * Call after mutations (create, update, delete) that change the list.
+ */
+export function invalidateProjects(): void {
+  projectListStore.set({ ...INITIAL_PROJECT_LIST_STATE });
+}
