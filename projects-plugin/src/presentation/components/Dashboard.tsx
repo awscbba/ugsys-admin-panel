@@ -10,7 +10,7 @@ interface DashboardProps {
 
 function MetricCard({ label, value }: { label: string; value: number }) {
   return (
-    <article className="bg-white rounded-lg border p-4 shadow-sm">
+    <article className="bg-white dark:bg-[#1e2738] rounded-lg border border-gray-200 dark:border-[#2a3548] p-4 shadow-sm">
       <p className="text-sm text-gray-500">{label}</p>
       <p className="text-2xl font-bold mt-1">{value}</p>
     </article>
@@ -40,7 +40,7 @@ function AnalyticsTable({ title, data }: { title: string; data: Record<string, n
   const entries = Object.entries(data);
   if (entries.length === 0) {
     return (
-      <article className="bg-white rounded-lg border p-4 shadow-sm">
+      <article className="bg-white dark:bg-[#1e2738] rounded-lg border border-gray-200 dark:border-[#2a3548] p-4 shadow-sm">
         <h2 className="text-lg font-medium mb-3">{title}</h2>
         <p className="text-sm text-gray-500">No data available.</p>
       </article>
@@ -50,14 +50,14 @@ function AnalyticsTable({ title, data }: { title: string; data: Record<string, n
   const total = entries.reduce((sum, [, count]) => sum + count, 0);
 
   return (
-    <article className="bg-white rounded-lg border p-4 shadow-sm">
+    <article className="bg-white dark:bg-[#1e2738] rounded-lg border border-gray-200 dark:border-[#2a3548] p-4 shadow-sm">
       <h2 className="text-lg font-medium mb-3">{title}</h2>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b">
-            <th className="text-left py-2 font-medium text-gray-600">Status</th>
-            <th className="text-right py-2 font-medium text-gray-600">Count</th>
-            <th className="text-right py-2 font-medium text-gray-600">%</th>
+            <th className="text-left py-2 font-medium text-gray-600 dark:text-[#94a3b8]">Status</th>
+            <th className="text-right py-2 font-medium text-gray-600 dark:text-[#94a3b8]">Count</th>
+            <th className="text-right py-2 font-medium text-gray-600 dark:text-[#94a3b8]">%</th>
           </tr>
         </thead>
         <tbody>
@@ -138,7 +138,7 @@ export function Dashboard({ client, navigate }: DashboardProps) {
         <button
           type="button"
           onClick={() => navigate('/app/projects-registry/projects/new')}
-          className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50"
+          className="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-[#3d4f6b] hover:bg-gray-50 dark:hover:bg-[#252f3f]"
         >
           Create Project
         </button>

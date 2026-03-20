@@ -120,28 +120,28 @@ export function ProjectDetail({ client, navigate, projectId }: ProjectDetailProp
           <button
             type="button"
             onClick={() => navigate(`/app/projects-registry/projects/${projectId}/edit`)}
-            className="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-50"
+            className="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-50 dark:hover:bg-[#252f3f]"
           >
             Edit
           </button>
           <button
             type="button"
             onClick={() => navigate(`/app/projects-registry/projects/${projectId}/subscriptions`)}
-            className="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-50"
+            className="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-50 dark:hover:bg-[#252f3f]"
           >
             Manage Subscriptions
           </button>
           <button
             type="button"
             onClick={() => navigate(`/app/projects-registry/projects/${projectId}/form-schema`)}
-            className="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-50"
+            className="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-50 dark:hover:bg-[#252f3f]"
           >
             Edit Form Schema
           </button>
           <button
             type="button"
             onClick={() => setShowDeleteDialog(true)}
-            className="px-3 py-1.5 text-sm rounded-md border text-red-600 hover:bg-red-50"
+            className="px-3 py-1.5 text-sm rounded-md border text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
           >
             Delete
           </button>
@@ -223,9 +223,9 @@ export function ProjectDetail({ client, navigate, projectId }: ProjectDetailProp
               <h2 className="text-sm font-medium text-gray-500">Form Schema</h2>
               <ul className="mt-1 text-sm space-y-2">
                 {project.form_schema.fields.map((field) => (
-                  <li key={field.id} className="border rounded p-2">
+                  <li key={field.id} className="border border-gray-200 dark:border-[#2a3548] rounded p-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs px-1.5 py-0.5 bg-gray-100 rounded font-mono">
+                      <span className="text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-slate-700/60 rounded font-mono">
                         {field.field_type}
                       </span>
                       <span>{field.question}</span>
@@ -234,7 +234,7 @@ export function ProjectDetail({ client, navigate, projectId }: ProjectDetailProp
                       )}
                     </div>
                     {field.options.length > 0 && (
-                      <ul className="mt-1 ml-4 text-xs text-gray-500 list-disc">
+                      <ul className="mt-1 ml-4 text-xs text-gray-500 dark:text-[#94a3b8] list-disc">
                         {field.options.map((opt, idx) => (
                           <li key={idx}>{opt}</li>
                         ))}
@@ -249,7 +249,7 @@ export function ProjectDetail({ client, navigate, projectId }: ProjectDetailProp
           {/* Metadata */}
           <div>
             <h2 className="text-sm font-medium text-gray-500">Metadata</h2>
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Created: {project.created_at} | Updated: {project.updated_at}
             </p>
           </div>
