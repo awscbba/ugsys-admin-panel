@@ -17,6 +17,14 @@
   --font-family-sans: var(--font-sans);
 }
 
+/* ── Base text color ─────────────────────────────────────────────────────────
+ * Ensures all plugin text is readable in both themes by inheriting from
+ * the shell's --color-text-primary token.
+ * ──────────────────────────────────────────────────────────────────────────── */
+:root {
+  color: var(--color-text-primary);
+}
+
 /* ── Dark-theme form controls ────────────────────────────────────────────────
  * Scoped to [data-theme="dark"] so light theme uses browser defaults.
  * ──────────────────────────────────────────────────────────────────────────── */

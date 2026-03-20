@@ -97,7 +97,7 @@ export function SubscriptionManager({ client, navigate, projectId }: Subscriptio
           </button>
         </div>
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-12 bg-gray-100 rounded animate-pulse" />
+          <div key={i} className="h-12 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
         ))}
       </div>
     );
@@ -150,9 +150,9 @@ export function SubscriptionManager({ client, navigate, projectId }: Subscriptio
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm text-gray-900 dark:text-[#e2e8f0]">
           <thead>
-            <tr className="border-b text-left text-gray-500">
+            <tr className="border-b border-gray-200 dark:border-[#2a3548] text-left text-gray-500 dark:text-[#94a3b8]">
               <th className="py-2 px-3">Person ID</th>
               <th className="py-2 px-3">Status</th>
               <th className="py-2 px-3">Notes</th>
@@ -166,7 +166,7 @@ export function SubscriptionManager({ client, navigate, projectId }: Subscriptio
               const actions = getAvailableActions(sub.status);
               const isActionLoading = state.actionLoading === sub.id;
               return (
-                <tr key={sub.id} className="border-b hover:bg-gray-50">
+                <tr key={sub.id} className="border-b border-gray-200 dark:border-[#2a3548] hover:bg-gray-50 dark:hover:bg-[#252f3f] transition-colors">
                   <td className="py-2 px-3 font-mono text-xs">{sub.person_id}</td>
                   <td className="py-2 px-3">
                     <span
@@ -176,9 +176,9 @@ export function SubscriptionManager({ client, navigate, projectId }: Subscriptio
                       {sub.status}
                     </span>
                   </td>
-                  <td className="py-2 px-3 text-xs text-gray-500">{sub.notes ?? '—'}</td>
-                  <td className="py-2 px-3 text-xs text-gray-500">{sub.created_at}</td>
-                  <td className="py-2 px-3 text-xs text-gray-500">{sub.updated_at}</td>
+                  <td className="py-2 px-3 text-xs text-gray-500 dark:text-[#94a3b8]">{sub.notes ?? '—'}</td>
+                  <td className="py-2 px-3 text-xs text-gray-500 dark:text-[#94a3b8]">{sub.created_at}</td>
+                  <td className="py-2 px-3 text-xs text-gray-500 dark:text-[#94a3b8]">{sub.updated_at}</td>
                   <td className="py-2 px-3">
                     <div className="flex gap-1">
                       {actions.includes('approve') && (
@@ -212,7 +212,7 @@ export function SubscriptionManager({ client, navigate, projectId }: Subscriptio
                         </button>
                       )}
                       {actions.length === 0 && (
-                        <span className="text-xs text-gray-400">No actions</span>
+                        <span className="text-xs text-gray-400 dark:text-[#64748b]">No actions</span>
                       )}
                     </div>
                   </td>
@@ -221,7 +221,7 @@ export function SubscriptionManager({ client, navigate, projectId }: Subscriptio
             })}
             {state.items.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-gray-500">
+                <td colSpan={6} className="py-8 text-center text-gray-500 dark:text-[#64748b]">
                   No subscriptions found
                 </td>
               </tr>
@@ -281,12 +281,12 @@ export function SubscriptionManager({ client, navigate, projectId }: Subscriptio
             role="dialog"
             aria-modal="true"
             aria-labelledby="reject-dialog-title"
-            className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4"
+            className="bg-white dark:bg-[#1e2738] border border-gray-200 dark:border-[#2a3548] rounded-lg shadow-xl p-6 max-w-md w-full mx-4"
           >
-            <h2 id="reject-dialog-title" className="text-lg font-semibold mb-2">
+            <h2 id="reject-dialog-title" className="text-lg font-semibold mb-2 text-gray-900 dark:text-[#e2e8f0]">
               Reject Subscription
             </h2>
-            <label htmlFor="reject-reason" className="block text-sm text-gray-600 mb-2">
+            <label htmlFor="reject-reason" className="block text-sm text-gray-600 dark:text-[#94a3b8] mb-2">
               Reason (optional):
             </label>
             <textarea
@@ -305,7 +305,7 @@ export function SubscriptionManager({ client, navigate, projectId }: Subscriptio
                   setRejectTarget(null);
                   setRejectReason('');
                 }}
-                className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-50"
+                className="px-4 py-2 text-sm border border-gray-300 dark:border-[#3d4f6b] rounded-md text-gray-600 dark:text-[#94a3b8] hover:bg-gray-100 dark:hover:bg-[#252f3f] disabled:opacity-50"
               >
                 Cancel
               </button>
