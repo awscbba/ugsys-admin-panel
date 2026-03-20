@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { projectDetailStore, loadEnhancedProject, clearProject } from '@presentation/stores/projectDetailStore';
 import { showToast } from '@presentation/stores/toastStore';
+import { invalidateProjects } from '@presentation/stores/projectListStore';
 import { ConfirmDialog } from './ConfirmDialog';
 import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
 import type { ProjectStatus } from '@domain/entities/Project';
@@ -34,6 +35,7 @@ export function ProjectDetail({ client, navigate, projectId }: ProjectDetailProp
     try {
       await client.deleteProject(projectId);
       showToast('Project deleted successfully', 'success');
+      invalidateProjects();
       navigate('/app/projects-registry/projects');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to delete project';

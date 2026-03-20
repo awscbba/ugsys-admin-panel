@@ -6,6 +6,7 @@ import {
   clearProject,
 } from '@presentation/stores/projectDetailStore';
 import { showToast } from '@presentation/stores/toastStore';
+import { invalidateProjects } from '@presentation/stores/projectListStore';
 import { validateProjectForm } from '@domain/validation';
 import { computeModifiedFields } from '@domain/diffUtils';
 import type { ProjectsRepository } from '@domain/repositories/ProjectsRepository';
@@ -170,6 +171,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
         const modified = computeModifiedFields(originalData, editedData);
         await client.updateProject(projectId, modified);
         showToast('Project updated', 'success');
+        invalidateProjects();
         navigate(`/app/projects-registry/projects/${projectId}`);
       } else {
         const data: CreateProjectData = {
@@ -189,6 +191,7 @@ export function ProjectForm({ client, navigate, projectId }: ProjectFormProps) {
         };
         const created = await client.createProject(data);
         showToast('Project created', 'success');
+        invalidateProjects();
         navigate(`/app/projects-registry/projects/${created.id}`);
       }
     } catch (err: unknown) {
